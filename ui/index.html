@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulk WA Sender - by schrist.</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Inlined UI SVG Sprite Icons (100% Offline & File:// compatible) -->
+  <div id="svgSpriteContainer" style="display: none;">
+    <svg xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <symbol id="icon-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </symbol>
+        <symbol id="icon-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="4" width="4" height="16"></rect>
+          <rect x="14" y="4" width="4" height="16"></rect>
+        </symbol>
+        <symbol id="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="5 3 19 12 5 21 5 3"></polygon>
+        </symbol>
+        <symbol id="icon-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="4" width="16" height="16"></rect>
+        </symbol>
+        <symbol id="icon-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </symbol>
+        <symbol id="icon-file-excel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="8" y1="13" x2="16" y2="17"></line>
+          <line x1="16" y1="13" x2="8" y2="17"></line>
+        </symbol>
+        <symbol id="icon-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+        </symbol>
+        <symbol id="icon-paperclip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+        </symbol>
+        <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </symbol>
+        <symbol id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </symbol>
+        <symbol id="icon-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </symbol>
+        <symbol id="icon-wa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+        </symbol>
+        <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </symbol>
+        <symbol id="icon-check-double" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 6 9 17 4 12"></polyline>
+          <polyline points="22 10 13 21 11 19"></polyline>
+        </symbol>
+        <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </symbol>
+        <symbol id="icon-test" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 2v7.31"></path>
+          <path d="M14 9.3V2"></path>
+          <path d="M8.5 2h7"></path>
+          <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
+          <path d="M5.52 16h12.96"></path>
+        </symbol>
+        <symbol id="icon-export" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </symbol>
+        <symbol id="icon-mode-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </symbol>
+        <symbol id="icon-mode-attachment" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+        </symbol>
+        <symbol id="icon-shuffle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 3 21 3 21 8"></polyline>
+          <line x1="4" y1="20" x2="21" y2="3"></line>
+          <polyline points="21 16 21 21 16 21"></polyline>
+          <line x1="15" y1="15" x2="21" y2="21"></line>
+          <line x1="4" y1="4" x2="9" y2="9"></line>
+        </symbol>
+      </defs>
+    </svg>
+  </div>
+
+  <!-- ====================================================
+       M3 CUSTOM WINDOW TITLE BAR
+       ==================================================== -->
+  <header class="m3-titlebar" id="appTitlebar" data-tauri-drag-region>
+    <div class="titlebar-left" data-tauri-drag-region>
+      <div class="brand-group" data-tauri-drag-region>
+        <img src="assets/icons/app-brand-logo.svg" alt="Bulk WA Sender Logo" class="brand-logo-img">
+        <div class="brand-meta" data-tauri-drag-region>
+          <h1 class="app-title" data-tauri-drag-region>Bulk WA Sender</h1>
+          <div class="brand-author-text" data-tauri-drag-region>
+            <span class="author-by">by</span> <span class="author-name">schrist<span class="author-dot">.</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center Drag Region -->
+    <div class="titlebar-center" data-tauri-drag-region></div>
+
+    <!-- Titlebar Right Controls -->
+    <div class="titlebar-right">
+      <!-- M3 Theme Switch Slider -->
+      <div class="theme-switch-wrapper" title="Ubah Tema: Geser Kiri (Terang) / Kanan (Gelap)">
+        <button type="button" id="themeSwitchBtn" class="theme-switch" role="switch" aria-checked="false" aria-label="Ubah Tema Tampilan">
+          <span class="switch-track">
+            <span class="switch-slot slot-left" title="Mode Terang (Light)">
+              <svg class="icon icon-slot"><use href="#icon-sun"/></svg>
+            </span>
+            <span class="switch-slot slot-right" title="Mode Gelap (Dark)">
+              <svg class="icon icon-slot"><use href="#icon-moon"/></svg>
+            </span>
+            <span class="switch-thumb">
+              <svg class="icon thumb-sun"><use href="#icon-sun"/></svg>
+              <svg class="icon thumb-moon"><use href="#icon-moon"/></svg>
+            </span>
+          </span>
+        </button>
+      </div>
+
+      <!-- Notification History Bell Button -->
+      <div class="notif-bell-container">
+        <button type="button" id="btnNotifBell" class="btn-notif-bell" title="Riwayat Notifikasi & Hasil Broadcast" aria-label="Riwayat Notifikasi">
+          <svg class="icon notif-bell-icon"><use href="#icon-bell"/></svg>
+          <span id="notifBadgeCount" class="notif-badge-pill" style="display: none;">0</span>
+        </button>
+      </div>
+
+      <!-- WA Status Pill -->
+      <div id="waStatusBadge" class="status-pill status-disconnected">
+        <span class="pulse-dot"></span>
+        <span id="waStatusText">Memeriksa WhatsApp...</span>
+      </div>
+
+      <!-- WA Quick Actions -->
+      <button type="button" id="btnConnectWA" class="btn btn-emerald btn-sm" title="Hubungkan sesi WhatsApp">
+        <svg class="icon"><use href="#icon-wa"/></svg>
+        Hubungkan WA
+      </button>
+      <button type="button" id="btnResetWA" class="btn btn-ghost btn-sm" title="Reset sesi jika ingin mengganti akun WhatsApp atau scan ulang">
+        <svg class="icon"><use href="#icon-refresh"/></svg>
+        Reset Sesi
+      </button>
+
+      <!-- Custom Window Controls (Minimize, Maximize, Close) -->
+      <div class="window-controls">
+        <button type="button" id="btnWinMinimize" class="win-btn win-min" title="Kecilkan Jendela (Minimize)">
+          <svg viewBox="0 0 12 12" class="win-icon"><line x1="2" y1="6" x2="10" y2="6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </button>
+        <button type="button" id="btnWinMaximize" class="win-btn win-max" title="Perbesar Jendela (Maximize / Restore)">
+          <svg viewBox="0 0 12 12" class="win-icon"><rect x="2" y="2" width="8" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+        </button>
+        <button type="button" id="btnWinClose" class="win-btn win-close" title="Tutup Aplikasi">
+          <svg viewBox="0 0 12 12" class="win-icon"><path d="M2.5 2.5l7 7M9.5 2.5l-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ====================================================
+       VIEW 1: GATEWAY SCREEN (SPLASH, LOADING & QR SCAN)
+       ==================================================== -->
+  <main class="m3-gateway-shell" id="appGateway">
+    <div class="gateway-container">
+
+      <!-- STATE A: LOADING / CHECKING BOX -->
+      <div class="gateway-card" id="gatewayLoadingBox">
+        <div class="gateway-brand-header">
+          <img src="assets/icons/app-brand-logo.svg" alt="Bulk WA Sender Logo" class="gateway-logo-img">
+          <div class="gateway-brand-text">
+            <h1 class="gateway-app-title">Bulk WA Sender</h1>
+            <div class="gateway-brand-author">
+              <span class="author-by">by</span> <span class="author-name">schrist<span class="author-dot">.</span></span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="m3-linear-progress-wrapper">
+          <div class="m3-linear-progress">
+            <div class="progress-bar-indeterminate"></div>
+          </div>
+        </div>
+
+        <div class="gateway-status-row">
+          <p class="gateway-status-label" id="gatewayStatusText">Mengecek koneksi WhatsApp...</p>
+          <span class="gateway-sub-hint" id="gatewaySubHint">Memastikan engine lokal di localhost siap digunakan</span>
+        </div>
+      </div>
+
+      <!-- STATE B: QR CODE SCAN BOX (Muncul jika belum terhubung) -->
+      <div class="gateway-card gateway-qr-card" id="gatewayQRBox" style="display: none;">
+        <div class="gateway-brand-header compact">
+          <div class="header-left">
+            <img src="assets/icons/app-brand-logo.svg" alt="Bulk WA Sender Logo" class="gateway-logo-sm">
+            <div class="gateway-brand-text">
+              <h2 class="gateway-app-title-sm">Bulk WA Sender</h2>
+              <div class="gateway-brand-author">
+                <span class="author-by">by</span> <span class="author-name">schrist<span class="author-dot">.</span></span>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" id="btnGatewayRefreshQR" class="btn btn-secondary btn-sm" title="Muat ulang QR Code">
+            <svg class="icon"><use href="#icon-refresh"/></svg>
+            Muat Ulang QR
+          </button>
+        </div>
+
+        <div class="gateway-qr-grid">
+          <div class="gateway-instructions">
+            <h3 class="instructions-title">Tautkan WhatsApp Anda</h3>
+            <p class="instructions-subtitle">Buka WhatsApp di ponsel untuk menautkan perangkat:</p>
+            <ol class="qr-steps-list">
+              <li>
+                <span class="step-num">1</span>
+                <div class="step-content">
+                  <strong>Buka WhatsApp di ponsel Anda</strong>
+                  <span>Pastikan ponsel terhubung ke internet</span>
+                </div>
+              </li>
+              <li>
+                <span class="step-num">2</span>
+                <div class="step-content">
+                  <strong>Pilih Perangkat Tertaut</strong>
+                  <span>Ketuk <b>Menu (⋮)</b> di Android atau <b>Pengaturan</b> di iOS, lalu pilih <b>Perangkat Tertaut &bull; Tautkan Perangkat</b></span>
+                </div>
+              </li>
+              <li>
+                <span class="step-num">3</span>
+                <div class="step-content">
+                  <strong>Arahkan kamera ke QR Code di samping</strong>
+                  <span>Sesi login tersimpan aman secara offline di komputer Anda</span>
+                </div>
+              </li>
+            </ol>
+            <div class="qr-secure-note">
+              <svg class="icon"><use href="#icon-check"/></svg>
+              <span>Privasi Terjaga: Multi-Device terenkripsi langsung di komputer lokal.</span>
+            </div>
+          </div>
+
+
+          <div class="gateway-qr-view">
+            <div class="qr-code-frame">
+              <div id="gatewayQRSpinner" class="qr-spinner-box">
+                <div class="spinner"></div>
+                <span>Menyiapkan QR Code...</span>
+              </div>
+              <img id="gatewayQRImage" src="" alt="WhatsApp QR Code" class="gateway-qr-img" style="display: none;">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="gateway-card-footer">
+          <span class="footer-note">Bulk WA Sender &bull; Standalone Edition &bull; Made with Craft</span>
+          <a href="https://schrist.cyou" target="_blank" class="signature-link">schrist.cyou</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ====================================================
+       VIEW 2: M3 SPLIT LAYOUT SHELL (2-KOLOM WORKSPACE)
+       ==================================================== -->
+  <div class="m3-app-shell view-hidden" id="appWorkspace">
+
+    <!-- ==================================================
+         KOLOM KIRI: FIXED / STICKY MESSAGE COMPOSER & SMARTPHONE MOCKUP
+         ================================================== -->
+    <aside class="m3-left-pane">
+      <div class="pane-inner">
+        
+        <!-- SECTION SIMULASI SMARTPHONE WHATSAPP REALTIME (DI ATAS) -->
+        <section class="card mockup-card">
+          <div class="card-header compact-header preview-header-bar">
+            <div class="preview-header-left">
+              <span class="preview-header-label">Preview Pesan :</span>
+              <select id="previewContactSelect" class="form-select select-xs" title="Pilih kontak untuk simulasi pratinjau"></select>
+              <button type="button" id="btnShuffleSpintax" class="btn btn-ghost btn-xs" title="Acak ulang Spintax untuk melihat variasi pesan">
+                <svg class="icon"><use href="#icon-shuffle"/></svg> Acak
+              </button>
+            </div>
+          </div>
+
+
+          <div class="phone-device-frame">
+            <div class="phone-top-speaker"></div>
+            <div class="phone-screen">
+              
+              <!-- WhatsApp Chat Header -->
+              <div class="phone-chat-header">
+                <div class="chat-avatar">👤</div>
+                <div class="chat-user-info">
+                  <span class="chat-user-name" id="previewRecipientName">Budi Santoso</span>
+                  <span class="chat-user-status">online</span>
+                </div>
+              </div>
+
+              <!-- Chat Message Bubble Canvas -->
+              <div class="phone-chat-body">
+                <div class="chat-bubble">
+                  
+                  <!-- Dynamic Attachment Card (Visible in Attachment Mode) -->
+                  <div class="chat-attachment-card" id="previewAttachmentCard" style="display: none;">
+                    <div class="attach-icon-badge" id="previewAttachIcon">📄</div>
+                    <div class="attach-meta">
+                      <span class="attach-filename" id="previewAttachFilename">INV-2026-001.pdf</span>
+                      <span class="attach-sub" id="previewAttachSub">Dokumen &bull; 1.2 MB</span>
+                    </div>
+                  </div>
+
+                  <!-- Rendered Text Message -->
+                  <div class="chat-message-text" id="livePreviewText">
+                    <!-- Live rendered message -->
+                  </div>
+
+                  <!-- Chat Bubble Footer -->
+                  <div class="chat-bubble-footer">
+                    <span class="chat-time">10:45</span>
+                    <svg class="icon icon-double-tick"><use href="#icon-check-double"/></svg>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </section>
+
+        <!-- App Footer (Dipindah ke Kolom Kiri Bawah) -->
+        <footer class="app-footer">
+          <div class="footer-inner">
+            <div class="footer-left">
+              <strong>Bulk WA Sender</strong> &bull; Made with Craft
+            </div>
+            <div class="footer-right">
+              <a href="https://schrist.cyou" target="_blank" class="signature-link">schrist.cyou</a>
+            </div>
+          </div>
+
+        </footer>
+
+      </div>
+    </aside>
+
+    <!-- ==================================================
+         KOLOM KANAN: SCROLLABLE WORKSPACE
+         ================================================== -->
+    <main class="m3-right-pane">
+      <div class="pane-inner">
+
+        <!-- SECTION 1: PILIH MODE PENGIRIMAN UTAMA (M3 Segmented Button) -->
+        <section class="mode-selection-bar">
+          <div class="mode-title-col">
+            <span class="mode-kicker">Fokus Broadcast:</span>
+            <h3>Pilih Mode Pengiriman Pesan</h3>
+          </div>
+          <div class="mode-segmented-control">
+            <button type="button" id="modeBtnText" class="mode-pill active" data-mode="text">
+              <svg class="icon"><use href="#icon-mode-text"/></svg>
+              <div class="pill-meta">
+                <strong>Pesan Teks Saja</strong>
+                <span>Cepat & efisien, notifikasi atau promosi</span>
+              </div>
+            </button>
+
+            <button type="button" id="modeBtnAttachment" class="mode-pill" data-mode="attachment">
+              <svg class="icon"><use href="#icon-mode-attachment"/></svg>
+              <div class="pill-meta">
+                <strong>Pesan + Lampiran File</strong>
+                <span>Kirim dokumen PDF atau gambar dinamis</span>
+              </div>
+            </button>
+          </div>
+        </section>
+
+        <!-- SECTION 2: SUMBER DATA EXCEL / CSV & KONFIGURASI LAMPIRAN -->
+        <div class="grid-dual-cards">
+
+          <!-- Card A: Sumber Data Kontak -->
+          <section class="card source-card">
+            <div class="card-header">
+              <div class="header-title-group">
+                <h2>File Kontak Excel / CSV</h2>
+                <p class="section-desc">Membaca data penerima & seluruh kolom otomatis.</p>
+              </div>
+              <button type="button" id="btnUseDemoData" class="btn btn-outline btn-sm" title="Muat 15 kontak dummy fiktif yang sudah disiapkan">
+                ⚡ Data Contoh (15)
+              </button>
+            </div>
+
+            <!-- Excel Dropzone -->
+            <div class="dropzone-area" id="excelDropzone">
+              <input type="file" id="excelFileInput" accept=".xlsx,.xlsm,.xls,.csv" style="display: none;">
+              <div class="dropzone-inner" id="dropzoneContent">
+                <svg class="icon dropzone-icon"><use href="#icon-file-excel"/></svg>
+                <div class="dropzone-text">
+                  <strong>Tarik & Lepas File Spreadsheet Disini</strong>
+                  <span>atau <button type="button" id="btnBrowseFile" class="btn-link">Pilih File dari Komputer</button></span>
+                </div>
+                <span class="dropzone-hint">Format didukung: .xlsx, .xls, .xlsm, .csv</span>
+              </div>
+            </div>
+
+            <!-- Active File Info Chip -->
+            <div class="active-file-chip" id="activeFileChip" style="display: none;">
+              <div class="file-chip-left">
+                <svg class="icon icon-file"><use href="#icon-file-excel"/></svg>
+                <div class="file-chip-meta">
+                  <span class="file-chip-name" id="activeFileName">Daftar_Kontak.xlsx</span>
+                  <div class="sheet-selector-group">
+                    <label for="sheetSelect">Pilih Sheet:</label>
+                    <select id="sheetSelect" class="form-select select-xs"></select>
+                  </div>
+                </div>
+              </div>
+              <button type="button" id="btnChangeFile" class="btn-chip-action">Ganti File</button>
+            </div>
+
+            <!-- Column Mapping Toggle & Drawer -->
+            <div class="mapping-toggle-bar">
+              <span class="mapping-status-text" id="mappingStatusSummary">Kolom Nama: 'Nama Lengkap', Nomor: 'Nomor WhatsApp'</span>
+              <button type="button" id="btnToggleMapping" class="btn-link-subtle">⚙️ Sesuaikan Pemetaan Kolom ▾</button>
+            </div>
+
+            <!-- Mapping Drawer Content -->
+            <div class="mapping-drawer" id="mappingDrawer" style="display: none;">
+              <div class="mapping-grid">
+                <div class="form-group">
+                  <label for="mapNameCol">👤 Kolom Nama Penerima <span class="req">*</span></label>
+                  <select id="mapNameCol" class="form-select select-sm"></select>
+                </div>
+                <div class="form-group">
+                  <label for="mapPhoneCol">📱 Kolom Nomor WhatsApp <span class="req">*</span></label>
+                  <select id="mapPhoneCol" class="form-select select-sm"></select>
+                </div>
+                <div class="form-group">
+                  <label for="mapCustomCol">📎 Kolom Referensi File (Opsional)</label>
+                  <select id="mapCustomCol" class="form-select select-sm"></select>
+                </div>
+              </div>
+            </div>
+
+          </section>
+
+          <!-- Card B: Pengaturan Lampiran File Dinamis (Aktif jika mode Lampiran) -->
+          <section class="card attachment-card card-disabled" id="attachmentConfigCard">
+            <div class="card-header">
+              <div class="header-title-group">
+                <h2>Pengaturan Lampiran File</h2>
+                <p class="section-desc">Tentukan folder & metode pencocokan nama file.</p>
+              </div>
+              <span id="matchPercentageBadge" class="match-badge badge-pending">Mode Teks Aktif</span>
+            </div>
+
+            <div class="attachment-controls">
+              <div class="form-group">
+                <label for="attachmentFolderInput">Lokasi Folder File Lampiran:</label>
+                <div class="input-with-button">
+                  <input type="text" id="attachmentFolderInput" class="form-input" placeholder="Contoh: data_contoh/lampiran...">
+                  <button type="button" id="btnScanFolder" class="btn btn-secondary btn-sm">Pindai</button>
+                </div>
+                <div class="quick-preset-row">
+                  <span class="preset-label">Pilihan Cepat:</span>
+                  <button type="button" id="btnPresetDemoFolder" class="preset-pill">📂 Folder Lampiran Contoh</button>
+                </div>
+              </div>
+
+              <!-- Matching Rule Option -->
+              <div class="matching-rule-box">
+                <span class="rule-box-title">Aturan Pencocokan Nama File:</span>
+                <div class="rule-radio-group">
+                  <label class="radio-label">
+                    <input type="radio" name="matchRule" value="by_name" checked>
+                    <div class="radio-meta">
+                      <strong>Sesuai Nama Penerima</strong>
+                      <span>Contoh: <code>Budi Santoso.pdf</code> atau <code>Dewi Lestari.jpg</code></span>
+                    </div>
+                  </label>
+
+                  <label class="radio-label">
+                    <input type="radio" name="matchRule" value="by_column">
+                    <div class="radio-meta">
+                      <strong>Ambil dari Kolom Excel</strong>
+                      <span>Contoh: Kolom <code>File Lampiran</code> atau <code>Nomor Invoice</code></span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Supported Format Pills -->
+              <div class="format-pills-row">
+                <span class="format-label">Format Didukung:</span>
+                <span class="format-tag tag-pdf">PDF</span>
+                <span class="format-tag tag-img">JPG / PNG / WEBP</span>
+                <span class="format-tag tag-doc">DOCX / XLSX</span>
+                <span class="format-tag tag-zip">ZIP</span>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- SECTION PENYUSUN PESAN (Dipindah ke Kolom Kanan di Atas Eksekusi) -->
+        <section class="card composer-card">
+          <div class="card-header">
+            <div class="header-title-group">
+              <h2>Penyusun Pesan</h2>
+              <p class="section-desc">Ketik pesan dinamis dengan variabel personal & Spintax.</p>
+            </div>
+          </div>
+
+
+          <!-- Anti-Ban & Jeda Toolbar -->
+          <div class="anti-banned-bar">
+            <div class="anti-banned-widget">
+              <span class="widget-label">⏱️ Jeda:</span>
+              <div class="jitter-inputs">
+                <input type="number" id="minDelayInput" class="form-input-number" value="3" min="1" max="60" title="Jeda minimal acak (detik)">
+                <span>s/d</span>
+                <input type="number" id="maxDelayInput" class="form-input-number" value="7" min="2" max="120" title="Jeda maksimal acak (detik)">
+                <span>dtk</span>
+              </div>
+            </div>
+            <div class="cooldown-widget">
+              <label class="cooldown-toggle-label" title="Beri waktu jeda istirahat ekstra setiap sekumpulan pesan agar nomor tetap aman dari blokir">
+                <input type="checkbox" id="chkCooldownBatch" checked>
+                <span>Cooldown:</span>
+              </label>
+              <div class="cooldown-inputs">
+                <span>Tiap</span>
+                <input type="number" id="batchSizeInput" class="form-input-number input-narrow" value="20" min="5" max="500" title="Kirim setiap X pesan">
+                <span>pesan, jeda</span>
+                <input type="number" id="batchDelayInput" class="form-input-number input-narrow" value="60" min="5" max="600" title="Istirahat pendinginan (detik)">
+                <span>dtk</span>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Dynamic Tags Assist Chips -->
+          <div class="tags-bar-wrapper">
+            <span class="tags-label">Sisipkan Tag Kolom & Variasi:</span>
+            <div class="tag-pills-list" id="dynamicTagsContainer">
+              <button type="button" class="btn-tag-pill tag-pill-special" data-tag="{Salam}" title="Ucapan waktu otomatis (Pagi/Siang/Sore/Malam)">+ {Salam} (Waktu)</button>
+              <button type="button" class="btn-tag-pill tag-pill-special" data-tag="{Halo|Hai|Selamat Pagi|Salam}" title="Variasi acak kata Spintax anti-spam">+ Spintax {Halo|Hai|...}</button>
+              <button type="button" class="btn-tag-pill" data-tag="{Nama Lengkap}">+ {Nama Lengkap}</button>
+              <button type="button" class="btn-tag-pill" data-tag="{Nomor WhatsApp}">+ {Nomor WhatsApp}</button>
+              <button type="button" class="btn-tag-pill" data-tag="{Kota Cabang}">+ {Kota Cabang}</button>
+              <button type="button" class="btn-tag-pill" data-tag="{Nomor Invoice}">+ {Nomor Invoice}</button>
+              <button type="button" class="btn-tag-pill" data-tag="{Nominal Tagihan}">+ {Nominal Tagihan}</button>
+            </div>
+          </div>
+
+
+          <!-- Message Textarea -->
+          <textarea id="messageTemplate" class="form-textarea" rows="6" placeholder="Ketik format pesan disini...">{Salam} Rekan {Nama Lengkap},
+
+{Berikut ini kami sampaikan|Bersama ini kami lampirkan|Melalui pesan ini kami informasikan} rincian dokumen resmi Anda:
+• Nomor: {Nomor Invoice}
+• Cabang: {Kota Cabang}
+• Total: {Nominal Tagihan}
+
+Mohon dapat diperiksa kembali. Dokumen terlampir bersifat resmi dan penting.
+
+{Terima kasih atas kerja samanya!|Salam hangat dan sukses selalu!|Hormat kami,}
+Bulk WA Sender &bull; by schrist.</textarea>
+        </section>
+
+        <!-- SECTION 3: KONTROL PENGIRIMAN, STATUS, & LOG AKTIVITAS -->
+        <section class="card execution-section">
+          <div class="card-header">
+            <div class="header-title-group">
+              <h2>Uji Coba & Eksekusi Broadcast Massal</h2>
+              <p class="section-desc">Kirim pesan uji coba ke nomor pribadi, kemudian luncurkan broadcast massal.</p>
+            </div>
+          </div>
+
+
+          <div class="execution-actions-row">
+            <!-- Test Send Box -->
+            <div class="test-send-card">
+              <div class="test-send-inner">
+                <div class="test-send-labels">
+                  <strong>🧪 Uji Coba Kirim 1 Pesan:</strong>
+                  <span>Kirimkan contoh pesan saat ini ke nomor pribadi Anda.</span>
+                </div>
+                <div class="test-send-inputs">
+                  <input type="text" id="testPhoneInput" class="form-input input-sm" placeholder="Nomor WA (contoh: 08123456789)">
+                  <button type="button" id="btnSendTest" class="btn btn-secondary btn-sm">
+                    <svg class="icon"><use href="#icon-test"/></svg>
+                    Kirim Uji Coba
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Big Launch Broadcast Controls -->
+            <div class="broadcast-control-card">
+              <div class="broadcast-cta-box">
+                <button type="button" id="btnStartBroadcast" class="btn btn-emerald btn-lg">
+                  <svg class="icon"><use href="#icon-send"/></svg>
+                  Mulai Kirim Broadcast (<span id="btnTargetCount">0</span> Kontak)
+                </button>
+                <button type="button" id="btnRetryFailed" class="btn btn-amber btn-lg" style="display: none;" title="Pilih hanya kontak yang gagal dan kirim ulang">
+                  <svg class="icon"><use href="#icon-refresh"/></svg>
+                  Kirim Ulang Kontak Gagal (<span id="retryFailedCount">0</span>)
+                </button>
+                <button type="button" id="btnPauseBroadcast" class="btn btn-amber btn-md" style="display: none;">
+                  <svg class="icon"><use href="#icon-pause"/></svg>
+                  Jeda
+                </button>
+                <button type="button" id="btnResumeBroadcast" class="btn btn-emerald btn-md" style="display: none;">
+                  <svg class="icon"><use href="#icon-play"/></svg>
+                  Lanjutkan
+                </button>
+                <button type="button" id="btnStopBroadcast" class="btn btn-rose btn-md" style="display: none;">
+                  <svg class="icon"><use href="#icon-stop"/></svg>
+                  Hentikan
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Simulation & Testing Bar (Dummy Tester) -->
+          <div class="simulation-testing-bar">
+            <span class="simulation-label">🧪 Uji Coba Modal & Riwayat (Dummy):</span>
+            <div class="simulation-btn-group">
+              <button type="button" id="btnDummySuccessModal" class="btn-sim-pill btn-sim-success" title="Coba lihat modal hasil broadcast 100% sukses">
+                ✓ Simulasi Sukses
+              </button>
+              <button type="button" id="btnDummyFailedModal" class="btn-sim-pill btn-sim-warning" title="Coba lihat modal hasil broadcast dengan kontak gagal & diagnosa kendala">
+                ⚠️ Simulasi Ada Gagal (Audit)
+              </button>
+              <button type="button" id="btnDummyTestSend" class="btn-sim-pill btn-sim-info" title="Coba lihat modal hasil uji coba 1 pesan">
+                🧪 Simulasi Uji Coba 1 Pesan
+              </button>
+            </div>
+          </div>
+
+
+          <!-- Realtime Progress Bar -->
+          <div class="broadcast-progress-container" id="progressSection" style="display: none;">
+            <div class="progress-stats-row">
+              <div class="progress-pills">
+                <span class="stat-badge stat-success">✓ Terkirim: <b id="statSuccessCount">0</b></span>
+                <span class="stat-badge stat-failed">✗ Gagal: <b id="statFailedCount">0</b></span>
+                <span class="stat-badge stat-total">Total: <b id="statProgressCount">0 / 0</b></span>
+              </div>
+              <span class="progress-status-label" id="progressStatusText">Menyiapkan pengiriman...</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="progressBar" style="width: 0%;"></div>
+            </div>
+          </div>
+
+
+          <!-- Realtime Terminal Console -->
+          <div class="terminal-card">
+            <div class="terminal-header">
+              <div class="terminal-dots">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+              </div>
+              <span class="terminal-title">Log Aktivitas Realtime</span>
+              <div class="terminal-actions">
+                <button type="button" id="btnExportReport" class="btn-terminal-action">
+                  <svg class="icon"><use href="#icon-export"/></svg>
+                  Download Laporan Rekap (.csv)
+                </button>
+                <button type="button" id="btnClearLogs" class="btn-terminal-action">Bersihkan</button>
+              </div>
+            </div>
+            <div class="terminal-body font-mono" id="terminalLogBody">
+              <div class="log-row log-info">[System] Bulk WA Sender (by schrist.) siap digunakan.</div>
+            </div>
+          </div>
+
+
+        </section>
+
+        <!-- SECTION 4: PRE-FLIGHT VERIFICATION TABLE -->
+        <section class="card table-card">
+          <div class="card-header table-header-flex">
+            <div class="header-title-group">
+              <h2>Daftar Penerima & Verifikasi Pra-Kirim (*Pre-Flight*)</h2>
+              <p class="section-desc">Pilih kontak yang akan dikirimi pesan dan pastikan file lampiran siap.</p>
+            </div>
+
+            <div class="table-search-group">
+              <div class="search-input-box">
+                <svg class="icon"><use href="#icon-search"/></svg>
+                <input type="text" id="tableSearchInput" class="form-input input-sm" placeholder="Cari nama, nomor, atau kota...">
+              </div>
+              <select id="tableStatusFilter" class="form-select select-sm">
+                <option value="ALL">Semua Kontak</option>
+                <option value="VALID_ONLY">Hanya Nomor Valid</option>
+                <option value="HAS_FILE_ONLY">Hanya Yang Punya Lampiran</option>
+                <option value="FAILED_ONLY">Hanya Kontak Gagal</option>
+              </select>
+            </div>
+          </div>
+
+
+          <!-- Selection Counter Bar -->
+          <div class="table-selection-toolbar">
+            <div class="select-all-box">
+              <input type="checkbox" id="selectAllCheckbox" checked>
+              <label for="selectAllCheckbox"><b>Pilih Semua Kontak yang Tampil</b></label>
+            </div>
+            <div class="selection-summary">
+              <span class="badge-selection" id="selectionCountBadge">0 Terpilih</span>
+              <span>dari total <strong id="totalTableCount">0</strong> Kontak</span>
+            </div>
+          </div>
+
+
+          <!-- Responsive Table Container -->
+          <div class="table-responsive">
+            <table class="contacts-table">
+              <thead>
+                <tr>
+                  <th style="width: 44px; text-align: center;">Pilih</th>
+                  <th style="width: 50px; text-align: center;">No</th>
+                  <th>Nama Penerima</th>
+                  <th>Nomor WhatsApp</th>
+                  <th id="thAttachmentCol">Status Lampiran File</th>
+                  <th>Kota Cabang</th>
+                  <th>Nomor Invoice</th>
+                  <th style="text-align: right;">Nominal Tagihan</th>
+                </tr>
+              </thead>
+              <tbody id="contactsTableBody">
+                <tr>
+                  <td colspan="8" class="text-center empty-cell">Memuat daftar kontak...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ====================================================
+       CUSTOM COMPLETION & TEST NOTIFICATION MODAL DIALOG
+       ==================================================== -->
+  <div id="completionModalOverlay" class="m3-modal-overlay" style="display: none;">
+    <div class="m3-modal-dialog" id="completionModalDialog">
+      <button type="button" id="btnCloseCompletionModal" class="btn-modal-close" title="Tutup">✕</button>
+
+      <!-- Modal Header (Dynamic Icon & Title) -->
+      <div class="modal-header-section" id="modalHeaderSection">
+        <div class="modal-hero-icon" id="modalHeroIcon">
+          <span class="hero-emoji" id="modalHeroEmoji">🎉</span>
+        </div>
+        <h2 class="modal-title" id="modalTitle">Broadcast Selesai Sempurna!</h2>
+        <p class="modal-subtitle" id="modalSubtitle">Seluruh pesan berhasil dikirimkan ke penerima.</p>
+      </div>
+
+      <!-- Metrics Grid -->
+      <div class="modal-metrics-grid">
+        <div class="metric-card metric-success">
+          <span class="metric-label">Terkirim</span>
+          <span class="metric-val" id="modalStatSuccess">0</span>
+        </div>
+        <div class="metric-card metric-failed">
+          <span class="metric-label">Gagal</span>
+          <span class="metric-val" id="modalStatFailed">0</span>
+        </div>
+        <div class="metric-card metric-total">
+          <span class="metric-label">Total Kontak</span>
+          <span class="metric-val" id="modalStatTotal">0</span>
+        </div>
+        <div class="metric-card metric-time">
+          <span class="metric-label">Durasi</span>
+          <span class="metric-val" id="modalStatDuration">0 dtk</span>
+        </div>
+      </div>
+
+      <!-- Failure Breakdown Section (Only visible if failures > 0) -->
+      <div class="modal-failures-section" id="modalFailuresSection" style="display: none;">
+        <div class="failures-header">
+          <h3>Rincian Kontak Gagal (<span id="modalFailuresCount">0</span>)</h3>
+          <span class="failures-hint">Periksa alasan kendala di bawah ini:</span>
+        </div>
+        <div class="failures-table-wrapper">
+          <table class="failures-table">
+            <thead>
+              <tr>
+                <th>Penerima</th>
+                <th>Nomor WhatsApp</th>
+                <th>Diagnosa Kendala</th>
+              </tr>
+            </thead>
+            <tbody id="modalFailuresTableBody">
+              <!-- Dynamic failed contacts -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal Actions Footer -->
+      <div class="modal-actions-footer">
+        <button type="button" id="btnModalRetryFailed" class="btn btn-amber btn-md" style="display: none;">
+          <svg class="icon"><use href="#icon-refresh"/></svg>
+          Kirim Ulang Kontak Gagal (<span id="modalRetryBtnCount">0</span>)
+        </button>
+        <button type="button" id="btnModalDownloadCsv" class="btn btn-outline btn-md">
+          <svg class="icon"><use href="#icon-export"/></svg>
+          Download Laporan (.csv)
+        </button>
+        <button type="button" id="btnModalDismiss" class="btn btn-secondary btn-md">
+          Tutup
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================
+       NOTIFICATION & AUDIT HISTORY FLYOUT DRAWER
+       ==================================================== -->
+  <div id="notifDrawerOverlay" class="drawer-backdrop" style="display: none;"></div>
+  <aside id="notifHistoryDrawer" class="notif-drawer" style="display: none;">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <svg class="icon drawer-icon"><use href="#icon-bell"/></svg>
+        <h3>Riwayat Notifikasi & Audit</h3>
+      </div>
+      <div class="drawer-actions-right">
+        <button type="button" id="btnClearHistory" class="btn-drawer-action" title="Bersihkan seluruh riwayat">
+          Bersihkan
+        </button>
+        <button type="button" id="btnCloseDrawer" class="btn-drawer-close" title="Tutup">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <div class="drawer-body" id="notifHistoryBody">
+      <!-- Dynamic list of past broadcast sessions -->
+    </div>
+  </aside>
+
+  <!-- Client-side Excel/CSV Ingestion Fallback (SheetJS) -->
+  <script src="assets/xlsx.full.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

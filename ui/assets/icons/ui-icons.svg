@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <!-- WhatsApp Brand Icon -->
+  <symbol id="icon-wa" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2ZM12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.81 13.47 3.81 11.91C3.81 7.37 7.5 3.68 12.04 3.68C14.25 3.68 16.31 4.54 17.87 6.1C19.42 7.66 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15ZM16.56 14.36C16.31 14.24 15.09 13.64 14.86 13.56C14.64 13.47 14.47 13.43 14.31 13.68C14.14 13.92 13.67 14.48 13.52 14.64C13.38 14.81 13.23 14.83 12.98 14.71C12.74 14.58 11.94 14.32 11 13.48C10.26 12.82 9.77 12.01 9.62 11.76C9.48 11.52 9.61 11.38 9.73 11.26C9.84 11.15 9.98 10.97 10.1 10.83C10.23 10.69 10.27 10.58 10.35 10.42C10.43 10.25 10.39 10.11 10.33 9.99C10.27 9.86 9.77 8.65 9.57 8.15C9.37 7.66 9.17 7.73 9.02 7.72C8.88 7.71 8.71 7.71 8.55 7.71C8.38 7.71 8.12 7.77 7.89 8.02C7.67 8.27 7.03 8.87 7.03 10.09C7.03 11.31 7.92 12.49 8.04 12.65C8.17 12.82 9.79 15.31 12.26 16.38C12.85 16.63 13.31 16.78 13.67 16.9C14.26 17.08 14.8 17.06 15.22 17C15.69 16.93 16.67 16.41 16.87 15.83C17.08 15.26 17.08 14.77 17.02 14.66C16.96 14.56 16.81 14.49 16.56 14.36Z"/>
+  </symbol>
+
+  <!-- Excel / Sheet Ingestion -->
+  <symbol id="icon-upload-sheet" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="14 2 14 8 20 8"/>
+    <line fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" x1="12" y1="18" x2="12" y2="12"/>
+    <line fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" x1="9" y1="15" x2="15" y2="15"/>
+    <rect x="7" y="12" width="10" height="7" rx="1" fill="currentColor" fill-opacity="0.12"/>
+  </symbol>
+
+  <!-- Mode 1: Text Broadcast -->
+  <symbol id="icon-mode-text" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    <line fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" x1="8" y1="8" x2="16" y2="8"/>
+    <line fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" x1="8" y1="12" x2="13" y2="12"/>
+  </symbol>
+
+  <!-- Mode 2: Attachment Broadcast -->
+  <symbol id="icon-mode-attachment" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+  </symbol>
+
+  <!-- Folder Icon -->
+  <symbol id="icon-folder" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+  </symbol>
+
+  <!-- PDF Icon -->
+  <symbol id="icon-file-pdf" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="14 2 14 8 20 8"/>
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 15h1.5a1.5 1.5 0 0 0 0-3H9v6"/>
+  </symbol>
+
+  <!-- Image Icon -->
+  <symbol id="icon-file-image" viewBox="0 0 24 24">
+    <rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
+    <polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="21 15 16 10 5 21"/>
+  </symbol>
+
+  <!-- Doc Icon -->
+  <symbol id="icon-file-doc" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+    <polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="14 2 14 8 20 8"/>
+    <line fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" x1="16" y1="13" x2="8" y2="13"/>
+    <line fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" x1="16" y1="17" x2="8" y2="17"/>
+  </symbol>
+
+  <!-- Tag / Variable Icon -->
+  <symbol id="icon-tag" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+    <line fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" x1="7" y1="7" x2="7.01" y2="7"/>
+  </symbol>
+
+  <!-- Broadcast Rocket -->
+  <symbol id="icon-send" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+  </symbol>
+
+  <!-- Controls -->
+  <symbol id="icon-pause" viewBox="0 0 24 24">
+    <rect x="6" y="4" width="4" height="16" fill="currentColor" rx="1"/>
+    <rect x="14" y="4" width="4" height="16" fill="currentColor" rx="1"/>
+  </symbol>
+  
+  <symbol id="icon-play" viewBox="0 0 24 24">
+    <polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/>
+  </symbol>
+
+  <symbol id="icon-stop" viewBox="0 0 24 24">
+    <rect x="5" y="5" width="14" height="14" rx="2" fill="currentColor"/>
+  </symbol>
+
+  <!-- Test Flask -->
+  <symbol id="icon-test" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M10 2v7.31L4.1 19.34A2 2 0 0 0 5.8 22h12.4a2 2 0 0 0 1.7-2.66L14 9.31V2"/>
+    <line fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" x1="8.5" y1="2" x2="15.5" y2="2"/>
+    <line fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" x1="6.5" y1="16" x2="17.5" y2="16"/>
+  </symbol>
+
+  <!-- Status Success -->
+  <symbol id="icon-check" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M20 6L9 17l-5-5"/>
+  </symbol>
+
+  <!-- Warning / Missing -->
+  <symbol id="icon-alert" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+    <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="12" cy="16" r="1" fill="currentColor"/>
+  </symbol>
+
+  <!-- Double Blue Tick -->
+  <symbol id="icon-check-double" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M18 6L7 17l-5-5"/>
+    <path fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" d="M22 10l-7.5 7.5-2-2"/>
+  </symbol>
+
+  <!-- Refresh / Reset -->
+  <symbol id="icon-refresh" viewBox="0 0 24 24">
+    <polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="23 4 23 10 17 10"/>
+    <polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="1 20 1 14 7 14"/>
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+  </symbol>
+
+  <!-- Search -->
+  <symbol id="icon-search" viewBox="0 0 24 24">
+    <circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/>
+    <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+
+  <!-- Export -->
+  <symbol id="icon-export" viewBox="0 0 24 24">
+    <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="7 10 12 15 17 10"/>
+    <line fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" x1="12" y1="15" x2="12" y2="3"/>
+  </symbol>
+
+  <!-- Smartphone -->
+  <symbol id="icon-smartphone" viewBox="0 0 24 24">
+    <rect x="5" y="2" width="14" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+    <line x1="11" y1="18" x2="13" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </symbol>
+</svg>
