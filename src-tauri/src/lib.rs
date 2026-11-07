@@ -139,6 +139,24 @@ fn cmd_open_url(url: String) -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+fn cmd_get_app_flavor() -> String {
+    if let Ok(exe_path) = std::env::current_exe() {
+        let exe_name = exe_path
+            .file_name()
+            .unwrap_or_default()
+            .to_string_lossy()
+            .to_lowercase();
+        if exe_name.contains("test") {
+            return "testing".to_string();
+        }
+    }
+    if std::env::var("BULK_WA_TESTING").is_ok() {
+        return "testing".to_string();
+    }
+    "production".to_string()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -163,7 +181,8 @@ pub fn run() {
             cmd_maximize_window,
             cmd_close_window,
             cmd_start_sidecar,
-            cmd_open_url
+            cmd_open_url,
+            cmd_get_app_flavor
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application");

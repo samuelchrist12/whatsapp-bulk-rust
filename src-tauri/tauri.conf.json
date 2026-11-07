@@ -1,12 +1,12 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "bulk-wa-sender",
-  "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "productName": "Bulk WA Sender",
+  "version": "2.0.0",
+  "identifier": "cyou.schrist.bulkwasender",
   "build": {
     "frontendDist": "../ui",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "beforeDevCommand": null,
+    "beforeBuildCommand": null
   },
   "app": {
     "withGlobalTauri": true,

@@ -152,6 +152,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
   loadSavedPreferences();
   loadNotificationHistory();
+  checkAppFlavor();
 
   // Show Gateway initially while checking connection
   showView('gateway');
@@ -448,6 +449,50 @@ function setupEventListeners() {
   if (btnDummyTestSend) {
     btnDummyTestSend.addEventListener('click', triggerDummyTest);
   }
+
+  // Keyboard shortcut Ctrl+Shift+T to toggle simulation testing bar in any mode
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 't') {
+      const bar = document.getElementById('simulationTestingBar');
+      if (bar) {
+        const isHidden = bar.style.display === 'none';
+        bar.style.display = isHidden ? 'flex' : 'none';
+        appendLog('info', isHidden ? '[Mode] Uji Coba Simulasi diaktifkan (Ctrl+Shift+T)' : '[Mode] Uji Coba Simulasi disembunyikan');
+      }
+    }
+  });
+}
+
+// ----------------------------------------------------
+// APP FLAVOR CONTROLLER (Production vs Testing Mode)
+// ----------------------------------------------------
+async function checkAppFlavor() {
+  const bar = document.getElementById('simulationTestingBar');
+  if (!bar) return;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('mode') === 'testing' || window.location.href.toLowerCase().includes('test')) {
+    bar.style.display = 'flex';
+    return;
+  }
+
+  if (isTauriEnv && tauriCore) {
+    try {
+      const flavor = await tauriCore.invoke('cmd_get_app_flavor');
+      if (flavor === 'testing') {
+        bar.style.display = 'flex';
+        appendLog('info', '[Mode] Versi Testing aktif (simulasi dummy terbuka).');
+      } else {
+        bar.style.display = 'none';
+      }
+      return;
+    } catch (e) {
+      console.warn('cmd_get_app_flavor error:', e);
+    }
+  }
+
+  // Default production mode: hide testing bar
+  bar.style.display = 'none';
 }
 
 // ----------------------------------------------------
