@@ -496,8 +496,13 @@
               <div class="form-group">
                 <label for="attachmentFolderInput">Lokasi Folder File Lampiran:</label>
                 <div class="input-with-button">
-                  <input type="text" id="attachmentFolderInput" class="form-input" placeholder="Contoh: data_contoh/lampiran...">
-                  <button type="button" id="btnScanFolder" class="btn btn-secondary btn-sm">Pindai</button>
+                  <input type="file" id="attachmentFolderPicker" webkitdirectory directory style="display: none;">
+                  <input type="text" id="attachmentFolderInput" class="form-input" placeholder="Contoh: sample_data/attachments...">
+                  <button type="button" id="btnBrowseAttachmentFolder" class="btn btn-secondary btn-sm" title="Pilih folder lampiran dari komputer">
+                    <svg class="icon"><use href="#icon-folder"/></svg>
+                    <span id="btnBrowseFolderText">Pilih Folder</span>
+                  </button>
+                  <button type="button" id="btnScanFolder" class="btn btn-emerald btn-sm">Pindai</button>
                 </div>
                 <div class="quick-preset-row">
                   <span class="preset-label">Pilihan Cepat:</span>
@@ -662,7 +667,7 @@ Bulk WA Sender &bull; by schrist.</textarea>
           </div>
 
           <!-- Interactive Simulation & Testing Bar (Dummy Tester) -->
-          <div class="simulation-testing-bar">
+          <div class="simulation-testing-bar" id="simulationTestingBar" style="display: none;">
             <span class="simulation-label">🧪 Uji Coba Modal & Riwayat (Dummy):</span>
             <div class="simulation-btn-group">
               <button type="button" id="btnDummySuccessModal" class="btn-sim-pill btn-sim-success" title="Coba lihat modal hasil broadcast 100% sukses">

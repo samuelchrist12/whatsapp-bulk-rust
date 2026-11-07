@@ -70,6 +70,8 @@ const I18N = {
     cardAttachDesc: 'Tentukan folder & metode pencocokan nama file.',
     attachFolderLabel: 'Lokasi Folder File Lampiran:',
     attachFolderPlaceholder: 'Contoh: sample_data/attachments...',
+    btnBrowseFolder: 'Pilih Folder',
+    btnBrowseFolderTooltip: 'Pilih lokasi folder lampiran dari komputer',
     btnScanFolder: 'Pindai',
     presetLabel: 'Pilihan Cepat:',
     btnPresetDemoFolder: '📂 Folder Lampiran Contoh',
@@ -196,6 +198,8 @@ Bulk WA Sender • by schrist.`,
     cardAttachDesc: 'Configure folder path & filename matching strategy.',
     attachFolderLabel: 'Attachment Folder Location:',
     attachFolderPlaceholder: 'e.g. sample_data/attachments...',
+    btnBrowseFolder: 'Browse Folder',
+    btnBrowseFolderTooltip: 'Select attachment folder from your computer',
     btnScanFolder: 'Scan',
     presetLabel: 'Quick Preset:',
     btnPresetDemoFolder: '📂 Sample Attachments Folder',
@@ -313,7 +317,41 @@ function applyLanguage(lang) {
 
   // Update Gateway
   const gwRefreshBtn = document.getElementById('btnGatewayRefreshQR');
-  if (gwRefreshBtn) gwRefreshBtn.innerHTML = `<svg class="icon"><use href="#icon-refresh"/></svg> ${t.btnRefreshQR}`;
+  if (gwRefreshBtn) {
+    gwRefreshBtn.innerHTML = `<svg class="icon"><use href="#icon-refresh"/></svg> ${t.btnRefreshQR}`;
+    gwRefreshBtn.title = isEn ? 'Reload QR Code' : 'Muat ulang QR Code';
+  }
+  const gwInstTitle = document.querySelector('.instructions-title');
+  if (gwInstTitle) gwInstTitle.textContent = isEn ? 'Link Your WhatsApp' : 'Tautkan WhatsApp Anda';
+  const gwInstSub = document.querySelector('.instructions-subtitle');
+  if (gwInstSub) gwInstSub.textContent = isEn ? 'Open WhatsApp on your phone to link this device:' : 'Buka WhatsApp di ponsel untuk menautkan perangkat:';
+  const gwSteps = document.querySelectorAll('.qr-steps-list li .step-content');
+  if (gwSteps && gwSteps.length >= 3) {
+    const st0s = gwSteps[0].querySelector('strong');
+    const st0p = gwSteps[0].querySelector('span');
+    if (st0s) st0s.textContent = isEn ? 'Open WhatsApp on your phone' : 'Buka WhatsApp di ponsel Anda';
+    if (st0p) st0p.textContent = isEn ? 'Make sure your phone has an active internet connection' : 'Pastikan ponsel terhubung ke internet';
+    const st1s = gwSteps[1].querySelector('strong');
+    const st1p = gwSteps[1].querySelector('span');
+    if (st1s) st1s.textContent = isEn ? 'Select Linked Devices' : 'Pilih Perangkat Tertaut';
+    if (st1p) {
+      st1p.innerHTML = isEn
+        ? 'Tap <b>Menu (⋮)</b> on Android or <b>Settings</b> on iOS, then tap <b>Linked Devices &bull; Link a Device</b>'
+        : 'Ketuk <b>Menu (⋮)</b> di Android atau <b>Pengaturan</b> di iOS, lalu pilih <b>Perangkat Tertaut &bull; Tautkan Perangkat</b>';
+    }
+    const st2s = gwSteps[2].querySelector('strong');
+    const st2p = gwSteps[2].querySelector('span');
+    if (st2s) st2s.textContent = isEn ? 'Point your camera at the QR Code' : 'Arahkan kamera ke QR Code di samping';
+    if (st2p) st2p.textContent = isEn ? 'Your session stays encrypted locally on this computer' : 'Sesi login tersimpan aman secara offline di komputer Anda';
+  }
+  const gwSecureNote = document.querySelector('.qr-secure-note span');
+  if (gwSecureNote) {
+    gwSecureNote.textContent = isEn
+      ? 'Privacy Protected: Multi-Device session encrypted locally on your PC.'
+      : 'Privasi Terjaga: Multi-Device terenkripsi langsung di komputer lokal.';
+  }
+  const gwSpinnerTxt = document.querySelector('#gatewayQRSpinner span');
+  if (gwSpinnerTxt) gwSpinnerTxt.textContent = isEn ? 'Generating QR Code...' : 'Menyiapkan QR Code...';
 
   // Mode Selection Bar
   const modeKicker = document.querySelector('.mode-kicker');
@@ -356,7 +394,27 @@ function applyLanguage(lang) {
   const sheetLbl = document.querySelector('.sheet-selector-group label');
   if (sheetLbl) sheetLbl.textContent = t.sheetSelectLabel;
   const btnToggleMap = document.getElementById('btnToggleMapping');
-  if (btnToggleMap) btnToggleMap.textContent = t.mappingDrawerBtn;
+  const mapDrawerEl = document.getElementById('mappingDrawer');
+  if (btnToggleMap) {
+    const isOpen = mapDrawerEl && mapDrawerEl.style.display !== 'none';
+    btnToggleMap.textContent = isOpen
+      ? (isEn ? '⚙️ Hide Column Mapping ▴' : '⚙️ Tutup Pemetaan Kolom ▴')
+      : t.mappingDrawerBtn;
+  }
+  const mapSumEl = document.getElementById('mappingStatusSummary');
+  const mNameEl = document.getElementById('mapNameCol');
+  const mPhoneEl = document.getElementById('mapPhoneCol');
+  const mCustomEl = document.getElementById('mapCustomCol');
+  [mNameEl, mPhoneEl, mCustomEl].forEach(sel => {
+    if (sel && sel.options && sel.options.length > 0 && sel.options[0].value === '') {
+      sel.options[0].textContent = isEn ? '-- Select Column --' : '-- Pilih Kolom --';
+    }
+  });
+  if (mapSumEl && mNameEl && mPhoneEl && mNameEl.value) {
+    mapSumEl.textContent = isEn
+      ? `Name: '${mNameEl.value}', Phone: '${mPhoneEl.value}'`
+      : `Kolom Nama: '${mNameEl.value}', Nomor: '${mPhoneEl.value}'`;
+  }
   const lblName = document.querySelector('label[for="mapNameCol"]');
   if (lblName) lblName.innerHTML = `${t.mapNameLabel} <span class="req">*</span>`;
   const lblPhone = document.querySelector('label[for="mapPhoneCol"]');
@@ -373,6 +431,10 @@ function applyLanguage(lang) {
   if (lblAttFolder) lblAttFolder.textContent = t.attachFolderLabel;
   const attFolderInput = document.getElementById('attachmentFolderInput');
   if (attFolderInput) attFolderInput.placeholder = t.attachFolderPlaceholder;
+  const btnBrowseFld = document.getElementById('btnBrowseAttachmentFolder');
+  const btnBrowseFldTxt = document.getElementById('btnBrowseFolderText');
+  if (btnBrowseFldTxt) btnBrowseFldTxt.textContent = t.btnBrowseFolder;
+  if (btnBrowseFld) btnBrowseFld.title = t.btnBrowseFolderTooltip;
   const btnScan = document.getElementById('btnScanFolder');
   if (btnScan) btnScan.textContent = t.btnScanFolder;
   const presetLbl = document.querySelector('.preset-label');
@@ -413,8 +475,19 @@ function applyLanguage(lang) {
     cooldownSpans[1].textContent = isEn ? 'msgs, pause' : 'pesan, jeda';
     cooldownSpans[2].textContent = isEn ? 'sec' : 'dtk';
   }
-  if (matchPercentageBadge && activeDeliveryMode === 'text') {
-    matchPercentageBadge.textContent = isEn ? 'Text Mode Active' : 'Mode Teks Aktif';
+  const badgeEl = document.getElementById('matchPercentageBadge');
+  if (badgeEl) {
+    if (activeDeliveryMode === 'text') {
+      badgeEl.textContent = isEn ? 'Text Mode Active' : 'Mode Teks Aktif';
+    } else if (!(attFolderInput && attFolderInput.value.trim())) {
+      badgeEl.textContent = isEn ? 'Select Folder First' : 'Pilih Folder Dulu';
+    } else if (currentMatchingSummary && currentMatchingSummary.error) {
+      badgeEl.textContent = isEn
+        ? `0 / ${contactsData.length} Files (Folder Not Found)`
+        : `0 / ${contactsData.length} File (Folder Tidak Ditemukan)`;
+    } else if (currentMatchingSummary) {
+      badgeEl.textContent = `${currentMatchingSummary.found_count} / ${currentMatchingSummary.total_records} ${isEn ? 'Files Ready' : 'File Siap'} (${currentMatchingSummary.match_percentage}%)`;
+    }
   }
   const tagsLbl = document.querySelector('.tags-label');
   if (tagsLbl) tagsLbl.textContent = t.tagsLabel;
@@ -494,7 +567,7 @@ function applyLanguage(lang) {
     ths[1].textContent = t.thNo;
     ths[2].textContent = t.thName;
     ths[3].textContent = t.thPhone;
-    ths[4].textContent = t.thAttachment;
+    ths[4].textContent = activeDeliveryMode === 'text' ? (isEn ? 'Delivery Mode' : 'Info Tambahan') : t.thAttachment;
     ths[5].textContent = t.thBranch;
     ths[6].textContent = t.thInvoice;
     ths[7].textContent = t.thAmount;
@@ -540,7 +613,10 @@ function applyLanguage(lang) {
     rebuildDynamicTagPills(currentExcelMeta.headers);
   }
 
-  // Refresh Notification Drawer List
+  // Refresh Table, Notification Drawer List & Live Preview
+  if (typeof contactsTableBody !== 'undefined' && contactsTableBody) {
+    renderTable();
+  }
   renderNotificationDrawer();
 
   // Refresh Live Preview & WA status text
@@ -591,8 +667,11 @@ const mapPhoneCol = document.getElementById('mapPhoneCol');
 const mapCustomCol = document.getElementById('mapCustomCol');
 
 const attachmentFolderInput = document.getElementById('attachmentFolderInput');
+const attachmentFolderPicker = document.getElementById('attachmentFolderPicker');
+const btnBrowseAttachmentFolder = document.getElementById('btnBrowseAttachmentFolder');
 const btnScanFolder = document.getElementById('btnScanFolder');
 const btnPresetDemoFolder = document.getElementById('btnPresetDemoFolder');
+let browserPickedFiles = null;
 
 const messageTemplate = document.getElementById('messageTemplate');
 const dynamicTagsContainer = document.getElementById('dynamicTagsContainer');
@@ -799,7 +878,10 @@ function setupEventListeners() {
   btnToggleMapping.addEventListener('click', () => {
     const isHidden = mappingDrawer.style.display === 'none';
     mappingDrawer.style.display = isHidden ? 'block' : 'none';
-    btnToggleMapping.innerHTML = isHidden ? '⚙️ Tutup Pemetaan Kolom ▴' : '⚙️ Sesuaikan Pemetaan Kolom ▾';
+    const isEn = currentLang === 'en';
+    btnToggleMapping.innerHTML = isHidden
+      ? (isEn ? '⚙️ Hide Column Mapping ▴' : '⚙️ Tutup Pemetaan Kolom ▴')
+      : (isEn ? '⚙️ Customize Column Mapping ▾' : '⚙️ Sesuaikan Pemetaan Kolom ▾');
   });
 
   [mapNameCol, mapPhoneCol, mapCustomCol].forEach(sel => {
@@ -810,10 +892,42 @@ function setupEventListeners() {
   });
 
   // Attachment controls
+  if (attachmentFolderInput) {
+    attachmentFolderInput.addEventListener('input', () => {
+      browserPickedFiles = null;
+      savePreferencesDebounced();
+    });
+  }
+
+  if (btnBrowseAttachmentFolder) {
+    btnBrowseAttachmentFolder.addEventListener('click', handleBrowseAttachmentFolder);
+  }
+
+  if (attachmentFolderPicker) {
+    attachmentFolderPicker.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files.length > 0) {
+        const firstFile = e.target.files[0];
+        if (firstFile.path) {
+          const folderDir = firstFile.path.replace(/[\\/][^\\/]+$/, '');
+          browserPickedFiles = null;
+          attachmentFolderInput.value = folderDir;
+        } else {
+          browserPickedFiles = Array.from(e.target.files);
+          const relRoot = (firstFile.webkitRelativePath || '').split('/')[0] || 'Selected_Folder';
+          attachmentFolderInput.value = relRoot;
+        }
+        savePreferencesDebounced();
+        triggerAttachmentScan();
+      }
+      attachmentFolderPicker.value = '';
+    });
+  }
+
   btnScanFolder.addEventListener('click', triggerAttachmentScan);
   btnPresetDemoFolder.addEventListener('click', () => {
-    // Relative to workspace
-    attachmentFolderInput.value = 'data_contoh/lampiran';
+    browserPickedFiles = null;
+    attachmentFolderInput.value = 'sample_data/attachments';
+    savePreferencesDebounced();
     triggerAttachmentScan();
   });
 
@@ -1029,7 +1143,7 @@ async function checkAppFlavor() {
   if (!bar) return;
 
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('mode') === 'testing' || window.location.href.toLowerCase().includes('test')) {
+  if (urlParams.get('mode') === 'testing') {
     bar.style.display = 'flex';
     return;
   }
@@ -1039,7 +1153,9 @@ async function checkAppFlavor() {
       const flavor = await tauriCore.invoke('cmd_get_app_flavor');
       if (flavor === 'testing') {
         bar.style.display = 'flex';
-        appendLog('info', '[Mode] Versi Testing aktif (simulasi dummy terbuka).');
+        appendLog('info', currentLang === 'en'
+          ? '[Mode] QA Testing flavor active (simulator controls enabled).'
+          : '[Mode] Versi Testing aktif (simulasi dummy terbuka).');
       } else {
         bar.style.display = 'none';
       }
@@ -1049,7 +1165,7 @@ async function checkAppFlavor() {
     }
   }
 
-  // Default production mode: hide testing bar
+  // Default production mode: strictly hide testing bar
   bar.style.display = 'none';
 }
 
@@ -1058,20 +1174,21 @@ async function checkAppFlavor() {
 // ----------------------------------------------------
 function setDeliveryMode(mode) {
   activeDeliveryMode = mode;
+  const isEn = currentLang === 'en';
   if (mode === 'text') {
     modeBtnText.classList.add('active');
     modeBtnAttachment.classList.remove('active');
     attachmentConfigCard.classList.add('card-disabled');
-    matchPercentageBadge.textContent = 'Mode Teks Aktif';
+    matchPercentageBadge.textContent = isEn ? 'Text Mode Active' : 'Mode Teks Aktif';
     matchPercentageBadge.className = 'match-badge badge-pending';
     previewAttachmentCard.style.display = 'none';
-    thAttachmentCol.textContent = 'Info Tambahan';
+    thAttachmentCol.textContent = isEn ? 'Delivery Mode' : 'Info Tambahan';
   } else {
     modeBtnAttachment.classList.add('active');
     modeBtnText.classList.remove('active');
     attachmentConfigCard.classList.remove('card-disabled');
     previewAttachmentCard.style.display = 'flex';
-    thAttachmentCol.textContent = 'Status Lampiran File';
+    thAttachmentCol.textContent = isEn ? 'Attachment File Status' : 'Status Lampiran File';
     triggerAttachmentScan();
   }
   renderTable();
@@ -1133,6 +1250,7 @@ async function ensureSidecar() {
 }
 
 async function fetchWhatsAppStatus() {
+  const isEn = currentLang === 'en';
   try {
     const res = await fetch(`${SIDECAR_API}/api/wa/status`, { signal: AbortSignal.timeout(2500) });
     const data = await res.json();
@@ -1142,11 +1260,11 @@ async function fetchWhatsAppStatus() {
       const dot = waStatusBadge.querySelector('.pulse-dot');
       if (dot) dot.style.display = 'inline-block';
       const name = data.clientInfo ? data.clientInfo.name : 'WhatsApp';
-      waStatusText.textContent = `Terhubung: ${name}`;
+      waStatusText.textContent = isEn ? `Connected: ${name}` : `Terhubung: ${name}`;
 
       if (currentActiveView === 'gateway') {
-        if (gatewayStatusText) gatewayStatusText.textContent = 'Autentikasi Berhasil! Mengalihkan ke Workspace...';
-        if (gatewaySubHint) gatewaySubHint.textContent = `Terhubung sebagai ${name}`;
+        if (gatewayStatusText) gatewayStatusText.textContent = isEn ? 'Authenticated! Opening Workspace...' : 'Autentikasi Berhasil! Mengalihkan ke Workspace...';
+        if (gatewaySubHint) gatewaySubHint.textContent = isEn ? `Connected as ${name}` : `Terhubung sebagai ${name}`;
         setTimeout(() => {
           showView('workspace');
         }, 500);
@@ -1155,7 +1273,7 @@ async function fetchWhatsAppStatus() {
       }
     } else if (data.status === 'QR_READY' && data.qrCode) {
       waStatusBadge.className = 'status-pill status-connecting';
-      waStatusText.textContent = 'Scan QR Code';
+      waStatusText.textContent = isEn ? 'Scan QR Code' : 'Pindai QR Code';
 
       showView('gateway');
       if (gatewayLoadingBox) gatewayLoadingBox.style.display = 'none';
@@ -1167,22 +1285,22 @@ async function fetchWhatsAppStatus() {
       }
     } else if (data.status === 'INITIALIZING') {
       waStatusBadge.className = 'status-pill status-connecting';
-      waStatusText.textContent = 'Menyiapkan WA...';
+      waStatusText.textContent = isEn ? 'Initializing WA...' : 'Menyiapkan WA...';
 
       showView('gateway');
       if (gatewayLoadingBox) gatewayLoadingBox.style.display = 'flex';
       if (gatewayQRBox) gatewayQRBox.style.display = 'none';
-      if (gatewayStatusText) gatewayStatusText.textContent = 'Menyiapkan WhatsApp Engine (memuat browser)...';
-      if (gatewaySubHint) gatewaySubHint.textContent = 'QR Code akan muncul otomatis dalam beberapa detik';
+      if (gatewayStatusText) gatewayStatusText.textContent = isEn ? 'Initializing WhatsApp Engine (launching headless browser)...' : 'Menyiapkan WhatsApp Engine (memuat browser)...';
+      if (gatewaySubHint) gatewaySubHint.textContent = isEn ? 'QR Code will appear automatically in a few seconds' : 'QR Code akan muncul otomatis dalam beberapa detik';
     } else {
       waStatusBadge.className = 'status-pill status-disconnected';
-      waStatusText.textContent = 'Terputus';
+      waStatusText.textContent = isEn ? 'Disconnected' : 'Terputus';
 
       showView('gateway');
       if (gatewayLoadingBox) gatewayLoadingBox.style.display = 'flex';
       if (gatewayQRBox) gatewayQRBox.style.display = 'none';
-      if (gatewayStatusText) gatewayStatusText.textContent = 'Menghubungkan ke WhatsApp Engine...';
-      if (gatewaySubHint) gatewaySubHint.textContent = 'Menyiapkan koneksi baru...';
+      if (gatewayStatusText) gatewayStatusText.textContent = isEn ? 'Connecting to WhatsApp Engine...' : 'Menghubungkan ke WhatsApp Engine...';
+      if (gatewaySubHint) gatewaySubHint.textContent = isEn ? 'Preparing new session...' : 'Menyiapkan koneksi baru...';
     }
   } catch (err) {
     waStatusBadge.className = 'status-pill status-disconnected';
@@ -1191,8 +1309,8 @@ async function fetchWhatsAppStatus() {
     if (currentActiveView === 'gateway') {
       if (gatewayLoadingBox) gatewayLoadingBox.style.display = 'flex';
       if (gatewayQRBox) gatewayQRBox.style.display = 'none';
-      if (gatewayStatusText) gatewayStatusText.textContent = 'Memulai WhatsApp Engine lokal di latar belakang...';
-      if (gatewaySubHint) gatewaySubHint.textContent = 'Mohon tunggu beberapa detik, sistem sedang menyiapkan engine';
+      if (gatewayStatusText) gatewayStatusText.textContent = isEn ? 'Starting local WhatsApp Engine in background...' : 'Memulai WhatsApp Engine lokal di latar belakang...';
+      if (gatewaySubHint) gatewaySubHint.textContent = isEn ? 'Please wait a few seconds while the local engine warms up' : 'Mohon tunggu beberapa detik, sistem sedang menyiapkan engine';
     }
 
     if (isTauriEnv && tauriCore && !isStartingSidecar) {
@@ -1315,7 +1433,7 @@ async function loadDemoContacts() {
     ];
 
     applyExcelDataToUI(currentExcelMeta, sampleRows);
-    attachmentFolderInput.value = 'data_contoh/lampiran';
+    attachmentFolderInput.value = 'sample_data/attachments';
     triggerAttachmentScan();
   }
 }
@@ -1434,11 +1552,12 @@ function applyExcelDataToUI(meta, rows) {
 }
 
 function populateMappingOptions(headers) {
+  const isEn = currentLang === 'en';
   [mapNameCol, mapPhoneCol, mapCustomCol].forEach(sel => {
     sel.innerHTML = '';
     const defOpt = document.createElement('option');
     defOpt.value = '';
-    defOpt.textContent = '-- Pilih Kolom --';
+    defOpt.textContent = isEn ? '-- Select Column --' : '-- Pilih Kolom --';
     sel.appendChild(defOpt);
 
     headers.forEach(h => {
@@ -1450,15 +1569,17 @@ function populateMappingOptions(headers) {
   });
 
   // Auto detect
-  const nameMatch = headers.find(h => /nama/i.test(h)) || headers[1] || '';
-  const phoneMatch = headers.find(h => /wa|telp|hp|phone|kontak/i.test(h)) || headers[2] || '';
-  const customMatch = headers.find(h => /file|lampiran|invoice|id/i.test(h)) || '';
+  const nameMatch = headers.find(h => /nama|name/i.test(h)) || headers[1] || '';
+  const phoneMatch = headers.find(h => /wa|telp|hp|phone|kontak|number/i.test(h)) || headers[2] || '';
+  const customMatch = headers.find(h => /file|lampiran|attachment|invoice|id/i.test(h)) || '';
 
   if (nameMatch) mapNameCol.value = nameMatch;
   if (phoneMatch) mapPhoneCol.value = phoneMatch;
   if (customMatch) mapCustomCol.value = customMatch;
 
-  mappingStatusSummary.textContent = `Kolom Nama: '${mapNameCol.value}', Nomor: '${mapPhoneCol.value}'`;
+  mappingStatusSummary.textContent = isEn
+    ? `Name: '${mapNameCol.value}', Phone: '${mapPhoneCol.value}'`
+    : `Kolom Nama: '${mapNameCol.value}', Nomor: '${mapPhoneCol.value}'`;
 }
 
 function rawRowsToContacts(rows, headers) {
@@ -1489,7 +1610,10 @@ function rawRowsToContacts(rows, headers) {
 
 function rebuildContactsFromMapping() {
   if (!currentExcelMeta) return;
-  mappingStatusSummary.textContent = `Kolom Nama: '${mapNameCol.value}', Nomor: '${mapPhoneCol.value}'`;
+  const isEn = currentLang === 'en';
+  mappingStatusSummary.textContent = isEn
+    ? `Name: '${mapNameCol.value}', Phone: '${mapPhoneCol.value}'`
+    : `Kolom Nama: '${mapNameCol.value}', Nomor: '${mapPhoneCol.value}'`;
   rawRowsToContacts(contactsData.map(c => c.rawData), currentExcelMeta.headers);
   renderTable();
   updateLivePreview();
@@ -1548,23 +1672,88 @@ function insertTagAtCursor(tag) {
 }
 
 // ----------------------------------------------------
-// DYNAMIC ATTACHMENT SCANNER
+// DYNAMIC ATTACHMENT SCANNER & NATIVE FOLDER PICKER
 // ----------------------------------------------------
+async function handleBrowseAttachmentFolder() {
+  const isEn = currentLang === 'en';
+  if (isTauriEnv && tauriCore) {
+    try {
+      const selected = await tauriCore.invoke('cmd_pick_folder', {
+        title: isEn ? 'Select Attachment Folder' : 'Pilih Folder File Lampiran'
+      });
+      if (selected) {
+        browserPickedFiles = null;
+        attachmentFolderInput.value = selected;
+        savePreferencesDebounced();
+        triggerAttachmentScan();
+      }
+      return;
+    } catch (err) {
+      console.warn('cmd_pick_folder error, falling back to HTML picker:', err);
+    }
+  }
+
+  if (attachmentFolderPicker) {
+    attachmentFolderPicker.click();
+  }
+}
+
+function applyFolderNotFoundState(folder) {
+  const isEn = currentLang === 'en';
+  currentMatchingSummary = {
+    error: true,
+    folder_path: folder,
+    total_records: contactsData.length,
+    found_count: 0,
+    missing_count: contactsData.length,
+    match_percentage: 0,
+    matches: []
+  };
+
+  contactsData.forEach(c => {
+    c.fileInfo = {
+      record_id: c.id,
+      expected_query: c.nama,
+      file_name: '-',
+      full_path: '',
+      exists: false,
+      size_kb: 0,
+      file_category: 'missing'
+    };
+  });
+
+  matchPercentageBadge.textContent = isEn
+    ? `0 / ${contactsData.length} Files (Folder Not Found)`
+    : `0 / ${contactsData.length} File (Folder Tidak Ditemukan)`;
+  matchPercentageBadge.className = 'match-badge badge-failed';
+
+  appendLog('error', isEn
+    ? `Attachment folder not found: '${folder}'`
+    : `Direktori lampiran tidak ditemukan: '${folder}'`);
+
+  renderTable();
+  updateLivePreview();
+}
+
 async function triggerAttachmentScan() {
   if (activeDeliveryMode !== 'attachment') return;
+  const isEn = currentLang === 'en';
 
   const folder = (attachmentFolderInput.value || '').trim();
   if (!folder) {
-    matchPercentageBadge.textContent = 'Pilih Folder Dulu';
+    currentMatchingSummary = null;
+    matchPercentageBadge.textContent = isEn ? 'Select Folder First' : 'Pilih Folder Dulu';
     matchPercentageBadge.className = 'match-badge badge-warning';
     return;
   }
 
   const matchRule = document.querySelector('input[name="matchRule"]:checked')?.value || 'by_name';
-  appendLog('info', `Memindai folder '${folder}' dengan aturan: ${matchRule === 'by_name' ? 'Nama Penerima' : 'Kolom Excel'}...`);
+  appendLog('info', isEn
+    ? `Scanning folder '${folder}' (strategy: ${matchRule === 'by_name' ? 'Recipient Name' : 'Excel Column'})...`
+    : `Memindai folder '${folder}' dengan aturan: ${matchRule === 'by_name' ? 'Nama Penerima' : 'Kolom Excel'}...`);
 
-  // If in Tauri, call Rust core
-  if (isTauriEnv) {
+  // 1. If in Tauri, call native Rust scanner (strictly respects real disk state)
+  if (isTauriEnv && tauriCore) {
     try {
       const recordsInput = contactsData.map(c => ({
         id: c.id,
@@ -1581,11 +1770,64 @@ async function triggerAttachmentScan() {
       applyScanResult(res);
       return;
     } catch (err) {
-      appendLog('error', 'Gagal memindai di Rust: ' + err);
+      applyFolderNotFoundState(folder);
+      return;
     }
   }
 
-  // Try Sidecar API scanner (works natively on Windows in browser / desktop app mode)
+  // 2. If user selected local files via browser folder picker (in non-Tauri browser preview)
+  if (browserPickedFiles && browserPickedFiles.length > 0) {
+    const allowedExts = ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'docx', 'xlsx', 'csv', 'zip', 'txt'];
+    const indexed = browserPickedFiles
+      .map(f => {
+        const name = f.name || '';
+        const dotIdx = name.lastIndexOf('.');
+        const ext = dotIdx > -1 ? name.substring(dotIdx + 1).toLowerCase() : '';
+        const stem = (dotIdx > -1 ? name.substring(0, dotIdx) : name).toLowerCase().trim();
+        return { name, ext, stem, sizeKb: Math.max(1, Math.round((f.size || 0) / 1024)) };
+      })
+      .filter(f => allowedExts.includes(f.ext));
+
+    let foundCount = 0;
+    const matches = contactsData.map(c => {
+      const query = (matchRule === 'by_column' ? (c.customVal || '') : (c.nama || '')).trim();
+      const norm = query.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const hit = indexed.find(item => {
+        const itemNorm = item.stem.replace(/[^a-z0-9]/g, '');
+        return item.name.toLowerCase() === query.toLowerCase() || item.stem === query.toLowerCase() || (norm && itemNorm === norm);
+      });
+      if (hit) foundCount++;
+      let category = 'missing';
+      if (hit) {
+        if (hit.ext === 'pdf') category = 'pdf';
+        else if (['jpg', 'jpeg', 'png', 'webp'].includes(hit.ext)) category = 'image';
+        else category = 'document';
+      }
+      return {
+        record_id: c.id,
+        expected_query: query,
+        file_name: hit ? hit.name : (query ? `${query}.pdf` : '-'),
+        full_path: hit ? `${folder}/${hit.name}` : '',
+        exists: Boolean(hit),
+        size_kb: hit ? hit.sizeKb : 0,
+        file_category: category
+      };
+    });
+
+    const totalRecords = contactsData.length;
+    const pct = totalRecords > 0 ? parseFloat(((foundCount / totalRecords) * 100).toFixed(1)) : 0;
+    applyScanResult({
+      folder_path: folder,
+      total_records: totalRecords,
+      found_count: foundCount,
+      missing_count: totalRecords - foundCount,
+      match_percentage: pct,
+      matches
+    });
+    return;
+  }
+
+  // 3. Try Sidecar API scanner (strictly respects real disk state when sidecar is reachable)
   try {
     const recordsInput = contactsData.map(c => ({
       id: c.id,
@@ -1607,12 +1849,23 @@ async function triggerAttachmentScan() {
       const res = await response.json();
       applyScanResult(res);
       return;
+    } else {
+      // Sidecar responded (e.g. 400 Folder Not Found) — strictly report missing folder!
+      applyFolderNotFoundState(folder);
+      return;
     }
   } catch (err) {
-    console.warn('Sidecar scan API unavailable, fallback ke simulasi:', err);
+    // Sidecar offline (static browser preview mode)
   }
 
-  // Simulated fallback for demo files
+  // 4. Static offline preview fallback ONLY for official sample folder presets
+  const normFolder = folder.replace(/\\/g, '/').toLowerCase();
+  const isDemoPreset = normFolder === 'sample_data/attachments' || normFolder === 'data_contoh/lampiran';
+  if (!isDemoPreset) {
+    applyFolderNotFoundState(folder);
+    return;
+  }
+
   const simulatedMatches = contactsData.map(c => {
     let exists = true;
     let fileName = '';
@@ -1658,6 +1911,7 @@ async function triggerAttachmentScan() {
 }
 
 function applyScanResult(summary) {
+  const isEn = currentLang === 'en';
   currentMatchingSummary = summary;
   const matchMap = new Map();
   summary.matches.forEach(m => matchMap.set(m.record_id, m));
@@ -1666,10 +1920,14 @@ function applyScanResult(summary) {
     c.fileInfo = matchMap.get(c.id) || null;
   });
 
-  matchPercentageBadge.textContent = `${summary.found_count} / ${summary.total_records} File Siap (${summary.match_percentage}%)`;
-  matchPercentageBadge.className = summary.missing_count === 0 ? 'match-badge badge-success' : 'match-badge badge-warning';
+  matchPercentageBadge.textContent = `${summary.found_count} / ${summary.total_records} ${isEn ? 'Files Ready' : 'File Siap'} (${summary.match_percentage}%)`;
+  matchPercentageBadge.className = summary.missing_count === 0
+    ? 'match-badge badge-success'
+    : (summary.found_count === 0 ? 'match-badge badge-failed' : 'match-badge badge-warning');
 
-  appendLog('success', `Pemindaian selesai: ${summary.found_count} file cocok dari ${summary.total_records} kontak.`);
+  appendLog('success', isEn
+    ? `Scan complete: ${summary.found_count} of ${summary.total_records} files matched.`
+    : `Pemindaian selesai: ${summary.found_count} file cocok dari ${summary.total_records} kontak.`);
   renderTable();
   updateLivePreview();
 }
@@ -1784,20 +2042,24 @@ function updateLivePreview() {
 
   // Attachment Card Preview
   if (activeDeliveryMode === 'attachment') {
+    const isEn = currentLang === 'en';
     previewAttachmentCard.style.display = 'flex';
     const fileInfo = contact.fileInfo;
-    const fName = fileInfo ? fileInfo.file_name : `${contact.nama}.pdf`;
+    const fName = (fileInfo && fileInfo.file_name && fileInfo.file_name !== '-') ? fileInfo.file_name : `${contact.nama}.pdf`;
     previewAttachFilename.textContent = fName;
 
-    if (fName.endsWith('.pdf')) {
+    if (fileInfo && fileInfo.exists === false) {
+      document.getElementById('previewAttachIcon').textContent = '⚠️';
+      previewAttachSub.textContent = isEn ? 'File Missing • Check Folder' : 'File Tidak Ditemukan • Cek Folder';
+    } else if (fName.endsWith('.pdf')) {
       document.getElementById('previewAttachIcon').textContent = '📄';
-      previewAttachSub.textContent = 'Dokumen PDF &bull; 1 Halaman';
+      previewAttachSub.textContent = isEn ? 'PDF Document • 1 Page' : 'Dokumen PDF • 1 Halaman';
     } else if (fName.endsWith('.jpg') || fName.endsWith('.png') || fName.endsWith('.webp')) {
       document.getElementById('previewAttachIcon').textContent = '🖼️';
-      previewAttachSub.textContent = 'File Gambar &bull; HD Media';
+      previewAttachSub.textContent = isEn ? 'Image File • HD Media' : 'File Gambar • HD Media';
     } else {
       document.getElementById('previewAttachIcon').textContent = '📎';
-      previewAttachSub.textContent = 'Lampiran File Dokumen';
+      previewAttachSub.textContent = isEn ? 'Document Attachment' : 'Lampiran File Dokumen';
     }
   } else {
     previewAttachmentCard.style.display = 'none';
@@ -1837,12 +2099,14 @@ function getFilteredContacts() {
 }
 
 function renderTable() {
+  const isEn = currentLang === 'en';
   const list = getFilteredContacts();
-  totalTableCount.textContent = contactsData.length;
+  const totalEl = document.getElementById('totalTableCount');
+  if (totalEl) totalEl.textContent = contactsData.length;
   contactsTableBody.innerHTML = '';
 
   if (list.length === 0) {
-    contactsTableBody.innerHTML = `<tr><td colspan="8" class="text-center empty-cell">Tidak ada kontak yang cocok dengan filter.</td></tr>`;
+    contactsTableBody.innerHTML = `<tr><td colspan="8" class="text-center empty-cell">${isEn ? 'No contacts match the active filter.' : 'Tidak ada kontak yang cocok dengan filter.'}</td></tr>`;
     return;
   }
 
@@ -1858,10 +2122,10 @@ function renderTable() {
       if (c.fileInfo && c.fileInfo.exists) {
         attachStatusHtml = `<span class="status-badge-inline badge-ready">🟢 ${c.fileInfo.file_name}</span>`;
       } else {
-        attachStatusHtml = `<span class="status-badge-inline badge-missing">🔴 Tidak Ditemukan</span>`;
+        attachStatusHtml = `<span class="status-badge-inline badge-missing">${isEn ? '🔴 Not Found' : '🔴 Tidak Ditemukan'}</span>`;
       }
     } else {
-      attachStatusHtml = `<span class="table-badge-mode-text">Mode Teks</span>`;
+      attachStatusHtml = `<span class="table-badge-mode-text">${isEn ? 'Text Mode' : 'Mode Teks'}</span>`;
     }
 
     const tagihanVal = c.rawData['Nominal Tagihan'] || '0';
@@ -1871,9 +2135,9 @@ function renderTable() {
 
     let lastStatusPill = '';
     if (c.lastStatus === 'success') {
-      lastStatusPill = '<span class="status-badge-inline badge-ready" style="font-size: 0.68rem; margin-left: 6px;">✓ Terkirim</span>';
+      lastStatusPill = `<span class="status-badge-inline badge-ready" style="font-size: 0.68rem; margin-left: 6px;">${isEn ? '✓ Sent' : '✓ Terkirim'}</span>`;
     } else if (c.lastStatus === 'failed') {
-      lastStatusPill = '<span class="status-badge-inline badge-missing" style="font-size: 0.68rem; margin-left: 6px;">✗ Gagal</span>';
+      lastStatusPill = `<span class="status-badge-inline badge-missing" style="font-size: 0.68rem; margin-left: 6px;">${isEn ? '✗ Failed' : '✗ Gagal'}</span>`;
     }
 
     tr.innerHTML = `
@@ -1887,7 +2151,7 @@ function renderTable() {
       </td>
       <td>
         <span class="font-mono">${c.phone}</span>
-        ${isPhoneValid ? '' : '<span style="color: var(--rose-500); font-size: 0.7rem; margin-left: 4px; font-weight: 600;">(Tidak Valid)</span>'}
+        ${isPhoneValid ? '' : `<span style="color: var(--rose-500); font-size: 0.7rem; margin-left: 4px; font-weight: 600;">${isEn ? '(Invalid)' : '(Tidak Valid)'}</span>`}
       </td>
       <td>${attachStatusHtml}</td>
       <td>${c.rawData['Kota Cabang'] || '-'}</td>
@@ -1906,9 +2170,12 @@ function renderTable() {
 }
 
 function updateSelectionBadge() {
+  const isEn = currentLang === 'en';
   const count = selectedContactIds.size;
-  selectionCountBadge.textContent = `${count} Terpilih`;
-  btnTargetCount.textContent = count;
+  const selEl = document.getElementById('selectionCountBadge');
+  const tgtEl = document.getElementById('btnTargetCount');
+  if (selEl) selEl.textContent = `${count} ${isEn ? 'Selected' : 'Terpilih'}`;
+  if (tgtEl) tgtEl.textContent = count;
 }
 
 // ----------------------------------------------------
@@ -2118,12 +2385,15 @@ async function pollBroadcastProgress() {
     const pct = st.total > 0 ? Math.round((st.processed / st.total) * 100) : 0;
     progressBar.style.width = `${pct}%`;
 
+    const isEn = currentLang === 'en';
     if (st.isRunning) {
       progressStatusText.textContent = st.isPaused 
-        ? `[DIJEDA] Mengirim ke ${st.currentName}...`
-        : `Mengirim ke: ${st.currentName} (${pct}%)...`;
+        ? (isEn ? `[PAUSED] Sending to ${st.currentName}...` : `[DIJEDA] Mengirim ke ${st.currentName}...`)
+        : (isEn ? `Sending to: ${st.currentName} (${pct}%)...` : `Mengirim ke: ${st.currentName} (${pct}%)...`);
     } else {
-      progressStatusText.textContent = `Selesai (${st.success} sukses, ${st.failed} gagal).`;
+      progressStatusText.textContent = isEn
+        ? `Completed (${st.success} sent, ${st.failed} failed).`
+        : `Selesai (${st.success} sukses, ${st.failed} gagal).`;
       if (isBroadcasting) {
         isBroadcasting = false;
         clearInterval(broadcastPollTimer);
@@ -2227,13 +2497,16 @@ function appendLog(type, text) {
 // EXPORT REPORT CSV
 // ----------------------------------------------------
 function exportReportCsv() {
+  const isEn = currentLang === 'en';
   if (contactsData.length === 0) {
-    alert('Tidak ada data kontak untuk diekspor.');
+    alert(isEn ? 'No contact records available to export.' : 'Tidak ada data kontak untuk diekspor.');
     return;
   }
 
   const rows = [
-    ['No', 'Nama Penerima', 'Nomor WhatsApp', 'Status Lampiran', 'File Path', 'Kota Cabang', 'Nomor Invoice', 'Nominal Tagihan']
+    isEn
+      ? ['No', 'Recipient Name', 'WhatsApp Number', 'Attachment Status', 'File Path', 'Branch City', 'Invoice Number', 'Total Amount']
+      : ['No', 'Nama Penerima', 'Nomor WhatsApp', 'Status Lampiran', 'File Path', 'Kota Cabang', 'Nomor Invoice', 'Nominal Tagihan']
   ];
 
   contactsData.forEach(c => {
@@ -2241,7 +2514,7 @@ function exportReportCsv() {
       c.no,
       `"${c.nama}"`,
       `"'${c.phone}"`,
-      c.fileInfo ? (c.fileInfo.exists ? 'Tersedia' : 'Tidak Ditemukan') : 'Mode Teks',
+      c.fileInfo ? (c.fileInfo.exists ? (isEn ? 'Available' : 'Tersedia') : (isEn ? 'Missing' : 'Tidak Ditemukan')) : (isEn ? 'Text Mode' : 'Mode Teks'),
       c.fileInfo ? `"${c.fileInfo.full_path}"` : '-',
       `"${c.rawData['Kota Cabang'] || ''}"`,
       `"${c.rawData['Nomor Invoice'] || ''}"`,
@@ -2253,12 +2526,12 @@ function exportReportCsv() {
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement('a');
   link.setAttribute('href', encodedUri);
-  link.setAttribute('download', `Laporan_Broadcast_${Date.now()}.csv`);
+  link.setAttribute('download', `${isEn ? 'Broadcast_Report' : 'Laporan_Broadcast'}_${Date.now()}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 
-  appendLog('success', 'Laporan rekap berhasil di-download.');
+  appendLog('success', isEn ? 'Audit CSV report downloaded successfully.' : 'Laporan rekap berhasil di-download.');
 }
 
 // ----------------------------------------------------
@@ -2705,8 +2978,8 @@ function renderNotificationDrawer() {
           const isHidden = targetList.style.display === 'none';
           targetList.style.display = isHidden ? 'flex' : 'none';
           toggleBtn.textContent = isHidden 
-            ? `Tutup ${session.failures.length} Kontak Gagal ▴` 
-            : `Lihat ${session.failures.length} Kontak Gagal & Diagnosa ▾`;
+            ? (isEn ? `Hide ${session.failures.length} Failed Contacts ▴` : `Tutup ${session.failures.length} Kontak Gagal ▴`)
+            : (isEn ? `View ${session.failures.length} Failed Contacts & Diagnostics ▾` : `Lihat ${session.failures.length} Kontak Gagal & Diagnosa ▾`);
         }
       });
     }

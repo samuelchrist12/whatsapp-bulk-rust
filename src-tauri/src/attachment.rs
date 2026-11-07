@@ -40,8 +40,18 @@ pub fn scan_folder_and_match(
     let mut candidate_folders = vec![folder_str.to_string()];
     if folder_str.contains("data_contoh") {
         candidate_folders.push(folder_str.replace("data_contoh", "sample_data"));
+        candidate_folders.push(
+            folder_str
+                .replace("data_contoh", "sample_data")
+                .replace("lampiran", "attachments"),
+        );
     } else if folder_str.contains("sample_data") {
         candidate_folders.push(folder_str.replace("sample_data", "data_contoh"));
+        candidate_folders.push(
+            folder_str
+                .replace("sample_data", "data_contoh")
+                .replace("attachments", "lampiran"),
+        );
     }
 
     let exe_dir = std::env::current_exe()

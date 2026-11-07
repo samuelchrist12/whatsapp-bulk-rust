@@ -140,6 +140,20 @@ fn cmd_open_url(url: String) -> Result<(), String> {
 }
 
 #[tauri::command]
+async fn cmd_pick_folder(title: Option<String>) -> Option<String> {
+    let dialog_title = title.unwrap_or_else(|| "Select Attachment Folder".to_string());
+    tauri::async_runtime::spawn_blocking(move || {
+        rfd::FileDialog::new()
+            .set_title(&dialog_title)
+            .pick_folder()
+            .map(|p| p.to_string_lossy().to_string())
+    })
+    .await
+    .ok()
+    .flatten()
+}
+
+#[tauri::command]
 fn cmd_get_app_flavor() -> String {
     if let Ok(exe_path) = std::env::current_exe() {
         let exe_name = exe_path
@@ -182,6 +196,7 @@ pub fn run() {
             cmd_close_window,
             cmd_start_sidecar,
             cmd_open_url,
+            cmd_pick_folder,
             cmd_get_app_flavor
         ])
         .run(tauri::generate_context!())

@@ -264,21 +264,41 @@ app.post('/api/wa/reset-session', async (req, res) => {
 app.post('/api/scan-attachments', (req, res) => {
   try {
     const { folderPath, matchingMode, records } = req.body;
-    if (!folderPath || !fs.existsSync(folderPath)) {
-      return res.status(400).json({ error: `Direktori lampiran tidak ditemukan: ${folderPath}` });
+    if (!folderPath || !String(folderPath).trim()) {
+      return res.status(400).json({ error: 'Attachment directory path is empty.' });
     }
 
-    const stat = fs.statSync(folderPath);
-    if (!stat.isDirectory()) {
-      return res.status(400).json({ error: `Path bukan direktori folder: ${folderPath}` });
+    const rawFolder = String(folderPath).trim();
+    const candidates = path.isAbsolute(rawFolder)
+      ? [rawFolder]
+      : [
+          rawFolder,
+          path.resolve(__dirname, '..', rawFolder),
+          rawFolder.includes('data_contoh') ? path.resolve(__dirname, '..', rawFolder.replace('data_contoh', 'sample_data').replace('lampiran', 'attachments')) : ''
+        ].filter(Boolean);
+
+    let resolvedFolder = null;
+    for (const cand of candidates) {
+      if (fs.existsSync(cand)) {
+        try {
+          if (fs.statSync(cand).isDirectory()) {
+            resolvedFolder = cand;
+            break;
+          }
+        } catch (e) {}
+      }
     }
 
-    const files = fs.readdirSync(folderPath);
+    if (!resolvedFolder) {
+      return res.status(400).json({ error: `Attachment directory not found: ${rawFolder}` });
+    }
+
+    const files = fs.readdirSync(resolvedFolder);
     const allowedExts = ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'docx', 'xlsx', 'csv', 'zip', 'txt'];
 
     const indexed = [];
     for (const file of files) {
-      const fullPath = path.join(folderPath, file);
+      const fullPath = path.join(resolvedFolder, file);
       try {
         const fileStat = fs.statSync(fullPath);
         if (fileStat.isFile()) {
