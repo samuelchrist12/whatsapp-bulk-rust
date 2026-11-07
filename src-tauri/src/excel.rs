@@ -15,23 +15,40 @@ pub struct ExcelSheetResult {
 }
 
 pub fn read_spreadsheet(file_path_str: &str, sheet_opt: Option<&str>) -> Result<ExcelSheetResult, String> {
-    let mut resolved_path = PathBuf::from(file_path_str);
-    if !resolved_path.exists() {
-        if let Ok(exe_dir) = std::env::current_exe().map(|p| p.parent().unwrap_or(Path::new(".")).to_path_buf()) {
-            let p1 = exe_dir.join(file_path_str);
-            if p1.exists() {
-                resolved_path = p1;
-            } else {
-                let p2 = exe_dir.join("..").join(file_path_str);
-                if p2.exists() {
-                    resolved_path = p2;
-                }
-            }
+    let mut candidate_paths = vec![file_path_str.to_string()];
+    if file_path_str.contains("data_contoh") {
+        candidate_paths.push(file_path_str.replace("data_contoh", "sample_data"));
+    } else if file_path_str.contains("sample_data") {
+        candidate_paths.push(file_path_str.replace("sample_data", "data_contoh"));
+    }
+
+    let exe_dir = std::env::current_exe()
+        .map(|p| p.parent().unwrap_or(Path::new(".")).to_path_buf())
+        .unwrap_or_else(|_| PathBuf::from("."));
+
+    let mut found_path: Option<PathBuf> = None;
+    for cand in &candidate_paths {
+        let p = PathBuf::from(cand);
+        if p.exists() {
+            found_path = Some(p);
+            break;
+        }
+        let p1 = exe_dir.join(cand);
+        if p1.exists() {
+            found_path = Some(p1);
+            break;
+        }
+        let p2 = exe_dir.join("..").join(cand);
+        if p2.exists() {
+            found_path = Some(p2);
+            break;
         }
     }
-    if !resolved_path.exists() {
-        return Err(format!("File tidak ditemukan: {}", file_path_str));
-    }
+
+    let resolved_path = match found_path {
+        Some(p) => p,
+        None => return Err(format!("File tidak ditemukan: {}", file_path_str)),
+    };
 
     let file_name = resolved_path.file_name()
         .map(|f| f.to_string_lossy().to_string())

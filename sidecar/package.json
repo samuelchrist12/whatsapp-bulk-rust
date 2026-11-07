@@ -1,6 +1,6 @@
 {
   "name": "bulk-wa-sidecar",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "description": "WhatsApp Engine Sidecar for Bulk WA Sender by schrist.design",
   "main": "server.js",
   "scripts": {

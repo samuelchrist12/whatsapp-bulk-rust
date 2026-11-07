@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bulk WA Sender - by schrist.</title>
+  <title>Bulk WA Sender v1.0 - by schrist.</title>
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -115,7 +115,7 @@
       <div class="brand-group" data-tauri-drag-region>
         <img src="assets/icons/app-brand-logo.svg" alt="Bulk WA Sender Logo" class="brand-logo-img">
         <div class="brand-meta" data-tauri-drag-region>
-          <h1 class="app-title" data-tauri-drag-region>Bulk WA Sender</h1>
+          <h1 class="app-title" data-tauri-drag-region>Bulk WA Sender <span class="app-version-badge">v1.0</span></h1>
           <div class="brand-author-text" data-tauri-drag-region>
             <span class="author-by">by</span> <span class="author-name">schrist<span class="author-dot">.</span></span>
           </div>
@@ -128,6 +128,13 @@
 
     <!-- Titlebar Right Controls -->
     <div class="titlebar-right">
+      <!-- Bilingual Language Toggle (ID / EN) -->
+      <div class="lang-toggle-group" id="langToggleGroup" title="Pilih Bahasa / Choose Language">
+        <button type="button" class="lang-btn active" id="langBtnId" data-lang="id" aria-label="Bahasa Indonesia">ID</button>
+        <span class="lang-divider">|</span>
+        <button type="button" class="lang-btn" id="langBtnEn" data-lang="en" aria-label="English">EN</button>
+      </div>
+
       <!-- M3 Theme Switch Slider -->
       <div class="theme-switch-wrapper" title="Ubah Tema: Geser Kiri (Terang) / Kanan (Gelap)">
         <button type="button" id="themeSwitchBtn" class="theme-switch" role="switch" aria-checked="false" aria-label="Ubah Tema Tampilan">
@@ -196,7 +203,7 @@
         <div class="gateway-brand-header">
           <img src="assets/icons/app-brand-logo.svg" alt="Bulk WA Sender Logo" class="gateway-logo-img">
           <div class="gateway-brand-text">
-            <h1 class="gateway-app-title">Bulk WA Sender</h1>
+            <h1 class="gateway-app-title">Bulk WA Sender <span class="app-version-badge">v1.0</span></h1>
             <div class="gateway-brand-author">
               <span class="author-by">by</span> <span class="author-name">schrist<span class="author-dot">.</span></span>
             </div>
@@ -222,7 +229,7 @@
           <div class="header-left">
             <img src="assets/icons/app-brand-logo.svg" alt="Bulk WA Sender Logo" class="gateway-logo-sm">
             <div class="gateway-brand-text">
-              <h2 class="gateway-app-title-sm">Bulk WA Sender</h2>
+              <h2 class="gateway-app-title-sm">Bulk WA Sender <span class="app-version-badge">v1.0</span></h2>
               <div class="gateway-brand-author">
                 <span class="author-by">by</span> <span class="author-name">schrist<span class="author-dot">.</span></span>
               </div>
@@ -705,7 +712,7 @@ Bulk WA Sender &bull; by schrist.</textarea>
               </div>
             </div>
             <div class="terminal-body font-mono" id="terminalLogBody">
-              <div class="log-row log-info">[System] Bulk WA Sender (by schrist.) siap digunakan.</div>
+              <div class="log-row log-info">[System] Bulk WA Sender v1.0 (by schrist.) siap digunakan.</div>
             </div>
           </div>
 

@@ -37,23 +37,40 @@ pub fn scan_folder_and_match(
     matching_mode: &str, // "by_name" or "by_column"
     records: &[RecordQueryInput],
 ) -> Result<AttachmentScanSummary, String> {
-    let mut folder_path = PathBuf::from(folder_str);
-    if !folder_path.exists() || !folder_path.is_dir() {
-        if let Ok(exe_dir) = std::env::current_exe().map(|p| p.parent().unwrap_or(Path::new(".")).to_path_buf()) {
-            let p1 = exe_dir.join(folder_str);
-            if p1.exists() && p1.is_dir() {
-                folder_path = p1;
-            } else {
-                let p2 = exe_dir.join("..").join(folder_str);
-                if p2.exists() && p2.is_dir() {
-                    folder_path = p2;
-                }
-            }
+    let mut candidate_folders = vec![folder_str.to_string()];
+    if folder_str.contains("data_contoh") {
+        candidate_folders.push(folder_str.replace("data_contoh", "sample_data"));
+    } else if folder_str.contains("sample_data") {
+        candidate_folders.push(folder_str.replace("sample_data", "data_contoh"));
+    }
+
+    let exe_dir = std::env::current_exe()
+        .map(|p| p.parent().unwrap_or(Path::new(".")).to_path_buf())
+        .unwrap_or_else(|_| PathBuf::from("."));
+
+    let mut found_dir: Option<PathBuf> = None;
+    for cand in &candidate_folders {
+        let p = PathBuf::from(cand);
+        if p.exists() && p.is_dir() {
+            found_dir = Some(p);
+            break;
+        }
+        let p1 = exe_dir.join(cand);
+        if p1.exists() && p1.is_dir() {
+            found_dir = Some(p1);
+            break;
+        }
+        let p2 = exe_dir.join("..").join(cand);
+        if p2.exists() && p2.is_dir() {
+            found_dir = Some(p2);
+            break;
         }
     }
-    if !folder_path.exists() || !folder_path.is_dir() {
-        return Err(format!("Direktori lampiran tidak ditemukan: {}", folder_str));
-    }
+
+    let folder_path = match found_dir {
+        Some(d) => d,
+        None => return Err(format!("Direktori lampiran tidak ditemukan: {}", folder_str)),
+    };
 
     // 1. Index all allowed files in the target directory
     // Mapping: lowercase normalized stem -> (filename, full_path, size_kb, ext)

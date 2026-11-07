@@ -19,8 +19,538 @@ let isBroadcasting = false;
 let broadcastStartTime = 0;
 let notificationHistory = [];
 let unreadNotifCount = 0;
+let currentLang = localStorage.getItem('bulk_wa_lang') || 'id';
 
 const SIDECAR_API = 'http://localhost:3847';
+
+// ----------------------------------------------------
+// BILINGUAL LOCALIZATION (ID / EN)
+// ----------------------------------------------------
+const I18N = {
+  id: {
+    themeTooltip: 'Ubah Tema: Geser Kiri (Terang) / Kanan (Gelap)',
+    notifHistoryTooltip: 'Riwayat Notifikasi & Hasil Broadcast',
+    waChecking: 'Memeriksa WhatsApp...',
+    waConnected: 'Terhubung',
+    waScanQR: 'Perlu Scan QR',
+    waDisconnected: 'Terputus',
+    btnConnectWA: 'Hubungkan WA',
+    btnResetWA: 'Reset Sesi',
+    resetSessionTooltip: 'Reset sesi jika ingin mengganti akun WhatsApp atau scan ulang',
+    winMinTooltip: 'Kecilkan Jendela (Minimize)',
+    winMaxTooltip: 'Perbesar Jendela (Maximize / Restore)',
+    winCloseTooltip: 'Tutup Aplikasi (Close)',
+
+    gatewayLoadingText: 'Mengecek koneksi WhatsApp...',
+    gatewayLoadingSub: 'Memastikan engine lokal di localhost siap digunakan',
+    btnRefreshQR: 'Muat Ulang QR',
+
+    modeKicker: 'Fokus Broadcast:',
+    modeHeader: 'Pilih Mode Pengiriman Pesan',
+    modeTextTitle: 'Pesan Teks Saja',
+    modeTextDesc: 'Cepat & efisien, notifikasi atau promosi',
+    modeAttachmentTitle: 'Pesan + Lampiran File',
+    modeAttachmentDesc: 'Kirim dokumen PDF atau gambar dinamis',
+
+    cardSourceTitle: 'File Kontak Excel / CSV',
+    cardSourceDesc: 'Membaca data penerima & seluruh kolom otomatis.',
+    btnUseDemoData: '⚡ Data Contoh (15)',
+    btnUseDemoDataTooltip: 'Muat 15 kontak dummy fiktif yang sudah disiapkan',
+    dropzoneTitle: 'Tarik & Lepas File Spreadsheet Disini',
+    btnBrowseFile: 'Pilih File dari Komputer',
+    dropzoneHint: 'Format didukung: .xlsx, .xls, .xlsm, .csv',
+    btnChangeFile: 'Ganti File',
+    sheetSelectLabel: 'Pilih Sheet:',
+    mappingDrawerBtn: '⚙️ Sesuaikan Pemetaan Kolom ▾',
+    mapNameLabel: '👤 Kolom Nama Penerima',
+    mapPhoneLabel: '📱 Kolom Nomor WhatsApp',
+    mapCustomLabel: '📎 Kolom Referensi File (Opsional)',
+
+    cardAttachTitle: 'Pengaturan Lampiran File',
+    cardAttachDesc: 'Tentukan folder & metode pencocokan nama file.',
+    attachFolderLabel: 'Lokasi Folder File Lampiran:',
+    attachFolderPlaceholder: 'Contoh: sample_data/attachments...',
+    btnScanFolder: 'Pindai',
+    presetLabel: 'Pilihan Cepat:',
+    btnPresetDemoFolder: '📂 Folder Lampiran Contoh',
+    matchingRuleTitle: 'Aturan Pencocokan Nama File:',
+    ruleByNameTitle: 'Sesuai Nama Penerima',
+    ruleByNameDesc: 'Contoh: <code>Budi Santoso.pdf</code> atau <code>Dewi Lestari.jpg</code>',
+    ruleByColTitle: 'Ambil dari Kolom Excel',
+    ruleByColDesc: 'Contoh: Kolom <code>File Lampiran</code> atau <code>Nomor Invoice</code>',
+    formatSupportedLabel: 'Format Didukung:',
+
+    cardComposerTitle: 'Penyusun Pesan',
+    cardComposerDesc: 'Ketik pesan dinamis dengan variabel personal & Spintax.',
+    jitterLabel: '⏱️ Jeda:',
+    tagsLabel: 'Sisipkan Tag Kolom & Variasi:',
+    messagePlaceholder: 'Ketik format pesan disini...',
+    defaultTemplate: `{Salam} Rekan {Nama Lengkap},
+
+{Berikut ini kami sampaikan|Bersama ini kami lampirkan|Melalui pesan ini kami informasikan} rincian dokumen resmi Anda:
+• Nomor: {Nomor Invoice}
+• Cabang: {Kota Cabang}
+• Total: {Nominal Tagihan}
+
+Mohon dapat diperiksa kembali. Dokumen terlampir bersifat resmi dan penting.
+
+{Terima kasih atas kerja samanya!|Salam hangat dan sukses selalu!|Hormat kami,}
+Bulk WA Sender • by schrist.`,
+
+    cardExecTitle: 'Uji Coba & Eksekusi Broadcast Massal',
+    cardExecDesc: 'Kirim pesan uji coba ke nomor pribadi, kemudian luncurkan broadcast massal.',
+    testSendTitle: '🧪 Uji Coba Kirim 1 Pesan:',
+    testSendDesc: 'Kirimkan contoh pesan saat ini ke nomor pribadi Anda.',
+    testPhonePlaceholder: 'Nomor WA (contoh: 08123456789)',
+    btnSendTest: 'Kirim Uji Coba',
+    btnStartBroadcast: 'Mulai Kirim Broadcast',
+    btnRetryFailed: 'Kirim Ulang Kontak Gagal',
+    btnPauseBroadcast: 'Jeda',
+    btnResumeBroadcast: 'Lanjutkan',
+    btnStopBroadcast: 'Hentikan',
+
+    simLabel: '🧪 Uji Coba Modal & Riwayat (Dummy):',
+    btnDummySuccess: '✓ Simulasi Sukses',
+    btnDummyFailed: '⚠️ Simulasi Ada Gagal (Audit)',
+    btnDummyTest: '🧪 Simulasi Uji Coba 1 Pesan',
+
+    terminalTitle: 'Log Aktivitas Realtime',
+    btnExportReport: 'Download Laporan Rekap (.csv)',
+    btnClearLogs: 'Bersihkan',
+
+    tableTitle: 'Daftar Penerima & Verifikasi Pra-Kirim (Pre-Flight)',
+    tableDesc: 'Pilih kontak yang akan dikirimi pesan dan pastikan file lampiran siap.',
+    tableSearchPlaceholder: 'Cari nama, nomor, atau kota...',
+    filterAll: 'Semua Kontak',
+    filterValid: 'Hanya Nomor Valid',
+    filterHasFile: 'Hanya Yang Punya Lampiran',
+    filterFailed: 'Hanya Kontak Gagal',
+    selectAllLabel: 'Pilih Semua Kontak yang Tampil',
+    selectedBadge: 'Terpilih',
+    fromTotalWord: 'dari total',
+    contactsWord: 'Kontak',
+    thSelect: 'Pilih',
+    thNo: 'No',
+    thName: 'Nama Penerima',
+    thPhone: 'Nomor WhatsApp',
+    thAttachment: 'Status Lampiran File',
+    thBranch: 'Kota Cabang',
+    thInvoice: 'Nomor Invoice',
+    thAmount: 'Nominal Tagihan',
+
+    previewLabel: 'Preview Pesan :',
+    btnShuffleSpintax: 'Acak',
+    onlineText: 'online',
+
+    metricSent: 'Terkirim',
+    metricFailed: 'Gagal',
+    metricTotal: 'Total Kontak',
+    metricDuration: 'Durasi',
+    btnModalDownloadCsv: 'Download Laporan (.csv)',
+    btnModalClose: 'Tutup',
+
+    drawerTitle: 'Riwayat Notifikasi & Audit',
+    btnClearDrawer: 'Bersihkan'
+  },
+
+  en: {
+    themeTooltip: 'Toggle Theme: Left (Light) / Right (Dark)',
+    notifHistoryTooltip: 'Notification History & Dispatch Audit',
+    waChecking: 'Checking WhatsApp...',
+    waConnected: 'Connected',
+    waScanQR: 'Scan QR Required',
+    waDisconnected: 'Disconnected',
+    btnConnectWA: 'Connect WA',
+    btnResetWA: 'Reset Session',
+    resetSessionTooltip: 'Reset session to switch WhatsApp account or re-scan QR',
+    winMinTooltip: 'Minimize Window',
+    winMaxTooltip: 'Maximize / Restore Window',
+    winCloseTooltip: 'Close Application',
+
+    gatewayLoadingText: 'Checking WhatsApp connection...',
+    gatewayLoadingSub: 'Ensuring local sidecar engine on localhost is ready',
+    btnRefreshQR: 'Reload QR',
+
+    modeKicker: 'Broadcast Focus:',
+    modeHeader: 'Select Message Delivery Mode',
+    modeTextTitle: 'Text Mode Only',
+    modeTextDesc: 'Fast & efficient, notifications or promotions',
+    modeAttachmentTitle: 'Message + File Attachment',
+    modeAttachmentDesc: 'Send personalized PDF documents or images',
+
+    cardSourceTitle: 'Excel / CSV Contact File',
+    cardSourceDesc: 'Automatically reads recipient data & all spreadsheet columns.',
+    btnUseDemoData: '⚡ Load Demo Data (15)',
+    btnUseDemoDataTooltip: 'Load 15 pre-configured mock contacts for instant testing',
+    dropzoneTitle: 'Drag & Drop Spreadsheet File Here',
+    btnBrowseFile: 'Browse File from Computer',
+    dropzoneHint: 'Supported formats: .xlsx, .xls, .xlsm, .csv',
+    btnChangeFile: 'Change File',
+    sheetSelectLabel: 'Select Sheet:',
+    mappingDrawerBtn: '⚙️ Customize Column Mapping ▾',
+    mapNameLabel: '👤 Recipient Name Column',
+    mapPhoneLabel: '📱 WhatsApp Number Column',
+    mapCustomLabel: '📎 File Reference Column (Optional)',
+
+    cardAttachTitle: 'File Attachment Settings',
+    cardAttachDesc: 'Configure folder path & filename matching strategy.',
+    attachFolderLabel: 'Attachment Folder Location:',
+    attachFolderPlaceholder: 'e.g. sample_data/attachments...',
+    btnScanFolder: 'Scan',
+    presetLabel: 'Quick Preset:',
+    btnPresetDemoFolder: '📂 Sample Attachments Folder',
+    matchingRuleTitle: 'Filename Matching Strategy:',
+    ruleByNameTitle: 'By Recipient Name',
+    ruleByNameDesc: 'e.g.: <code>Budi Santoso.pdf</code> or <code>Dewi Lestari.jpg</code>',
+    ruleByColTitle: 'From Excel / CSV Column',
+    ruleByColDesc: 'e.g.: Column <code>Attachment File</code> or <code>Invoice Number</code>',
+    formatSupportedLabel: 'Supported Formats:',
+
+    cardComposerTitle: 'Message Composer',
+    cardComposerDesc: 'Type dynamic template with personal variables & Spintax.',
+    jitterLabel: '⏱️ Jitter Delay:',
+    tagsLabel: 'Insert Column Tags & Variations:',
+    messagePlaceholder: 'Type message template here...',
+    defaultTemplate: `{Salam} Dear {Nama Lengkap},
+
+{We hereby inform you that|Please find attached|Here is} the official summary of your document:
+• Invoice No: {Nomor Invoice}
+• Branch: {Kota Cabang}
+• Total Due: {Nominal Tagihan}
+
+Please review it at your convenience. Attached files are official and confidential.
+
+{Thank you for your business!|Warm regards and best wishes!|Sincerely,}
+Bulk WA Sender • by schrist.`,
+
+    cardExecTitle: 'Test Dispatch & Mass Broadcast',
+    cardExecDesc: 'Send test message to personal number, then launch mass broadcast.',
+    testSendTitle: '🧪 Send 1 Test Message:',
+    testSendDesc: 'Dispatch current template sample to your personal phone number.',
+    testPhonePlaceholder: 'WhatsApp No (e.g. 08123456789 / +62...)',
+    btnSendTest: 'Send Test',
+    btnStartBroadcast: 'Start Broadcast',
+    btnRetryFailed: 'Retry Failed Contacts',
+    btnPauseBroadcast: 'Pause',
+    btnResumeBroadcast: 'Resume',
+    btnStopBroadcast: 'Stop',
+
+    simLabel: '🧪 Modal & History Simulator (QA):',
+    btnDummySuccess: '✓ Simulate Success',
+    btnDummyFailed: '⚠️ Simulate Failures (Audit)',
+    btnDummyTest: '🧪 Simulate 1 Test Message',
+
+    terminalTitle: 'Real-time Activity Log',
+    btnExportReport: 'Export Audit Report (.csv)',
+    btnClearLogs: 'Clear',
+
+    tableTitle: 'Recipient List & Pre-Flight Verification',
+    tableDesc: 'Select recipients to message and ensure attachment files are ready.',
+    tableSearchPlaceholder: 'Search name, phone, or city...',
+    filterAll: 'All Contacts',
+    filterValid: 'Valid Numbers Only',
+    filterHasFile: 'With Attachments Only',
+    filterFailed: 'Failed Contacts Only',
+    selectAllLabel: 'Select All Displayed Contacts',
+    selectedBadge: 'Selected',
+    fromTotalWord: 'from total',
+    contactsWord: 'Contacts',
+    thSelect: 'Select',
+    thNo: 'No',
+    thName: 'Recipient Name',
+    thPhone: 'WhatsApp Number',
+    thAttachment: 'Attachment File Status',
+    thBranch: 'Branch City',
+    thInvoice: 'Invoice Number',
+    thAmount: 'Total Due',
+
+    previewLabel: 'Message Preview :',
+    btnShuffleSpintax: 'Shuffle',
+    onlineText: 'online',
+
+    metricSent: 'Sent',
+    metricFailed: 'Failed',
+    metricTotal: 'Total Contacts',
+    metricDuration: 'Duration',
+    btnModalDownloadCsv: 'Download Report (.csv)',
+    btnModalClose: 'Close',
+
+    drawerTitle: 'Notification & Audit History',
+    btnClearDrawer: 'Clear'
+  }
+};
+
+function applyLanguage(lang) {
+  currentLang = lang === 'en' ? 'en' : 'id';
+  localStorage.setItem('bulk_wa_lang', currentLang);
+  const isEn = currentLang === 'en';
+  const t = I18N[currentLang];
+
+  // Update Toggle Button States
+  const langBtnId = document.getElementById('langBtnId');
+  const langBtnEn = document.getElementById('langBtnEn');
+  if (langBtnId) langBtnId.classList.toggle('active', !isEn);
+  if (langBtnEn) langBtnEn.classList.toggle('active', isEn);
+
+  // Update Titlebar & Window Tooltips
+  const themeSwitchBtn = document.getElementById('themeSwitchBtn');
+  if (themeSwitchBtn) themeSwitchBtn.title = t.themeTooltip;
+  const btnNotifBell = document.getElementById('btnNotifBell');
+  if (btnNotifBell) btnNotifBell.title = t.notifHistoryTooltip;
+  const btnConnectWA = document.getElementById('btnConnectWA');
+  if (btnConnectWA) btnConnectWA.innerHTML = `<svg class="icon"><use href="#icon-wa"/></svg> ${t.btnConnectWA}`;
+  const btnResetWA = document.getElementById('btnResetWA');
+  if (btnResetWA) {
+    btnResetWA.title = t.resetSessionTooltip;
+    btnResetWA.innerHTML = `<svg class="icon"><use href="#icon-refresh"/></svg> ${t.btnResetWA}`;
+  }
+  const btnWinMin = document.getElementById('btnWinMinimize');
+  if (btnWinMin) btnWinMin.title = t.winMinTooltip;
+  const btnWinMax = document.getElementById('btnWinMaximize');
+  if (btnWinMax) btnWinMax.title = t.winMaxTooltip;
+  const btnWinClose = document.getElementById('btnWinClose');
+  if (btnWinClose) btnWinClose.title = t.winCloseTooltip;
+
+  // Update Gateway
+  const gwRefreshBtn = document.getElementById('btnGatewayRefreshQR');
+  if (gwRefreshBtn) gwRefreshBtn.innerHTML = `<svg class="icon"><use href="#icon-refresh"/></svg> ${t.btnRefreshQR}`;
+
+  // Mode Selection Bar
+  const modeKicker = document.querySelector('.mode-kicker');
+  if (modeKicker) modeKicker.textContent = t.modeKicker;
+  const modeHeader = document.querySelector('.mode-title-col h3');
+  if (modeHeader) modeHeader.textContent = t.modeHeader;
+  const modeBtnTextEl = document.getElementById('modeBtnText');
+  if (modeBtnTextEl) {
+    const s = modeBtnTextEl.querySelector('strong');
+    const sp = modeBtnTextEl.querySelector('span');
+    if (s) s.textContent = t.modeTextTitle;
+    if (sp) sp.textContent = t.modeTextDesc;
+  }
+  const modeBtnAttEl = document.getElementById('modeBtnAttachment');
+  if (modeBtnAttEl) {
+    const s = modeBtnAttEl.querySelector('strong');
+    const sp = modeBtnAttEl.querySelector('span');
+    if (s) s.textContent = t.modeAttachmentTitle;
+    if (sp) sp.textContent = t.modeAttachmentDesc;
+  }
+
+  // Card A: Excel/CSV
+  const cardSourceH2 = document.querySelector('.source-card h2');
+  if (cardSourceH2) cardSourceH2.textContent = t.cardSourceTitle;
+  const cardSourceDesc = document.querySelector('.source-card .section-desc');
+  if (cardSourceDesc) cardSourceDesc.textContent = t.cardSourceDesc;
+  const btnUseDemo = document.getElementById('btnUseDemoData');
+  if (btnUseDemo) {
+    btnUseDemo.textContent = t.btnUseDemoData;
+    btnUseDemo.title = t.btnUseDemoDataTooltip;
+  }
+  const dropStrong = document.querySelector('#dropzoneContent strong');
+  if (dropStrong) dropStrong.textContent = t.dropzoneTitle;
+  const btnBrowse = document.getElementById('btnBrowseFile');
+  if (btnBrowse) btnBrowse.textContent = t.btnBrowseFile;
+  const dropHint = document.querySelector('.dropzone-hint');
+  if (dropHint) dropHint.textContent = t.dropzoneHint;
+  const btnChange = document.getElementById('btnChangeFile');
+  if (btnChange) btnChange.textContent = t.btnChangeFile;
+  const sheetLbl = document.querySelector('.sheet-selector-group label');
+  if (sheetLbl) sheetLbl.textContent = t.sheetSelectLabel;
+  const btnToggleMap = document.getElementById('btnToggleMapping');
+  if (btnToggleMap) btnToggleMap.textContent = t.mappingDrawerBtn;
+  const lblName = document.querySelector('label[for="mapNameCol"]');
+  if (lblName) lblName.innerHTML = `${t.mapNameLabel} <span class="req">*</span>`;
+  const lblPhone = document.querySelector('label[for="mapPhoneCol"]');
+  if (lblPhone) lblPhone.innerHTML = `${t.mapPhoneLabel} <span class="req">*</span>`;
+  const lblCustom = document.querySelector('label[for="mapCustomCol"]');
+  if (lblCustom) lblCustom.textContent = t.mapCustomLabel;
+
+  // Card B: Attachment Config
+  const cardAttH2 = document.querySelector('.attachment-card h2');
+  if (cardAttH2) cardAttH2.textContent = t.cardAttachTitle;
+  const cardAttDesc = document.querySelector('.attachment-card .section-desc');
+  if (cardAttDesc) cardAttDesc.textContent = t.cardAttachDesc;
+  const lblAttFolder = document.querySelector('label[for="attachmentFolderInput"]');
+  if (lblAttFolder) lblAttFolder.textContent = t.attachFolderLabel;
+  const attFolderInput = document.getElementById('attachmentFolderInput');
+  if (attFolderInput) attFolderInput.placeholder = t.attachFolderPlaceholder;
+  const btnScan = document.getElementById('btnScanFolder');
+  if (btnScan) btnScan.textContent = t.btnScanFolder;
+  const presetLbl = document.querySelector('.preset-label');
+  if (presetLbl) presetLbl.textContent = t.presetLabel;
+  const btnPresetDemo = document.getElementById('btnPresetDemoFolder');
+  if (btnPresetDemo) btnPresetDemo.textContent = t.btnPresetDemoFolder;
+  const ruleBoxTitle = document.querySelector('.rule-box-title');
+  if (ruleBoxTitle) ruleBoxTitle.textContent = t.matchingRuleTitle;
+  const radioLabels = document.querySelectorAll('.rule-radio-group .radio-label');
+  if (radioLabels && radioLabels.length >= 2) {
+    const s0 = radioLabels[0].querySelector('strong');
+    const sp0 = radioLabels[0].querySelector('span');
+    if (s0) s0.textContent = t.ruleByNameTitle;
+    if (sp0) sp0.innerHTML = t.ruleByNameDesc;
+    const s1 = radioLabels[1].querySelector('strong');
+    const sp1 = radioLabels[1].querySelector('span');
+    if (s1) s1.textContent = t.ruleByColTitle;
+    if (sp1) sp1.innerHTML = t.ruleByColDesc;
+  }
+  const formatLbl = document.querySelector('.format-label');
+  if (formatLbl) formatLbl.textContent = t.formatSupportedLabel;
+
+  // Card C: Composer
+  const cardCompH2 = document.querySelector('.composer-card h2');
+  if (cardCompH2) cardCompH2.textContent = t.cardComposerTitle;
+  const cardCompDesc = document.querySelector('.composer-card .section-desc');
+  if (cardCompDesc) cardCompDesc.textContent = t.cardComposerDesc;
+  const jitterLbl = document.querySelector('.anti-banned-widget .widget-label');
+  if (jitterLbl) jitterLbl.textContent = t.jitterLabel;
+  const jitterSpans = document.querySelectorAll('.jitter-inputs span');
+  if (jitterSpans && jitterSpans.length >= 2) {
+    jitterSpans[0].textContent = isEn ? 'to' : 's/d';
+    jitterSpans[1].textContent = isEn ? 'sec' : 'dtk';
+  }
+  const cooldownSpans = document.querySelectorAll('.cooldown-inputs span');
+  if (cooldownSpans && cooldownSpans.length >= 3) {
+    cooldownSpans[0].textContent = isEn ? 'Every' : 'Tiap';
+    cooldownSpans[1].textContent = isEn ? 'msgs, pause' : 'pesan, jeda';
+    cooldownSpans[2].textContent = isEn ? 'sec' : 'dtk';
+  }
+  if (matchPercentageBadge && activeDeliveryMode === 'text') {
+    matchPercentageBadge.textContent = isEn ? 'Text Mode Active' : 'Mode Teks Aktif';
+  }
+  const tagsLbl = document.querySelector('.tags-label');
+  if (tagsLbl) tagsLbl.textContent = t.tagsLabel;
+  const msgTpl = document.getElementById('messageTemplate');
+  if (msgTpl) {
+    msgTpl.placeholder = t.messagePlaceholder;
+    if (!msgTpl.value || msgTpl.value.trim() === I18N.id.defaultTemplate.trim() || msgTpl.value.trim() === I18N.en.defaultTemplate.trim()) {
+      msgTpl.value = t.defaultTemplate;
+    }
+  }
+
+  // Execution Section
+  const cardExecH2 = document.querySelector('.execution-section h2');
+  if (cardExecH2) cardExecH2.textContent = t.cardExecTitle;
+  const cardExecDesc = document.querySelector('.execution-section .section-desc');
+  if (cardExecDesc) cardExecDesc.textContent = t.cardExecDesc;
+  const testSendStrong = document.querySelector('.test-send-labels strong');
+  if (testSendStrong) testSendStrong.textContent = t.testSendTitle;
+  const testSendSpan = document.querySelector('.test-send-labels span');
+  if (testSendSpan) testSendSpan.textContent = t.testSendDesc;
+  const testPhoneInp = document.getElementById('testPhoneInput');
+  if (testPhoneInp) testPhoneInp.placeholder = t.testPhonePlaceholder;
+  const btnTest = document.getElementById('btnSendTest');
+  if (btnTest) btnTest.innerHTML = `<svg class="icon"><use href="#icon-test"/></svg> ${t.btnSendTest}`;
+  const btnStart = document.getElementById('btnStartBroadcast');
+  if (btnStart) {
+    btnStart.innerHTML = `<svg class="icon"><use href="#icon-send"/></svg> ${t.btnStartBroadcast} (<span id="btnTargetCount">${selectedContactIds.size}</span> ${t.contactsWord})`;
+  }
+  const btnRetry = document.getElementById('btnRetryFailed');
+  if (btnRetry) {
+    const curCount = document.getElementById('retryFailedCount') ? document.getElementById('retryFailedCount').textContent : '0';
+    btnRetry.innerHTML = `<svg class="icon"><use href="#icon-refresh"/></svg> ${t.btnRetryFailed} (<span id="retryFailedCount">${curCount}</span>)`;
+  }
+  const btnPause = document.getElementById('btnPauseBroadcast');
+  if (btnPause) btnPause.innerHTML = `<svg class="icon"><use href="#icon-pause"/></svg> ${t.btnPauseBroadcast}`;
+  const btnResume = document.getElementById('btnResumeBroadcast');
+  if (btnResume) btnResume.innerHTML = `<svg class="icon"><use href="#icon-play"/></svg> ${t.btnResumeBroadcast}`;
+  const btnStop = document.getElementById('btnStopBroadcast');
+  if (btnStop) btnStop.innerHTML = `<svg class="icon"><use href="#icon-stop"/></svg> ${t.btnStopBroadcast}`;
+
+  // Simulation Bar
+  const simLbl = document.querySelector('.simulation-label');
+  if (simLbl) simLbl.textContent = t.simLabel;
+  const btnDummySucc = document.getElementById('btnDummySuccessModal');
+  if (btnDummySucc) btnDummySucc.textContent = t.btnDummySuccess;
+  const btnDummyFail = document.getElementById('btnDummyFailedModal');
+  if (btnDummyFail) btnDummyFail.textContent = t.btnDummyFailed;
+  const btnDummyTst = document.getElementById('btnDummyTestSend');
+  if (btnDummyTst) btnDummyTst.textContent = t.btnDummyTest;
+
+  // Terminal Log
+  const termTitle = document.querySelector('.terminal-title');
+  if (termTitle) termTitle.textContent = t.terminalTitle;
+  const btnExport = document.getElementById('btnExportReport');
+  if (btnExport) btnExport.innerHTML = `<svg class="icon"><use href="#icon-export"/></svg> ${t.btnExportReport}`;
+  const btnClearL = document.getElementById('btnClearLogs');
+  if (btnClearL) btnClearL.textContent = t.btnClearLogs;
+
+  // Table
+  const tableH2 = document.querySelector('.table-card h2');
+  if (tableH2) tableH2.textContent = t.tableTitle;
+  const tableDesc = document.querySelector('.table-card .section-desc');
+  if (tableDesc) tableDesc.textContent = t.tableDesc;
+  const tableSearch = document.getElementById('tableSearchInput');
+  if (tableSearch) tableSearch.placeholder = t.tableSearchPlaceholder;
+  const selectAllLbl = document.querySelector('label[for="selectAllCheckbox"] b');
+  if (selectAllLbl) selectAllLbl.textContent = t.selectAllLabel;
+  const selSummary = document.querySelector('.selection-summary');
+  if (selSummary) {
+    selSummary.innerHTML = `<span class="badge-selection" id="selectionCountBadge">${selectedContactIds.size} ${t.selectedBadge}</span> <span>${t.fromTotalWord} <strong id="totalTableCount">${contactsData.length}</strong> ${t.contactsWord}</span>`;
+  }
+
+  // Table Th Columns
+  const ths = document.querySelectorAll('.contacts-table thead th');
+  if (ths && ths.length >= 8) {
+    ths[0].textContent = t.thSelect;
+    ths[1].textContent = t.thNo;
+    ths[2].textContent = t.thName;
+    ths[3].textContent = t.thPhone;
+    ths[4].textContent = t.thAttachment;
+    ths[5].textContent = t.thBranch;
+    ths[6].textContent = t.thInvoice;
+    ths[7].textContent = t.thAmount;
+  }
+  const filterSelect = document.getElementById('tableStatusFilter');
+  if (filterSelect && filterSelect.options && filterSelect.options.length >= 4) {
+    filterSelect.options[0].textContent = t.filterAll;
+    filterSelect.options[1].textContent = t.filterValid;
+    filterSelect.options[2].textContent = t.filterHasFile;
+    filterSelect.options[3].textContent = t.filterFailed;
+  }
+
+  // Modal Metrics Labels
+  const mSuccessLbl = document.querySelector('.metric-success .metric-label');
+  if (mSuccessLbl) mSuccessLbl.textContent = t.metricSent;
+  const mFailedLbl = document.querySelector('.metric-failed .metric-label');
+  if (mFailedLbl) mFailedLbl.textContent = t.metricFailed;
+  const mTotalLbl = document.querySelector('.metric-total .metric-label');
+  if (mTotalLbl) mTotalLbl.textContent = t.metricTotal;
+  const mTimeLbl = document.querySelector('.metric-time .metric-label');
+  if (mTimeLbl) mTimeLbl.textContent = t.metricDuration;
+  const btnModCsv = document.getElementById('btnModalDownloadCsv');
+  if (btnModCsv) btnModCsv.innerHTML = `<svg class="icon"><use href="#icon-export"/></svg> ${t.btnModalDownloadCsv}`;
+  const btnModDismiss = document.getElementById('btnModalDismiss');
+  if (btnModDismiss) btnModDismiss.textContent = t.btnModalClose;
+
+  // Drawer
+  const drawerH3 = document.querySelector('.drawer-title-group h3');
+  if (drawerH3) drawerH3.textContent = t.drawerTitle;
+  const btnClearHist = document.getElementById('btnClearHistory');
+  if (btnClearHist) btnClearHist.textContent = t.btnClearDrawer;
+
+  // Mockup preview
+  const prevHdrLbl = document.querySelector('.preview-header-label');
+  if (prevHdrLbl) prevHdrLbl.textContent = t.previewLabel;
+  const btnShuf = document.getElementById('btnShuffleSpintax');
+  if (btnShuf) btnShuf.innerHTML = `<svg class="icon"><use href="#icon-shuffle"/></svg> ${t.btnShuffleSpintax}`;
+  const chatStatus = document.querySelector('.chat-user-status');
+  if (chatStatus) chatStatus.textContent = t.onlineText;
+
+  // Rebuild Dynamic Tag Buttons
+  if (currentExcelMeta && currentExcelMeta.headers) {
+    rebuildDynamicTagPills(currentExcelMeta.headers);
+  }
+
+  // Refresh Notification Drawer List
+  renderNotificationDrawer();
+
+  // Refresh Live Preview & WA status text
+  updateLivePreview();
+  if (waStatusBadge && waStatusText) {
+    if (waStatusBadge.classList.contains('status-disconnected')) {
+      waStatusText.textContent = t.waChecking;
+    }
+  }
+}
 
 // DOM References
 const waStatusBadge = document.getElementById('waStatusBadge');
@@ -153,6 +683,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadSavedPreferences();
   loadNotificationHistory();
   checkAppFlavor();
+  applyLanguage(currentLang);
 
   // Show Gateway initially while checking connection
   showView('gateway');
@@ -171,7 +702,7 @@ function detectEnvironment() {
   if (window.__TAURI__ && window.__TAURI__.core) {
     isTauriEnv = true;
     tauriCore = window.__TAURI__.core;
-    appendLog('system', 'Tauri v2 Rust Core aktif & terhubung.');
+    appendLog('system', 'Tauri Rust Core (v1.0) aktif & terhubung.');
   } else {
     isTauriEnv = false;
     appendLog('system', 'Berjalan di mode Webview standalone.');
@@ -182,6 +713,12 @@ function detectEnvironment() {
 // EVENT LISTENERS
 // ----------------------------------------------------
 function setupEventListeners() {
+  // Language switcher
+  const langBtnId = document.getElementById('langBtnId');
+  const langBtnEn = document.getElementById('langBtnEn');
+  if (langBtnId) langBtnId.addEventListener('click', () => applyLanguage('id'));
+  if (langBtnEn) langBtnEn.addEventListener('click', () => applyLanguage('en'));
+
   // Mode selection
   modeBtnText.addEventListener('click', () => setDeliveryMode('text'));
   modeBtnAttachment.addEventListener('click', () => setDeliveryMode('attachment'));
@@ -684,28 +1221,31 @@ async function connectWhatsApp() {
 }
 
 function resetWhatsAppSession() {
+  const isEn = currentLang === 'en';
   showCustomConfirm({
-    title: 'Reset Sesi WhatsApp?',
-    subtitle: 'Anda akan keluar dari akun WhatsApp saat ini dan sesi akun di komputer akan dibersihkan. Anda harus memindai ulang QR Code untuk menghubungkan akun baru.',
+    title: isEn ? 'Reset WhatsApp Session?' : 'Reset Sesi WhatsApp?',
+    subtitle: isEn 
+      ? 'You will be signed out of the current WhatsApp account and the local session will be cleaned. You will need to scan the QR Code again to reconnect.'
+      : 'Anda akan keluar dari akun WhatsApp saat ini dan sesi akun di komputer akan dibersihkan. Anda harus memindai ulang QR Code untuk menghubungkan akun baru.',
     emoji: '🔄',
     iconClass: 'hero-warning',
-    confirmText: 'Ya, Reset Sesi',
+    confirmText: isEn ? 'Yes, Reset Session' : 'Ya, Reset Sesi',
     confirmBtnClass: 'btn-amber',
-    cancelText: 'Batal',
+    cancelText: isEn ? 'Cancel' : 'Batal',
     onConfirm: async () => {
       try {
         showView('gateway');
         if (gatewayLoadingBox) gatewayLoadingBox.style.display = 'flex';
         if (gatewayQRBox) gatewayQRBox.style.display = 'none';
-        if (gatewayStatusText) gatewayStatusText.textContent = 'Mereset sesi & menyiapkan QR Code baru...';
-        if (gatewaySubHint) gatewaySubHint.textContent = 'Membersihkan sesi akun di komputer';
+        if (gatewayStatusText) gatewayStatusText.textContent = isEn ? 'Resetting session & preparing new QR Code...' : 'Mereset sesi & menyiapkan QR Code baru...';
+        if (gatewaySubHint) gatewaySubHint.textContent = isEn ? 'Cleaning local account session' : 'Membersihkan sesi akun di komputer';
 
-        appendLog('warning', 'Mereset sesi WhatsApp & menyiapkan QR Code baru...');
+        appendLog('warning', isEn ? 'Resetting WhatsApp session & preparing new QR Code...' : 'Mereset sesi WhatsApp & menyiapkan QR Code baru...');
         await ensureSidecar();
         await fetch(`${SIDECAR_API}/api/wa/reset-session`, { method: 'POST' });
         fetchWhatsAppStatus();
       } catch (err) {
-        appendLog('error', 'Gagal mereset sesi: ' + err.message);
+        appendLog('error', isEn ? 'Failed to reset session: ' + err.message : 'Gagal mereset sesi: ' + err.message);
       }
     }
   });
@@ -715,34 +1255,42 @@ function resetWhatsAppSession() {
 // EXCEL & DEMO DATA INGESTION
 // ----------------------------------------------------
 async function loadDemoContacts() {
-  appendLog('info', 'Memuat data contoh generik (15 kontak dummy)...');
+  const isEn = currentLang === 'en';
+  appendLog('info', isEn ? 'Loading sample contacts (15 demo records)...' : 'Memuat data contoh generik (15 kontak dummy)...');
 
   let loadedSuccessfully = false;
   // Load from pre-generated demo data
   if (isTauriEnv) {
-    try {
-      const demoPath = 'data_contoh/Daftar_Kontak_Penerima.xlsx';
-      const res = await tauriCore.invoke('cmd_read_excel', {
-        filePath: demoPath,
-        sheetName: null
-      });
-      if (res && res.rows && res.rows.length > 0) {
-        currentExcelMeta = res;
-        applyExcelDataToUI(res, res.rows);
-        attachmentFolderInput.value = 'data_contoh/lampiran';
-        loadedSuccessfully = true;
-        appendLog('success', `Berhasil membaca '${res.file_name}' (${res.total_rows} baris data).`);
+    const candidatePaths = [
+      'sample_data/Sample_Contact_List.xlsx',
+      'sample_data/Daftar_Kontak_Penerima.xlsx',
+      'data_contoh/Daftar_Kontak_Penerima.xlsx'
+    ];
+    for (const demoPath of candidatePaths) {
+      try {
+        const res = await tauriCore.invoke('cmd_read_excel', {
+          filePath: demoPath,
+          sheetName: null
+        });
+        if (res && res.rows && res.rows.length > 0) {
+          currentExcelMeta = res;
+          applyExcelDataToUI(res, res.rows);
+          attachmentFolderInput.value = 'sample_data/attachments';
+          loadedSuccessfully = true;
+          appendLog('success', isEn ? `Loaded '${res.file_name}' (${res.total_rows} records).` : `Berhasil membaca '${res.file_name}' (${res.total_rows} baris data).`);
+          break;
+        }
+      } catch (e) {
+        // try next candidate
       }
-    } catch (e) {
-      console.warn('Tauri load demo error, fallbacking to client mockup:', e);
     }
   }
 
   // If not loaded via Rust or contacts are empty (e.g. running from dist/), use built-in 15 contacts mockup
   if (!loadedSuccessfully || contactsData.length === 0) {
     currentExcelMeta = {
-      file_name: 'Daftar_Kontak_Penerima.xlsx',
-      file_path: 'data_contoh/Daftar_Kontak_Penerima.xlsx',
+      file_name: isEn ? 'Sample_Contact_List.xlsx' : 'Daftar_Kontak_Penerima.xlsx',
+      file_path: 'sample_data/Sample_Contact_List.xlsx',
       sheets: ['Daftar Kontak'],
       active_sheet: 'Daftar Kontak',
       headers: ['No', 'Nama Lengkap', 'Nomor WhatsApp', 'Kota Cabang', 'Nomor Invoice', 'Nominal Tagihan', 'File Lampiran', 'Status']
@@ -949,11 +1497,20 @@ function rebuildContactsFromMapping() {
 
 function rebuildDynamicTagPills(headers) {
   dynamicTagsContainer.innerHTML = '';
+  const isEn = currentLang === 'en';
 
   // Special Utility Tags (Always Available)
   const specialTags = [
-    { tag: '{Salam}', label: '+ {Salam} (Waktu)', title: 'Ucapan waktu otomatis (Pagi/Siang/Sore/Malam)' },
-    { tag: '{Halo|Hai|Selamat Pagi|Salam}', label: '+ Spintax {Halo|Hai|...}', title: 'Variasi acak kata Spintax anti-spam' }
+    { 
+      tag: '{Salam}', 
+      label: isEn ? '+ {Salam} (Time)' : '+ {Salam} (Waktu)', 
+      title: isEn ? 'Automatic time greeting (Morning/Afternoon/Evening)' : 'Ucapan waktu otomatis (Pagi/Siang/Sore/Malam)' 
+    },
+    { 
+      tag: isEn ? '{Hello|Hi|Greetings}' : '{Halo|Hai|Selamat Pagi|Salam}', 
+      label: isEn ? '+ Spintax {Hello|Hi|...}' : '+ Spintax {Halo|Hai|...}', 
+      title: isEn ? 'Random Spintax phrase variations anti-spam' : 'Variasi acak kata Spintax anti-spam' 
+    }
   ];
   specialTags.forEach(s => {
     const btn = document.createElement('button');
@@ -967,15 +1524,17 @@ function rebuildDynamicTagPills(headers) {
   });
 
   // Excel / CSV Column Tags
-  headers.forEach(h => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'btn-tag-pill';
-    btn.dataset.tag = `{${h}}`;
-    btn.textContent = `+ {${h}}`;
-    btn.addEventListener('click', () => insertTagAtCursor(`{${h}}`));
-    dynamicTagsContainer.appendChild(btn);
-  });
+  if (headers && Array.isArray(headers)) {
+    headers.forEach(h => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-tag-pill';
+      btn.dataset.tag = `{${h}}`;
+      btn.textContent = `+ {${h}}`;
+      btn.addEventListener('click', () => insertTagAtCursor(`{${h}}`));
+      dynamicTagsContainer.appendChild(btn);
+    });
+  }
 }
 
 function insertTagAtCursor(tag) {
@@ -1133,10 +1692,16 @@ function populatePreviewContactSelect() {
 // ----------------------------------------------------
 function getTimeGreeting() {
   const hour = new Date().getHours();
-  if (hour >= 4 && hour < 11) return 'Selamat Pagi';
-  if (hour >= 11 && hour < 15) return 'Selamat Siang';
-  if (hour >= 15 && hour < 18) return 'Selamat Sore';
-  return 'Selamat Malam';
+  if (currentLang === 'en') {
+    if (hour >= 4 && hour < 12) return 'Good morning';
+    if (hour >= 12 && hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  } else {
+    if (hour >= 4 && hour < 11) return 'Selamat Pagi';
+    if (hour >= 11 && hour < 15) return 'Selamat Siang';
+    if (hour >= 15 && hour < 18) return 'Selamat Sore';
+    return 'Selamat Malam';
+  }
 }
 
 function parseSpintax(text) {
@@ -1461,47 +2026,58 @@ async function startBroadcast() {
       };
     });
 
-  const confirmMsg = `Mulai broadcast ke ${targets.length} kontak dengan mode: ${activeDeliveryMode === 'text' ? 'Pesan Teks Saja' : 'Pesan + Lampiran File'}?`;
-  if (!confirm(confirmMsg)) return;
+  const isEn = currentLang === 'en';
+  showCustomConfirm({
+    title: isEn ? 'Start Broadcast Dispatch?' : 'Mulai Kirim Broadcast?',
+    subtitle: isEn 
+      ? `Dispatch broadcast to ${targets.length} contacts via ${activeDeliveryMode === 'text' ? 'Text Mode Only' : 'Message + File Attachment'}?`
+      : `Mulai kirim broadcast ke ${targets.length} kontak dengan mode: ${activeDeliveryMode === 'text' ? 'Pesan Teks Saja' : 'Pesan + Lampiran File'}?`,
+    emoji: '🚀',
+    iconClass: 'state-success',
+    confirmText: isEn ? 'Yes, Launch Broadcast' : 'Ya, Mulai Broadcast',
+    confirmBtnClass: 'btn-emerald',
+    cancelText: isEn ? 'Cancel' : 'Batal',
+    onConfirm: async () => {
+      try {
+        const minD = minDelayInput.value || 3;
+        const maxD = maxDelayInput.value || 7;
+        const isCooldown = chkCooldownBatch && chkCooldownBatch.checked;
+        const bSize = isCooldown ? (parseInt(batchSizeInput.value, 10) || 20) : 0;
+        const bDelay = isCooldown ? (parseInt(batchDelayInput.value, 10) || 60) : 0;
 
-  try {
-    const minD = minDelayInput.value || 3;
-    const maxD = maxDelayInput.value || 7;
-    const isCooldown = chkCooldownBatch && chkCooldownBatch.checked;
-    const bSize = isCooldown ? (parseInt(batchSizeInput.value, 10) || 20) : 0;
-    const bDelay = isCooldown ? (parseInt(batchDelayInput.value, 10) || 60) : 0;
+        const res = await fetch(`${SIDECAR_API}/api/wa/send-broadcast`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            targets,
+            minDelaySec: minD,
+            maxDelaySec: maxD,
+            batchSize: bSize,
+            batchDelaySec: bDelay
+          })
+        });
+        const result = await res.json();
 
-    const res = await fetch(`${SIDECAR_API}/api/wa/send-broadcast`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        targets,
-        minDelaySec: minD,
-        maxDelaySec: maxD,
-        batchSize: bSize,
-        batchDelaySec: bDelay
-      })
-    });
-    const result = await res.json();
+        if (result.success) {
+          appendLog('info', isEn ? 'Broadcast launched in background.' : 'Broadcast telah diluncurkan di latar belakang.');
+          isBroadcasting = true;
+          broadcastStartTime = Date.now();
+          btnStartBroadcast.style.display = 'none';
+          if (btnRetryFailed) btnRetryFailed.style.display = 'none';
+          btnPauseBroadcast.style.display = 'inline-flex';
+          btnStopBroadcast.style.display = 'inline-flex';
+          progressSection.style.display = 'block';
 
-    if (result.success) {
-      appendLog('info', 'Broadcast telah diluncurkan di latar belakang.');
-      isBroadcasting = true;
-      broadcastStartTime = Date.now();
-      btnStartBroadcast.style.display = 'none';
-      if (btnRetryFailed) btnRetryFailed.style.display = 'none';
-      btnPauseBroadcast.style.display = 'inline-flex';
-      btnStopBroadcast.style.display = 'inline-flex';
-      progressSection.style.display = 'block';
-
-      if (broadcastPollTimer) clearInterval(broadcastPollTimer);
-      broadcastPollTimer = setInterval(pollBroadcastProgress, 1200);
-    } else {
-      alert(`Gagal memulai: ${result.error}`);
+          if (broadcastPollTimer) clearInterval(broadcastPollTimer);
+          broadcastPollTimer = setInterval(pollBroadcastProgress, 1200);
+        } else {
+          alert(`Gagal memulai: ${result.error}`);
+        }
+      } catch (err) {
+        appendLog('error', 'Gagal memicu broadcast: ' + err.message);
+      }
     }
-  } catch (err) {
-    appendLog('error', 'Gagal memicu broadcast: ' + err.message);
-  }
+  });
 }
 
 async function controlBroadcast(action) {
@@ -1805,46 +2381,53 @@ function escapeHtml(str) {
 }
 
 function categorizeError(errMsg) {
-  if (!errMsg) return { label: 'Kendala Sistem', desc: 'Tidak ada informasi detail kendala.', class: 'diag-unknown' };
+  const isEn = currentLang === 'en';
+  if (!errMsg) {
+    return {
+      label: isEn ? 'System Error' : 'Kendala Sistem',
+      desc: isEn ? 'No detail provided for this error.' : 'Tidak ada informasi detail kendala.',
+      class: 'diag-unknown'
+    };
+  }
   const str = String(errMsg).toLowerCase();
 
   if (str.includes('not registered') || str.includes('invalid number') || str.includes('wid') || str.includes('nomor') || str.includes('tidak terdaftar')) {
     return {
-      label: 'Nomor Tidak Terdaftar',
-      desc: 'Nomor WhatsApp belum terdaftar atau salah format.',
+      label: isEn ? 'Unregistered Number' : 'Nomor Tidak Terdaftar',
+      desc: isEn ? 'WhatsApp account not registered or invalid phone number.' : 'Nomor WhatsApp belum terdaftar atau salah format.',
       class: 'diag-unregistered'
     };
   }
   if (str.includes('enoent') || str.includes('not found') || str.includes('lampiran') || str.includes('missing file') || str.includes('berkas')) {
     return {
-      label: 'Lampiran Tidak Ada',
-      desc: 'File lampiran tidak ditemukan di folder sumber.',
+      label: isEn ? 'Attachment Missing' : 'Lampiran Tidak Ada',
+      desc: isEn ? 'Attachment file was not found in source directory.' : 'File lampiran tidak ditemukan di folder sumber.',
       class: 'diag-file-missing'
     };
   }
   if (str.includes('large') || str.includes('size') || str.includes('payload') || str.includes('besar') || str.includes('terlalu besar') || str.includes('limit')) {
     return {
-      label: 'Ukuran Terlalu Besar',
-      desc: 'Ukuran file melampaui batas media WhatsApp.',
+      label: isEn ? 'File Too Large' : 'Ukuran Terlalu Besar',
+      desc: isEn ? 'File size exceeds WhatsApp media upload limit.' : 'Ukuran file melampaui batas media WhatsApp.',
       class: 'diag-file-large'
     };
   }
   if (str.includes('session') || str.includes('disconnect') || str.includes('connection') || str.includes('timeout') || str.includes('terputus') || str.includes('server')) {
     return {
-      label: 'Koneksi Terputus',
-      desc: 'Koneksi ke WhatsApp Web / Engine timeout atau terputus.',
+      label: isEn ? 'Connection Timeout' : 'Koneksi Terputus',
+      desc: isEn ? 'Sidecar engine connection timed out or disconnected.' : 'Koneksi ke WhatsApp Web / Engine timeout atau terputus.',
       class: 'diag-connection'
     };
   }
   if (str.includes('abort') || str.includes('batal') || str.includes('stop')) {
     return {
-      label: 'Dibatalkan Pengguna',
-      desc: 'Proses broadcast dihentikan manual oleh pengguna.',
+      label: isEn ? 'Cancelled by User' : 'Dibatalkan Pengguna',
+      desc: isEn ? 'Broadcast stopped manually by user.' : 'Proses broadcast dihentikan manual oleh pengguna.',
       class: 'diag-unknown'
     };
   }
   return {
-    label: 'Gagal Kirim',
+    label: isEn ? 'Dispatch Failed' : 'Gagal Kirim',
     desc: errMsg.length > 60 ? errMsg.substring(0, 57) + '...' : errMsg,
     class: 'diag-unknown'
   };
@@ -1897,58 +2480,62 @@ function addNotificationSession(session) {
 
 function clearNotificationHistory() {
   if (notificationHistory.length === 0) return;
+  const isEn = currentLang === 'en';
   showCustomConfirm({
-    title: 'Bersihkan Seluruh Riwayat?',
-    subtitle: 'Seluruh rekapitulasi dan data audit kegagalan pengiriman broadcast akan dihapus dari penyimpanan komputer.',
+    title: isEn ? 'Clear Entire History?' : 'Bersihkan Seluruh Riwayat?',
+    subtitle: isEn 
+      ? 'All past broadcast summaries and failure audit records will be permanently removed from this computer.'
+      : 'Seluruh rekapitulasi dan data audit kegagalan pengiriman broadcast akan dihapus dari penyimpanan komputer.',
     emoji: '🗑️',
     iconClass: 'hero-failed',
-    confirmText: 'Ya, Bersihkan',
+    confirmText: isEn ? 'Yes, Clear All' : 'Ya, Bersihkan',
     confirmBtnClass: 'btn-rose',
-    cancelText: 'Batal',
+    cancelText: isEn ? 'Cancel' : 'Batal',
     onConfirm: () => {
       notificationHistory = [];
       unreadNotifCount = 0;
       updateNotifBadge();
       saveNotificationHistory();
       renderNotificationDrawer();
-      appendLog('info', 'Riwayat notifikasi & audit telah dibersihkan.');
+      appendLog('info', isEn ? 'Notification & audit history has been cleared.' : 'Riwayat notifikasi & audit telah dibersihkan.');
     }
   });
 }
 
 function showCompletionModal(session) {
   if (!completionModalOverlay) return;
+  const isEn = currentLang === 'en';
 
   // Header styling & emoji
   modalHeroIcon.className = 'modal-hero-icon';
   if (session.type === 'test') {
     if (session.success > 0) {
-      modalHeroIcon.classList.add('hero-success');
+      modalHeroIcon.classList.add('state-success');
       modalHeroEmoji.textContent = '🧪';
-      modalTitle.textContent = 'Uji Coba Pengiriman Berhasil!';
-      modalSubtitle.textContent = 'Pesan uji coba berhasil terkirim ke nomor tujuan Anda.';
+      modalTitle.textContent = isEn ? 'Test Message Dispatched!' : 'Uji Coba Pengiriman Berhasil!';
+      modalSubtitle.textContent = isEn ? 'Test message was successfully dispatched to your phone.' : 'Pesan uji coba berhasil terkirim ke nomor tujuan Anda.';
     } else {
-      modalHeroIcon.classList.add('hero-failed');
+      modalHeroIcon.classList.add('state-warning');
       modalHeroEmoji.textContent = '⚠️';
-      modalTitle.textContent = 'Uji Coba Pengiriman Gagal';
-      modalSubtitle.textContent = 'Pesan uji coba tidak dapat dikirim ke nomor tujuan.';
+      modalTitle.textContent = isEn ? 'Test Message Failed' : 'Uji Coba Pengiriman Gagal';
+      modalSubtitle.textContent = isEn ? 'Test message could not be dispatched to destination number.' : 'Pesan uji coba tidak dapat dikirim ke nomor tujuan.';
     }
   } else {
     if (session.failed === 0) {
-      modalHeroIcon.classList.add('hero-success');
+      modalHeroIcon.classList.add('state-success');
       modalHeroEmoji.textContent = '🎉';
-      modalTitle.textContent = 'Broadcast Selesai Sempurna!';
-      modalSubtitle.textContent = `Seluruh ${session.total} pesan berhasil dikirimkan ke penerima tanpa kendala.`;
+      modalTitle.textContent = isEn ? 'Broadcast Completed Successfully!' : 'Broadcast Selesai Sempurna!';
+      modalSubtitle.textContent = isEn ? `All ${session.total} messages were dispatched successfully without issues.` : `Seluruh ${session.total} pesan berhasil dikirimkan ke penerima tanpa kendala.`;
     } else if (session.success > 0) {
-      modalHeroIcon.classList.add('hero-warning');
+      modalHeroIcon.classList.add('state-warning');
       modalHeroEmoji.textContent = '⚠️';
-      modalTitle.textContent = 'Broadcast Selesai (Ada Kendala)';
-      modalSubtitle.textContent = `${session.success} pesan terkirim, namun terdapat ${session.failed} kontak gagal.`;
+      modalTitle.textContent = isEn ? 'Broadcast Completed with Issues' : 'Broadcast Selesai (Ada Kendala)';
+      modalSubtitle.textContent = isEn ? `${session.success} sent successfully, but ${session.failed} contacts failed.` : `${session.success} pesan terkirim, namun terdapat ${session.failed} kontak gagal.`;
     } else {
-      modalHeroIcon.classList.add('hero-failed');
+      modalHeroIcon.classList.add('state-warning');
       modalHeroEmoji.textContent = '❌';
-      modalTitle.textContent = 'Broadcast Gagal Terkirim';
-      modalSubtitle.textContent = `Seluruh ${session.total} kontak mengalami kegagalan saat pengiriman.`;
+      modalTitle.textContent = isEn ? 'Broadcast Failed to Dispatch' : 'Broadcast Gagal Terkirim';
+      modalSubtitle.textContent = isEn ? `All ${session.total} contacts encountered delivery failures.` : `Seluruh ${session.total} kontak mengalami kegagalan saat pengiriman.`;
     }
   }
 
@@ -1956,22 +2543,33 @@ function showCompletionModal(session) {
   modalStatSuccess.textContent = session.success;
   modalStatFailed.textContent = session.failed;
   modalStatTotal.textContent = session.total;
-  modalStatDuration.textContent = `${session.durationSec || 0} dtk`;
+  modalStatDuration.textContent = `${session.durationSec || 0} ${isEn ? 'sec' : 'dtk'}`;
 
   // Failures breakdown table
   if (session.failed > 0 && session.failures && session.failures.length > 0) {
     modalFailuresSection.style.display = 'block';
     modalFailuresCount.textContent = session.failures.length;
+    const failuresH3 = document.querySelector('.failures-header h3');
+    if (failuresH3) failuresH3.innerHTML = `${isEn ? 'Failed Contacts Breakdown' : 'Rincian Kontak Gagal'} (<span id="modalFailuresCount">${session.failures.length}</span>)`;
+    const failuresHint = document.querySelector('.failures-hint');
+    if (failuresHint) failuresHint.textContent = isEn ? 'Check diagnostic reasons below:' : 'Periksa alasan kendala di bawah ini:';
+    const failThs = document.querySelectorAll('.failures-table th');
+    if (failThs && failThs.length >= 3) {
+      failThs[0].textContent = isEn ? 'Recipient' : 'Penerima';
+      failThs[1].textContent = isEn ? 'WhatsApp Number' : 'Nomor WhatsApp';
+      failThs[2].textContent = isEn ? 'Diagnostic Reason' : 'Diagnosa Kendala';
+    }
     modalFailuresTableBody.innerHTML = '';
 
     session.failures.forEach(f => {
+      const diagInfo = categorizeError(f.error || (f.diag ? f.diag.desc : ''));
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><strong style="color: var(--text-heading);">${escapeHtml(f.name)}</strong></td>
         <td><code>${escapeHtml(f.phone)}</code></td>
         <td>
-          <span class="diag-badge ${f.diag.class}">${escapeHtml(f.diag.label)}</span>
-          <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 2px;">${escapeHtml(f.diag.desc)}</div>
+          <span class="diag-badge ${diagInfo.class}">${escapeHtml(diagInfo.label)}</span>
+          <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 2px;">${escapeHtml(diagInfo.desc)}</div>
         </td>
       `;
       modalFailuresTableBody.appendChild(tr);
@@ -1979,7 +2577,7 @@ function showCompletionModal(session) {
 
     if (session.type === 'broadcast') {
       btnModalRetryFailed.style.display = 'inline-flex';
-      modalRetryBtnCount.textContent = session.failures.length;
+      btnModalRetryFailed.innerHTML = `<svg class="icon"><use href="#icon-refresh"/></svg> ${isEn ? 'Retry Failed Contacts' : 'Kirim Ulang Kontak Gagal'} (<span id="modalRetryBtnCount">${session.failures.length}</span>)`;
     } else {
       btnModalRetryFailed.style.display = 'none';
     }
@@ -2022,6 +2620,7 @@ function toggleNotificationDrawer(forceOpen) {
 function renderNotificationDrawer() {
   if (!notifHistoryBody) return;
   notifHistoryBody.innerHTML = '';
+  const isEn = currentLang === 'en';
 
   if (notificationHistory.length === 0) {
     notifHistoryBody.innerHTML = `
@@ -2030,8 +2629,8 @@ function renderNotificationDrawer() {
           <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
           <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
         </svg>
-        <p style="font-weight: 600; color: var(--text-heading); margin-bottom: 2px;">Belum Ada Riwayat</p>
-        <p style="font-size: 0.78rem;">Setiap sesi broadcast atau uji coba yang selesai akan tercatat otomatis di sini.</p>
+        <p style="font-weight: 600; color: var(--text-heading); margin-bottom: 2px;">${isEn ? 'No History Yet' : 'Belum Ada Riwayat'}</p>
+        <p style="font-size: 0.78rem;">${isEn ? 'Completed broadcast sessions and test dispatches will be recorded here.' : 'Setiap sesi broadcast atau uji coba yang selesai akan tercatat otomatis di sini.'}</p>
       </div>
     `;
     return;
@@ -2046,28 +2645,33 @@ function renderNotificationDrawer() {
     const isSuccessOnly = session.failed === 0;
 
     let badgeTypeClass = isTest ? 'badge-duration' : (isSuccessOnly ? 'badge-success' : 'badge-failed');
-    let typeLabel = isTest ? '🧪 Uji Coba' : (isSuccessOnly ? '✓ Selesai Sempurna' : '⚠️ Selesai (Ada Gagal)');
+    let typeLabel = isTest 
+      ? (isEn ? '🧪 Test' : '🧪 Uji Coba') 
+      : (isSuccessOnly ? (isEn ? '✓ 100% Success' : '✓ Selesai Sempurna') : (isEn ? '⚠️ Issues Found' : '⚠️ Selesai (Ada Gagal)'));
 
     let failuresHtml = '';
     if (hasFailures && session.failures && session.failures.length > 0) {
       failuresHtml = `
         <div style="margin-top: 4px;">
           <button type="button" class="history-toggle-details-btn" data-idx="${idx}">
-            Lihat ${session.failures.length} Kontak Gagal & Diagnosa ▾
+            ${isEn ? `View ${session.failures.length} Failed Contacts & Diagnostics ▾` : `Lihat ${session.failures.length} Kontak Gagal & Diagnosa ▾`}
           </button>
           <div class="history-failures-drawer-list" id="drawerFailures_${idx}" style="display: none; margin-top: 8px;">
-            ${session.failures.map(f => `
+            ${session.failures.map(f => {
+              const diagInfo = categorizeError(f.error || (f.diag ? f.diag.desc : ''));
+              return `
               <div class="history-fail-item">
                 <div>
                   <div class="history-fail-user">${escapeHtml(f.name)}</div>
                   <div class="history-fail-phone">${escapeHtml(f.phone)}</div>
                 </div>
                 <div style="text-align: right;">
-                  <span class="diag-badge ${f.diag.class}">${escapeHtml(f.diag.label)}</span>
-                  <div style="font-size: 0.68rem; color: var(--text-dim); max-width: 170px;">${escapeHtml(f.diag.desc)}</div>
+                  <span class="diag-badge ${diagInfo.class}">${escapeHtml(diagInfo.label)}</span>
+                  <div style="font-size: 0.68rem; color: var(--text-dim); max-width: 170px;">${escapeHtml(diagInfo.desc)}</div>
                 </div>
               </div>
-            `).join('')}
+            `;
+            }).join('')}
           </div>
         </div>
       `;
@@ -2076,17 +2680,17 @@ function renderNotificationDrawer() {
     card.innerHTML = `
       <div class="history-card-top">
         <div>
-          <span class="history-card-title">${isTest ? 'Uji Coba Pengiriman' : 'Sesi Broadcast'}</span>
+          <span class="history-card-title">${isTest ? (isEn ? 'Test Message Dispatch' : 'Uji Coba Pengiriman') : (isEn ? 'Broadcast Session' : 'Sesi Broadcast')}</span>
           <div class="history-card-time">${escapeHtml(session.formattedTime || '')}</div>
         </div>
         <span class="history-badge ${badgeTypeClass}">${typeLabel}</span>
       </div>
       <div class="history-badges-row">
-        <span class="history-badge badge-success">✓ ${session.success} Sukses</span>
-        ${session.failed > 0 ? `<span class="history-badge badge-failed">✗ ${session.failed} Gagal</span>` : ''}
-        <span class="history-badge badge-duration">⏱ ${session.durationSec || 0} dtk</span>
+        <span class="history-badge badge-success">✓ ${session.success} ${isEn ? 'Sent' : 'Sukses'}</span>
+        ${session.failed > 0 ? `<span class="history-badge badge-failed">✗ ${session.failed} ${isEn ? 'Failed' : 'Gagal'}</span>` : ''}
+        <span class="history-badge badge-duration">⏱ ${session.durationSec || 0} ${isEn ? 'sec' : 'dtk'}</span>
         <span class="history-badge" style="background: rgba(148, 163, 184, 0.15); color: var(--text-dim);">
-          Mode: ${session.mode === 'attachment' ? 'Lampiran' : 'Teks'}
+          Mode: ${session.mode === 'attachment' ? (isEn ? 'Attachment' : 'Lampiran') : (isEn ? 'Text' : 'Teks')}
         </span>
       </div>
       ${failuresHtml}

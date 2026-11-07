@@ -1,32 +1,34 @@
 @echo off
-title Bulk WA Sender - Rust Core Edition
+title Bulk WA Sender v1.0 - Rust Core Edition
 color 0B
 cd /d "%~dp0"
 
 echo ========================================================
-echo   BULK WA SENDER - RUST CORE EDITION
+echo   BULK WA SENDER v1.0 - RUST CORE EDITION
 echo   Design ^& Craft by schrist. (https://schrist.cyou)
 echo ========================================================
 echo.
 
-:: 1. Memeriksa & membebaskan port jika ada sesi sebelumnya
-echo [*] Menyiapkan lingkungan sistem...
+:: 1. Preparing environment and cleaning legacy port locks
+echo [*] Initializing runtime environment...
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3847 ^| findstr LISTENING') do taskkill /f /pid %%a >nul 2>&1
 taskkill /f /im Bulk_WA_Sender.exe >nul 2>&1
 taskkill /f /im app.exe >nul 2>&1
 
-:: 2. Menjalankan engine WhatsApp di latar belakang
-echo [*] Memulai WhatsApp Engine Sidecar...
+:: 2. Launching background WhatsApp Engine Sidecar
+echo [*] Starting WhatsApp Engine Sidecar service...
 start "WhatsApp Engine Sidecar" /min node sidecar\server.js
 
-:: 3. Meluncurkan Aplikasi Desktop
-echo [*] Meluncurkan aplikasi...
+:: 3. Launching Desktop Application
+echo [*] Launching Bulk WA Sender desktop client...
 timeout /t 1 /nobreak >nul
 
 if exist "Bulk_WA_Sender.exe" (
   start "" "Bulk_WA_Sender.exe"
 ) else if exist "app.exe" (
   start "" "app.exe"
+) else if exist "dist\Bulk_WA_Sender_v1.0.0_x64_Portable.exe" (
+  start "" "dist\Bulk_WA_Sender_v1.0.0_x64_Portable.exe"
 ) else if exist "src-tauri\target\release\app.exe" (
   start "" "src-tauri\target\release\app.exe"
 ) else if exist "src-tauri\target\debug\app.exe" (
@@ -45,8 +47,9 @@ if exist "Bulk_WA_Sender.exe" (
 
 echo.
 echo ========================================================
-echo   Bulk WA Sender siap digunakan!
-echo   Jendela ini akan tertutup otomatis...
+echo   Bulk WA Sender v1.0 launched successfully!
+echo   This window will close automatically...
 echo ========================================================
 timeout /t 2 /nobreak >nul
 exit
+

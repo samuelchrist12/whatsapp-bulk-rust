@@ -32,6 +32,8 @@ browser.pid
 **/browser.pid
 
 # Local User Configurations & Runtime Preferences
+data_contoh/
+**/data_contoh/
 bulk_wa_preferences.json
 ANALISIS_DAN_PENGEMBANGAN.md
 *.log

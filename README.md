@@ -1,13 +1,14 @@
 <div align="center">
 
   <h1>⚡ Bulk WA Sender (Rust Core Edition)</h1>
-  <p><strong>Aplikasi Desktop Otomasi Pengirim WhatsApp Massal Berperforma Tinggi</strong></p>
-  <p><em>Ditenagai Rust Core Native, Dynamic Attachment Matching, Spintax Anti-Ban, Custom Completion Modal, dan Audit Riwayat Kegagalan.</em></p>
+  <p><strong>Ultra-Fast Desktop WhatsApp Broadcast & Personalized Document Dispatcher</strong></p>
+  <p><em>Engineered with Tauri v2 Native Rust Core, Dynamic File Attachment Matching, Spintax Anti-Ban Engine, Bilingual UI, and M3 Obsidian Emerald Aesthetics.</em></p>
 
   <p>
+    <img src="https://img.shields.io/badge/Release-v1.0.0-059669?style=for-the-badge&logo=github&logoColor=white" alt="Release v1.0.0" />
     <img src="https://img.shields.io/badge/Tauri-v2.0-24C8D8?style=for-the-badge&logo=tauri&logoColor=white" alt="Tauri v2" />
-    <img src="https://img.shields.io/badge/Rust-2021%20Edition-DEA584?style=for-the-badge&logo=rust&logoColor=black" alt="Rust" />
-    <img src="https://img.shields.io/badge/Node.js-Engine%20Sidecar-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+    <img src="https://img.shields.io/badge/Rust-2024%20Edition-DEA584?style=for-the-badge&logo=rust&logoColor=black" alt="Rust" />
+    <img src="https://img.shields.io/badge/Node.js-Sidecar%20Engine-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
     <img src="https://img.shields.io/badge/Design-Material%20Design%203-059669?style=for-the-badge&logo=material-design&logoColor=white" alt="M3" />
     <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011%20x64-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Windows" />
     <img src="https://img.shields.io/badge/License-MIT-blue?style=for-the-badge" alt="License" />
@@ -21,13 +22,13 @@
 
 ---
 
-## 📸 Preview Antarmuka
+## 📸 Interface Preview
 
 <div align="center">
-  <h3>✨ Workspace Utama (Obsidian Emerald Theme)</h3>
-  <img src="docs/screenshots/01_workspace_dark.png" alt="Workspace Utama Dark Mode" width="850" />
+  <h3>✨ Obsidian Emerald Workspace (Dark & Light Modes)</h3>
+  <img src="docs/screenshots/01_workspace_dark.png" alt="Main Workspace Dark Mode" width="850" />
   <br/><br/>
-  <img src="docs/screenshots/02_workspace_light.png" alt="Workspace Utama Light Mode" width="850" />
+  <img src="docs/screenshots/02_workspace_light.png" alt="Main Workspace Light Mode" width="850" />
 </div>
 
 <br/>
@@ -35,190 +36,159 @@
 <table align="center">
   <tr>
     <td align="center" width="50%">
-      <strong>🛡️ Two-View Gateway (Loading & QR Scan)</strong><br/><br/>
+      <strong>🛡️ Two-View Gateway (QR Scanner & Verification)</strong><br/><br/>
       <img src="docs/screenshots/03_gateway_loading.png" alt="Gateway Screen" width="400" />
     </td>
     <td align="center" width="50%">
-      <strong>🔔 Modal Notifikasi Hasil & Diagnosa Kendala</strong><br/><br/>
-      <img src="docs/screenshots/04_modal_failed_audit.png" alt="Custom Completion Modal" width="400" />
+      <strong>🔔 Intelligent Completion & Failure Diagnostic Modal</strong><br/><br/>
+      <img src="docs/screenshots/04_modal_failed_audit.png" alt="Completion Modal" width="400" />
     </td>
   </tr>
   <tr>
     <td align="center" width="50%">
-      <strong>📑 Flyout Drawer Riwayat Notifikasi & Audit</strong><br/><br/>
-      <img src="docs/screenshots/05_notif_drawer_history.png" alt="Flyout Drawer Riwayat" width="400" />
+      <strong>📑 Flyout Notification Drawer & Audit History</strong><br/><br/>
+      <img src="docs/screenshots/05_notif_drawer_history.png" alt="Flyout Drawer" width="400" />
     </td>
     <td align="center" width="50%">
-      <strong>🎉 100% Sukses Modal (Light Mode)</strong><br/><br/>
-      <img src="docs/screenshots/06_modal_success_light.png" alt="Modal Sukses Light Mode" width="400" />
+      <strong>🎉 100% Success Modal (Refined Light Mode)</strong><br/><br/>
+      <img src="docs/screenshots/06_modal_success_light.png" alt="Success Modal Light Mode" width="400" />
     </td>
   </tr>
 </table>
 
 ---
 
-## 🌟 Fitur Utama
+## 🌟 Key Features
 
-### 1. ⚡ Arsitektur Hybrid: Tauri v2 Rust Core + Node.js Engine
-- **Performa Native Rust**: Pengolahan dataset Excel/CSV puluhan ribu baris dan pemindaian file lampiran dilakukan di tingkat memori binary Rust (`calamine` & `walkdir`).
-- **Sidecar WhatsApp Tanpa Jendela**: Engine otomasi berjalan di latar belakang secara hening (`CREATE_NO_WINDOW`) tanpa membebani memori CPU.
-- **Konsumsi Memori Ringan**: Membawa efisiensi Tauri v2 dengan konsumsi RAM yang jauh lebih hemat dibanding Electron konvensional.
+### 1. ⚡ Hybrid Architecture: Tauri v2 Rust Core + Node.js Engine
+- **Native Rust Speed**: High-performance parsing of massive Excel (`.xlsx`) and `.csv` contact books via `calamine`, combined with blazing-fast file scanning via `walkdir`.
+- **Silent Background Automation**: WhatsApp Web engine runs quietly in the background without UI stutter.
+- **Resource Efficient**: Substantially lower RAM consumption compared to standard Electron applications.
 
-### 2. 🛡️ Two-View Secure Gateway
-- **Tampilan 1 (Gateway Terpusat)**: Saat aplikasi dibuka, sistem otomatis mengecek sesi WhatsApp. Jika belum terhubung, antarmuka menyajikan layar terpusat dengan instruksi jelas dan QR Code yang tajam.
-- **Tampilan 2 (Workspace 2-Kolom)**: Begitu scan QR berhasil, aplikasi otomatis mengalihkan pengguna ke workspace utama. Dilengkapi tombol **Reset Sesi** di titlebar untuk berganti akun kapan saja.
+### 2. 🌐 Built-in Bilingual Interface (`ID` | `EN`)
+- Seamless language switcher embedded directly in the titlebar.
+- Instant, non-reloading localization across all labels, placeholders, Spintax greetings, status pills, audit drawers, and completion modals.
+- Persistent language choice saved in local storage.
 
-### 3. 📎 Dynamic Smart Attachment Matching
-- **Pemindaian Fleksibel**:
-  - *Berdasarkan Nama Penerima*: Mencocokkan nama kontak dari Excel dengan file di folder sumber (misal `Budi Santoso.pdf`, `Budi Santoso.jpg`).
-  - *Berdasarkan Kolom Excel*: Menggunakan referensi nomor invoice, ID unik, atau nama file spesifik.
-- **Dukungan Multi-Format**: PDF, JPG, PNG, WEBP, DOCX, XLSX.
-- **Verifikasi Pra-Kirim (Pre-Flight)**: Indikator visual hijau/merah di tabel kontak untuk memastikan semua lampiran tersedia sebelum tombol broadcast ditekan.
+### 3. 📎 Dynamic Smart File Attachment Matching
+- **Intelligent Discovery**:
+  - *By Recipient Name*: Automatically finds individualized files matching the recipient's name (e.g., `Budi Santoso.pdf`, `John Doe.jpg`).
+  - *By Spreadsheet Column*: References invoice numbers, tax IDs, or custom file keys defined in your sheet.
+- **Multi-Format Support**: `.pdf`, `.docx`, `.xlsx`, `.zip`, `.csv`, `.jpg`, `.png`, and `.webp`.
+- **Pre-flight Status Validation**: Visual check badges alert you before dispatching whether every recipient's attachment is present on disk.
 
 ### 4. 💬 Dynamic Interpolation & Spintax Engine (Anti-Ban)
-- **Tag Kolom Dinamis**: Masukkan `{Nama Lengkap}`, `{Kota Cabang}`, `{Nomor Invoice}`, `{Nominal Tagihan}` ke dalam template pesan dengan 1 klik.
-- **Salam Berdasarkan Waktu**: Variabel `{Salam}` otomatis menyesuaikan menjadi *Selamat Pagi*, *Selamat Siang*, *Selamat Sore*, atau *Selamat Malam*.
-- **Spintax Acak**: Gunakan format `{Halo|Hai|Selamat Siang}` untuk memvariasikan isi pesan ke setiap kontak guna mencegah deteksi spam WhatsApp.
-- **Format Rupiah Otomatis**: Angka nominal otomatis diformat ke Rupiah standar Indonesia (`Rp 2.750.000`).
+- **One-Click Tag Insertion**: Insert `{Full Name}`, `{Branch City}`, `{Invoice Number}`, or `{Total Due}` directly into your template.
+- **Time-Aware Salutations**: `{Salam}` dynamically outputs *Good morning*, *Good afternoon*, *Good evening*, or *Selamat Pagi/Siang/Sore/Malam*.
+- **Spintax Variations**: Randomize openings with `{Hello|Hi|Greetings}` or `{Halo|Hai|Selamat Siang}` to avoid spam detection patterns.
+- **Localized Number Formatting**: Automatically formats invoice totals into standard currency expressions.
 
-### 5. ⏱️ Anti-Ban Smart Timing & Batch Cooldown
-- **Randomized Jitter Interval**: Delay acak antara pengiriman pesan (default: 3 - 7 detik).
-- **Cooldown Batch Pause**: Jeda otomatis setelah sejumlah pesan terkirim (contoh: jeda 60 detik setiap 20 pesan) agar ritme menyerupai pengetikan manusia asli.
-- **Kontrol Penuh**: Tombol *Jeda*, *Lanjutkan*, dan *Berhenti Manual* siap digunakan kapan saja.
+### 5. ⏱️ Anti-Ban Smart Timing & Batch Throttling
+- **Humanized Jitter Delay**: Natural randomized pause intervals (default: 3 to 7 seconds).
+- **Batch Cooldown Controls**: Configurable rest periods (e.g., pause 60s every 20 messages) to emulate human typing patterns.
+- **Realtime Dispatch Controls**: Instant pause, resume, and cancellation at any point during broadcast.
 
-### 6. 🔔 Custom Material Design 3 Modal & Audit Flyout Drawer
-- **Bukan Alert Bawaan Browser**: Seluruh notifikasi dikemas dalam modal dialog Obsidian Emerald yang elegan.
-- **Diagnosa Cerdas Kontak Gagal**:
-  - 🔴 *Nomor Tidak Terdaftar*: Akun WA tujuan tidak aktif / format nomor keliru.
-  - 🟡 *Lampiran Tidak Ada*: File tidak ditemukan di direktori sumber.
-  - 🟣 *Ukuran Terlalu Besar*: File melampaui batas transmisi media WhatsApp.
-  - 🌐 *Koneksi Terputus*: Gangguan jaringan / timeout server sidecar.
-- **1-Click Retry Failed**: Tombol kirim ulang otomatis memilih hanya kontak yang gagal dan memfilternya di tabel.
-- **Drawer Riwayat di Title Bar**: Ikon lonceng dengan unread counter badge dan histori lengkap tersimpan di `localStorage`.
-
-### 7. 🎨 Obsidian Emerald M3 Aesthetic
-- UI modern berbasis Material Design 3 dengan nuansa warna *Obsidian Emerald* (`#059669`).
-- Switcher tema *Light* & *Dark* instan dengan dukungan navigasi keyboard (`ArrowLeft` / `ArrowRight`).
-- Window controls custom yang bersih (Minimize, Maximize, Close).
+### 6. 🔔 Material Design 3 Modal & Audit Flyout Drawer
+- Replaces standard browser dialogs with polished M3 dialogs in Obsidian Emerald aesthetics.
+- **Categorized Failure Diagnostics**:
+  - 🔴 *Unregistered Number*: WhatsApp account not found or invalid phone format.
+  - 🟡 *Attachment Missing*: File not found in source folder.
+  - 🟣 *File Too Large*: Media exceeds maximum upload size limits.
+  - 🌐 *Connection Timeout*: Sidecar or network communication interruption.
+- **1-Click Retry Failed**: Easily isolate failed contacts and re-dispatch them instantly.
+- **Persistent Notification Drawer**: Click the titlebar bell to review unread notifications and past dispatch batches.
 
 ---
 
-## 🏗️ Arsitektur Sistem
+## 📁 Repository Structure
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                       DESKTOP CLIENT                        │
-│                                                             │
-│   ┌─────────────────────────────────────────────────────┐   │
-│   │             Tauri v2 Frontend (WebView2)            │   │
-│   │      HTML5 • CSS3 (Obsidian Emerald) • ES6 JS       │   │
-│   └──────────────────────────┬──────────────────────────┘   │
-│                              │ IPC (tauriCore.invoke)       │
-│   ┌──────────────────────────▼──────────────────────────┐   │
-│   │                 Rust Core Backend                   │   │
-│   │   • Fast Excel Parser (calamine)                    │   │
-│   │   • Fuzzy File Scanner (walkdir)                    │   │
-│   │   • Sidecar Auto-Launcher & Native Window Controls  │   │
-│   │   • Native URL Protocol Handler (rundll32 url.dll)  │   │
-│   └──────────────────────────┬──────────────────────────┘   │
-│                              │ Local HTTP REST (:3847)      │
-│   ┌──────────────────────────▼──────────────────────────┐   │
-│   │            WhatsApp Engine (Node.js Sidecar)        │   │
-│   │   • Baileys / whatsapp-web.js (Headless Chromium)   │   │
-│   │   • Local Session Isolation (.wa_session)           │   │
-│   │   • Anti-Ban Queue Controller & Realtime Progress   │   │
-│   └─────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 📁 Struktur Direktori
-
-```
-Bulk_WA_Rust/
-├── data_contoh/                  # Data uji coba (Excel kontak & berkas lampiran)
-│   ├── Daftar_Kontak_Penerima.xlsx
-│   ├── Daftar_Kontak_Penerima.csv
-│   └── lampiran/                 # Contoh file PDF, JPG, PNG, DOCX
-├── docs/                         # Dokumentasi & aset visual
-│   ├── screenshots/              # Cuplikan antarmuka aplikasi
-│   └── PANDUAN.md                # Panduan teknis penggunaan
-├── scripts/                      # Script helper & generator screenshot
-├── sidecar/                      # Node.js WhatsApp Engine
-│   ├── server.js                 # HTTP REST API server otomasi WA
-│   └── package.json
-├── src-tauri/                    # Source code Rust backend Tauri v2
+```text
+├── sample_data/               # Sample contacts (XLSX, CSV) & attachment files
+│   ├── Sample_Contact_List.xlsx
+│   ├── Sample_Contact_List.csv
+│   └── attachments/           # Sample PDF, DOCX, JPG, and PNG files
+├── dist/                      # Production executables & release packages
+│   ├── Bulk_WA_Sender_v1.0.0_x64_Setup.exe     (NSIS Installer)
+│   ├── Bulk_WA_Sender_v1.0.0_x64_Portable.exe  (Clean Standalone)
+│   ├── Bulk_WA_Sender_v1.0.0_x64_Testing.exe   (Testing Standalone)
+│   ├── sample_data_starter_pack.zip
+│   ├── RELEASE_NOTES_v1.0.0.md
+│   └── checksums.txt
+├── docs/                      # Screenshots, documentation, and user guide
+│   ├── USER_GUIDE.md
+│   └── screenshots/
+├── src-tauri/                 # Tauri v2 Rust Core backend
 │   ├── src/
-│   │   ├── main.rs
-│   │   ├── lib.rs                # Registry command Tauri & sidecar controller
-│   │   ├── excel.rs              # Engine parser Excel/CSV berkecepatan tinggi
-│   │   └── attachment.rs         # Pemindai dan pencocok lampiran
+│   │   ├── lib.rs             # Tauri command routing & flavor detection
+│   │   ├── excel.rs           # Fast spreadsheet parser & resolver
+│   │   ├── attachment.rs      # High-speed file crawler & matcher
+│   │   └── main.rs
 │   ├── Cargo.toml
 │   └── tauri.conf.json
-├── ui/                           # Antarmuka pengguna (Frontend)
-│   ├── index.html                # Struktur 2-tampilan (Gateway & Workspace)
-│   ├── style.css                 # Sistem desain token Obsidian Emerald M3
-│   ├── app.js                    # Controller utama, Spintax, modal & drawer
-│   └── assets/                   # SVG Icons & SheetJS fallback
-├── .gitignore                    # Konfigurasi proteksi keamanan commit
-├── Jalankan_Aplikasi.bat         # Launcher 1-klik untuk pengguna Windows
-└── README.md                     # Dokumentasi utama proyek
+├── sidecar/                   # WhatsApp engine background service
+│   ├── server.js              # Express + whatsapp-web.js handler
+│   └── package.json
+├── ui/                        # Obsidian Emerald M3 Frontend
+│   ├── index.html             # Application markup & SVGs
+│   ├── style.css              # Theme tokens & responsive styles
+│   └── app.js                 # Bilingual i18n & application controller
+└── Run_Application.bat        # Windows launcher script
 ```
 
 ---
 
-## 🚀 Panduan Menjalankan & Membangun
+## 🚀 Getting Started
 
-### Prasyarat
-1. **Windows 10 / 11 (64-bit)**
-2. **Node.js** (v18.0.0 atau lebih baru)
-3. **Rust & Cargo** (1.75.0 atau lebih baru)
-4. **Build Tools C++** (Microsoft C++ Build Tools atau Visual Studio)
+### Option 1: Standalone / Portable `.exe` (No Installation Required)
+1. Download **`Bulk_WA_Sender_v1.0.0_x64_Portable.exe`** from [Releases](https://github.com/samuelchrist12/whatsapp-bulk-rust/releases).
+2. Download **`sample_data_starter_pack.zip`** and extract it into the same folder.
+3. Launch the `.exe` directly.
 
-### 1. Clone Repository
+### Option 2: Build from Source
+
+#### Prerequisites
+- [Node.js](https://nodejs.org/) (v18+)
+- [Rust & Cargo](https://rustup.rs/) (2021/2024 edition)
+- Windows 10 / 11 x64
+
+#### Development Setup
 ```bash
+# Clone the repository
 git clone https://github.com/samuelchrist12/whatsapp-bulk-rust.git
 cd whatsapp-bulk-rust
-```
 
-### 2. Pasang Dependensi Sidecar
-```bash
+# Install sidecar dependencies
 cd sidecar
 npm install
 cd ..
-```
 
-### 3. Mode Pengembangan (Development)
-Untuk menjalankan aplikasi dalam mode live-reload:
-```bash
-cd src-tauri
+# Run in development mode
 cargo tauri dev
 ```
-*Atau jalankan file batch instan: `Jalankan_Aplikasi.bat`.*
 
-### 4. Build Binary Produksi (.exe)
-Untuk mengompilasi binary standalone siap distribusi:
+#### Production Build
 ```bash
-cd src-tauri
-cargo build --release
+# Build optimized Rust binary
+cargo build --release --manifest-path src-tauri/Cargo.toml
+
+# Build full NSIS installer bundle
+npx @tauri-apps/cli build --bundles nsis
 ```
-Binary hasil kompilasi akan berada di: `src-tauri/target/release/Bulk_WA_Sender.exe`.
 
 ---
 
-## 🛡️ Keamanan & Privasi
-
-1. **Penyimpanan Lokal (Zero Cloud Storage)**: Semua sesi WhatsApp, data kontak, pesan, dan lampiran disimpan 100% secara lokal di komputer pengguna.
-2. **Kredensial Aman**: Folder sesi WhatsApp (`.wa_session` dan `.wwebjs_cache`) secara eksplisit diabaikan oleh `.gitignore` sehingga tidak akan pernah terunggah ke repositori publik.
-3. **Anti-Ban Awareness**: Pengguna disarankan tetap bijak dalam menentukan interval delay dan jumlah kontak harian sesuai kebijakan WhatsApp Business.
+## 🔒 Privacy & Safety Notice
+- **100% Local Processing**: All contact numbers, spreadsheets, and attachments are processed strictly on your local computer. No customer data is ever sent to third-party cloud servers.
+- **WhatsApp Terms Compliance**: This tool is designed for legitimate business notifications, customer service alerts, and announcements. Please adhere to WhatsApp's anti-spam regulations and obtain recipient consent.
 
 ---
 
-## 👨‍💻 Kontributor & Lisensi
+## 📄 License
 
-Dibuat dengan ❤️ oleh **[schrist.](https://schrist.cyou)**  
-GitHub: [@samuelchrist12](https://github.com/samuelchrist12)
+Distributed under the **MIT License**. See `LICENSE` for details.
 
-Proyek ini dilisensikan di bawah lisensi **[MIT License](LICENSE)**. Anda bebas menggunakan, memodifikasi, dan mendistribusikan perangkat lunak ini untuk keperluan komersial maupun pribadi.
+---
 
+<div align="center">
+  Crafted with precision by <a href="https://schrist.cyou"><strong>schrist.design</strong></a>
+</div>
