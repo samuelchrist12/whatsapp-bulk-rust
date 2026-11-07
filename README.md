@@ -179,8 +179,8 @@ Bulk_WA_Rust/
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/samuelchrist12/Bulk_WA_Rust.git
-cd Bulk_WA_Rust
+git clone https://github.com/samuelchrist12/whatsapp-bulk-rust.git
+cd whatsapp-bulk-rust
 ```
 
 ### 2. Pasang Dependensi Sidecar
@@ -222,3 +222,4 @@ Dibuat dengan ❤️ oleh **[schrist.](https://schrist.cyou)**
 GitHub: [@samuelchrist12](https://github.com/samuelchrist12)
 
 Proyek ini dilisensikan di bawah lisensi **[MIT License](LICENSE)**. Anda bebas menggunakan, memodifikasi, dan mendistribusikan perangkat lunak ini untuk keperluan komersial maupun pribadi.
+
