@@ -11,6 +11,8 @@
 *.dylib
 app.exe
 Bulk_WA_Sender.exe
+dist/
+**/dist/
 
 # Rust Build Directory
 target/
