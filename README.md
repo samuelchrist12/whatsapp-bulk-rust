@@ -143,8 +143,7 @@ Bulk_WA_Rust/
 │   └── lampiran/                 # Contoh file PDF, JPG, PNG, DOCX
 ├── docs/                         # Dokumentasi & aset visual
 │   ├── screenshots/              # Cuplikan antarmuka aplikasi
-│   ├── PANDUAN.md                # Panduan teknis penggunaan
-│   └── ANALISIS_DAN_PENGEMBANGAN.md
+│   └── PANDUAN.md                # Panduan teknis penggunaan
 ├── scripts/                      # Script helper & generator screenshot
 ├── sidecar/                      # Node.js WhatsApp Engine
 │   ├── server.js                 # HTTP REST API server otomasi WA
