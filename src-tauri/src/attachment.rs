@@ -37,7 +37,20 @@ pub fn scan_folder_and_match(
     matching_mode: &str, // "by_name" or "by_column"
     records: &[RecordQueryInput],
 ) -> Result<AttachmentScanSummary, String> {
-    let folder_path = Path::new(folder_str);
+    let mut folder_path = PathBuf::from(folder_str);
+    if !folder_path.exists() || !folder_path.is_dir() {
+        if let Ok(exe_dir) = std::env::current_exe().map(|p| p.parent().unwrap_or(Path::new(".")).to_path_buf()) {
+            let p1 = exe_dir.join(folder_str);
+            if p1.exists() && p1.is_dir() {
+                folder_path = p1;
+            } else {
+                let p2 = exe_dir.join("..").join(folder_str);
+                if p2.exists() && p2.is_dir() {
+                    folder_path = p2;
+                }
+            }
+        }
+    }
     if !folder_path.exists() || !folder_path.is_dir() {
         return Err(format!("Direktori lampiran tidak ditemukan: {}", folder_str));
     }
@@ -51,7 +64,7 @@ pub fn scan_folder_and_match(
         "pdf", "jpg", "jpeg", "png", "webp", "docx", "xlsx", "csv", "zip", "txt"
     ];
 
-    for entry in WalkDir::new(folder_path).max_depth(2).into_iter().filter_map(|e| e.ok()) {
+    for entry in WalkDir::new(&folder_path).max_depth(2).into_iter().filter_map(|e| e.ok()) {
         if entry.file_type().is_file() {
             let path = entry.path();
             if let Some(ext) = path.extension().and_then(|s| s.to_str()).map(|s| s.to_lowercase()) {

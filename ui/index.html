@@ -854,6 +854,34 @@ Bulk WA Sender &bull; by schrist.</textarea>
   </div>
 
   <!-- ====================================================
+       CUSTOM CONFIRMATION & ACTION MODAL DIALOG
+       ==================================================== -->
+  <div id="confirmModalOverlay" class="m3-modal-overlay" style="display: none;">
+    <div class="m3-modal-dialog confirm-dialog" id="confirmModalDialog" style="max-width: 440px;">
+      <button type="button" id="btnCloseConfirmModal" class="btn-modal-close" title="Tutup">✕</button>
+
+      <div class="modal-header-section" style="padding-bottom: 8px;">
+        <div class="modal-hero-icon hero-warning" id="confirmHeroIcon">
+          <span class="hero-emoji" id="confirmHeroEmoji">🔄</span>
+        </div>
+        <h2 class="modal-title" id="confirmModalTitle">Reset Sesi WhatsApp?</h2>
+        <p class="modal-subtitle" id="confirmModalSubtitle">
+          Anda akan keluar dari akun WhatsApp saat ini dan sesi di komputer akan dibersihkan. Anda harus memindai ulang QR Code untuk menghubungkan kembali.
+        </p>
+      </div>
+
+      <div class="modal-actions-footer" style="margin-top: 18px; justify-content: flex-end; gap: 10px;">
+        <button type="button" id="btnConfirmCancel" class="btn btn-secondary btn-md">
+          Batal
+        </button>
+        <button type="button" id="btnConfirmAction" class="btn btn-amber btn-md">
+          Ya, Lanjutkan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================
        NOTIFICATION & AUDIT HISTORY FLYOUT DRAWER
        ==================================================== -->
   <div id="notifDrawerOverlay" class="drawer-backdrop" style="display: none;"></div>

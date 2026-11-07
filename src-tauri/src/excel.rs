@@ -1,7 +1,7 @@
 use calamine::{open_workbook_auto, Reader, Data};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ExcelSheetResult {
@@ -15,16 +15,29 @@ pub struct ExcelSheetResult {
 }
 
 pub fn read_spreadsheet(file_path_str: &str, sheet_opt: Option<&str>) -> Result<ExcelSheetResult, String> {
-    let path = Path::new(file_path_str);
-    if !path.exists() {
+    let mut resolved_path = PathBuf::from(file_path_str);
+    if !resolved_path.exists() {
+        if let Ok(exe_dir) = std::env::current_exe().map(|p| p.parent().unwrap_or(Path::new(".")).to_path_buf()) {
+            let p1 = exe_dir.join(file_path_str);
+            if p1.exists() {
+                resolved_path = p1;
+            } else {
+                let p2 = exe_dir.join("..").join(file_path_str);
+                if p2.exists() {
+                    resolved_path = p2;
+                }
+            }
+        }
+    }
+    if !resolved_path.exists() {
         return Err(format!("File tidak ditemukan: {}", file_path_str));
     }
 
-    let file_name = path.file_name()
+    let file_name = resolved_path.file_name()
         .map(|f| f.to_string_lossy().to_string())
         .unwrap_or_else(|| "Dokumen.xlsx".to_string());
 
-    let mut workbook = open_workbook_auto(path)
+    let mut workbook = open_workbook_auto(&resolved_path)
         .map_err(|e| format!("Gagal membuka file spreadsheet: {}", e))?;
 
     let sheet_names = workbook.sheet_names();

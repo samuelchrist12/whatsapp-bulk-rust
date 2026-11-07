@@ -439,6 +439,27 @@ function setupEventListeners() {
     });
   }
 
+  // Confirmation Modal Events
+  const btnCloseConfirmModal = document.getElementById('btnCloseConfirmModal');
+  const btnConfirmCancel = document.getElementById('btnConfirmCancel');
+  const btnConfirmAction = document.getElementById('btnConfirmAction');
+  const confirmModalOverlay = document.getElementById('confirmModalOverlay');
+
+  if (btnCloseConfirmModal) btnCloseConfirmModal.addEventListener('click', closeCustomConfirm);
+  if (btnConfirmCancel) btnConfirmCancel.addEventListener('click', closeCustomConfirm);
+  if (confirmModalOverlay) {
+    confirmModalOverlay.addEventListener('click', (e) => {
+      if (e.target === confirmModalOverlay) closeCustomConfirm();
+    });
+  }
+  if (btnConfirmAction) {
+    btnConfirmAction.addEventListener('click', () => {
+      const cb = activeConfirmCallback;
+      closeCustomConfirm();
+      if (cb) cb();
+    });
+  }
+
   // Interactive Simulation / Dummy Testing Buttons
   if (btnDummySuccessModal) {
     btnDummySuccessModal.addEventListener('click', triggerDummySuccess);
@@ -662,22 +683,32 @@ async function connectWhatsApp() {
   }
 }
 
-async function resetWhatsAppSession() {
-  if (!confirm('Apakah Anda yakin ingin keluar atau mereset sesi WhatsApp? Anda harus scan QR code kembali.')) return;
-  try {
-    showView('gateway');
-    if (gatewayLoadingBox) gatewayLoadingBox.style.display = 'flex';
-    if (gatewayQRBox) gatewayQRBox.style.display = 'none';
-    if (gatewayStatusText) gatewayStatusText.textContent = 'Mereset sesi & menyiapkan QR Code baru...';
-    if (gatewaySubHint) gatewaySubHint.textContent = 'Membersihkan sesi akun di komputer';
+function resetWhatsAppSession() {
+  showCustomConfirm({
+    title: 'Reset Sesi WhatsApp?',
+    subtitle: 'Anda akan keluar dari akun WhatsApp saat ini dan sesi akun di komputer akan dibersihkan. Anda harus memindai ulang QR Code untuk menghubungkan akun baru.',
+    emoji: '🔄',
+    iconClass: 'hero-warning',
+    confirmText: 'Ya, Reset Sesi',
+    confirmBtnClass: 'btn-amber',
+    cancelText: 'Batal',
+    onConfirm: async () => {
+      try {
+        showView('gateway');
+        if (gatewayLoadingBox) gatewayLoadingBox.style.display = 'flex';
+        if (gatewayQRBox) gatewayQRBox.style.display = 'none';
+        if (gatewayStatusText) gatewayStatusText.textContent = 'Mereset sesi & menyiapkan QR Code baru...';
+        if (gatewaySubHint) gatewaySubHint.textContent = 'Membersihkan sesi akun di komputer';
 
-    appendLog('warning', 'Mereset sesi WhatsApp & menyiapkan QR Code baru...');
-    await ensureSidecar();
-    await fetch(`${SIDECAR_API}/api/wa/reset-session`, { method: 'POST' });
-    fetchWhatsAppStatus();
-  } catch (err) {
-    appendLog('error', 'Gagal mereset sesi: ' + err.message);
-  }
+        appendLog('warning', 'Mereset sesi WhatsApp & menyiapkan QR Code baru...');
+        await ensureSidecar();
+        await fetch(`${SIDECAR_API}/api/wa/reset-session`, { method: 'POST' });
+        fetchWhatsAppStatus();
+      } catch (err) {
+        appendLog('error', 'Gagal mereset sesi: ' + err.message);
+      }
+    }
+  });
 }
 
 // ----------------------------------------------------
@@ -686,48 +717,59 @@ async function resetWhatsAppSession() {
 async function loadDemoContacts() {
   appendLog('info', 'Memuat data contoh generik (15 kontak dummy)...');
 
+  let loadedSuccessfully = false;
   // Load from pre-generated demo data
   if (isTauriEnv) {
     try {
       const demoPath = 'data_contoh/Daftar_Kontak_Penerima.xlsx';
-      await readExcelSheet(demoPath, null);
-      attachmentFolderInput.value = 'data_contoh/lampiran';
-      return;
+      const res = await tauriCore.invoke('cmd_read_excel', {
+        filePath: demoPath,
+        sheetName: null
+      });
+      if (res && res.rows && res.rows.length > 0) {
+        currentExcelMeta = res;
+        applyExcelDataToUI(res, res.rows);
+        attachmentFolderInput.value = 'data_contoh/lampiran';
+        loadedSuccessfully = true;
+        appendLog('success', `Berhasil membaca '${res.file_name}' (${res.total_rows} baris data).`);
+      }
     } catch (e) {
       console.warn('Tauri load demo error, fallbacking to client mockup:', e);
     }
   }
 
-  // Pure in-memory fallback if not yet in compiled Tauri window
-  currentExcelMeta = {
-    file_name: 'Daftar_Kontak_Penerima.xlsx',
-    file_path: 'data_contoh/Daftar_Kontak_Penerima.xlsx',
-    sheets: ['Daftar Kontak'],
-    active_sheet: 'Daftar Kontak',
-    headers: ['No', 'Nama Lengkap', 'Nomor WhatsApp', 'Kota Cabang', 'Nomor Invoice', 'Nominal Tagihan', 'File Lampiran', 'Status']
-  };
+  // If not loaded via Rust or contacts are empty (e.g. running from dist/), use built-in 15 contacts mockup
+  if (!loadedSuccessfully || contactsData.length === 0) {
+    currentExcelMeta = {
+      file_name: 'Daftar_Kontak_Penerima.xlsx',
+      file_path: 'data_contoh/Daftar_Kontak_Penerima.xlsx',
+      sheets: ['Daftar Kontak'],
+      active_sheet: 'Daftar Kontak',
+      headers: ['No', 'Nama Lengkap', 'Nomor WhatsApp', 'Kota Cabang', 'Nomor Invoice', 'Nominal Tagihan', 'File Lampiran', 'Status']
+    };
 
-  const sampleRows = [
-    { 'No': '1', 'Nama Lengkap': 'Budi Santoso', 'Nomor WhatsApp': '081299990001', 'Kota Cabang': 'Jakarta Pusat', 'Nomor Invoice': 'INV-2026-001', 'Nominal Tagihan': '2750000', 'File Lampiran': 'INV-2026-001.pdf', 'Status': 'Aktif' },
-    { 'No': '2', 'Nama Lengkap': 'Siti Rahmawati', 'Nomor WhatsApp': '081299990002', 'Kota Cabang': 'Surabaya', 'Nomor Invoice': 'INV-2026-002', 'Nominal Tagihan': '3400000', 'File Lampiran': 'INV-2026-002.pdf', 'Status': 'Aktif' },
-    { 'No': '3', 'Nama Lengkap': 'Ahmad Fauzi', 'Nomor WhatsApp': '081299990003', 'Kota Cabang': 'Bandung', 'Nomor Invoice': 'INV-2026-003', 'Nominal Tagihan': '1850000', 'File Lampiran': 'Ahmad Fauzi.jpg', 'Status': 'Aktif' },
-    { 'No': '4', 'Nama Lengkap': 'Dewi Lestari', 'Nomor WhatsApp': '081299990004', 'Kota Cabang': 'Semarang', 'Nomor Invoice': 'INV-2026-004', 'Nominal Tagihan': '4200000', 'File Lampiran': 'Dewi Lestari.pdf', 'Status': 'Aktif' },
-    { 'No': '5', 'Nama Lengkap': 'Eko Prasetyo', 'Nomor WhatsApp': '081299990005', 'Kota Cabang': 'Medan', 'Nomor Invoice': 'INV-2026-005', 'Nominal Tagihan': '2150000', 'File Lampiran': 'INV-2026-005.pdf', 'Status': 'Aktif' },
-    { 'No': '6', 'Nama Lengkap': 'Rina Handayani', 'Nomor WhatsApp': '081299990006', 'Kota Cabang': 'Yogyakarta', 'Nomor Invoice': 'INV-2026-006', 'Nominal Tagihan': '3100000', 'File Lampiran': 'Rina Handayani.pdf', 'Status': 'Aktif' },
-    { 'No': '7', 'Nama Lengkap': 'Fajar Nugraha', 'Nomor WhatsApp': '081299990007', 'Kota Cabang': 'Makassar', 'Nomor Invoice': 'INV-2026-007', 'Nominal Tagihan': '5000000', 'File Lampiran': 'Fajar Nugraha.png', 'Status': 'Aktif' },
-    { 'No': '8', 'Nama Lengkap': 'Putri Ayu Wulandari', 'Nomor WhatsApp': '081299990008', 'Kota Cabang': 'Denpasar', 'Nomor Invoice': 'INV-2026-008', 'Nominal Tagihan': '2900000', 'File Lampiran': 'INV-2026-008.docx', 'Status': 'Aktif' },
-    { 'No': '9', 'Nama Lengkap': 'Hendra Gunawan', 'Nomor WhatsApp': '081299990009', 'Kota Cabang': 'Palembang', 'Nomor Invoice': 'INV-2026-009', 'Nominal Tagihan': '3800000', 'File Lampiran': 'Hendra Gunawan.pdf', 'Status': 'Aktif' },
-    { 'No': '10', 'Nama Lengkap': 'Nurul Hidayah', 'Nomor WhatsApp': '081299990010', 'Kota Cabang': 'Malang', 'Nomor Invoice': 'INV-2026-010', 'Nominal Tagihan': '1600000', 'File Lampiran': 'INV-2026-010.pdf', 'Status': 'Aktif' },
-    { 'No': '11', 'Nama Lengkap': 'Rizky Pratama', 'Nomor WhatsApp': '081299990011', 'Kota Cabang': 'Bekasi', 'Nomor Invoice': 'INV-2026-011', 'Nominal Tagihan': '4500000', 'File Lampiran': 'Rizky Pratama.pdf', 'Status': 'Aktif' },
-    { 'No': '12', 'Nama Lengkap': 'Mega Puspita', 'Nomor WhatsApp': '081299990012', 'Kota Cabang': 'Tangerang', 'Nomor Invoice': 'INV-2026-012', 'Nominal Tagihan': '2300000', 'File Lampiran': 'Mega Puspita.jpg', 'Status': 'Aktif' },
-    { 'No': '13', 'Nama Lengkap': 'Bayu Saputra', 'Nomor WhatsApp': '081299990013', 'Kota Cabang': 'Solo', 'Nomor Invoice': 'INV-2026-013', 'Nominal Tagihan': '3750000', 'File Lampiran': 'INV-2026-013.pdf', 'Status': 'Aktif' },
-    { 'No': '14', 'Nama Lengkap': 'Indah Permatasari', 'Nomor WhatsApp': '081299990014', 'Kota Cabang': 'Bogor', 'Nomor Invoice': 'INV-2026-014', 'Nominal Tagihan': '4100000', 'File Lampiran': 'Indah Permatasari.pdf', 'Status': 'Aktif' },
-    { 'No': '15', 'Nama Lengkap': 'Dimas Kurniawan', 'Nomor WhatsApp': '081299990015', 'Kota Cabang': 'Balikpapan', 'Nomor Invoice': 'INV-2026-015', 'Nominal Tagihan': '3200000', 'File Lampiran': 'INV-2026-015.pdf', 'Status': 'Aktif' }
-  ];
+    const sampleRows = [
+      { 'No': '1', 'Nama Lengkap': 'Budi Santoso', 'Nomor WhatsApp': '081299990001', 'Kota Cabang': 'Jakarta Pusat', 'Nomor Invoice': 'INV-2026-001', 'Nominal Tagihan': '2750000', 'File Lampiran': 'INV-2026-001.pdf', 'Status': 'Aktif' },
+      { 'No': '2', 'Nama Lengkap': 'Siti Rahmawati', 'Nomor WhatsApp': '081299990002', 'Kota Cabang': 'Surabaya', 'Nomor Invoice': 'INV-2026-002', 'Nominal Tagihan': '3400000', 'File Lampiran': 'INV-2026-002.pdf', 'Status': 'Aktif' },
+      { 'No': '3', 'Nama Lengkap': 'Ahmad Fauzi', 'Nomor WhatsApp': '081299990003', 'Kota Cabang': 'Bandung', 'Nomor Invoice': 'INV-2026-003', 'Nominal Tagihan': '1850000', 'File Lampiran': 'Ahmad Fauzi.jpg', 'Status': 'Aktif' },
+      { 'No': '4', 'Nama Lengkap': 'Dewi Lestari', 'Nomor WhatsApp': '081299990004', 'Kota Cabang': 'Semarang', 'Nomor Invoice': 'INV-2026-004', 'Nominal Tagihan': '4200000', 'File Lampiran': 'Dewi Lestari.pdf', 'Status': 'Aktif' },
+      { 'No': '5', 'Nama Lengkap': 'Eko Prasetyo', 'Nomor WhatsApp': '081299990005', 'Kota Cabang': 'Medan', 'Nomor Invoice': 'INV-2026-005', 'Nominal Tagihan': '2150000', 'File Lampiran': 'INV-2026-005.pdf', 'Status': 'Aktif' },
+      { 'No': '6', 'Nama Lengkap': 'Rina Handayani', 'Nomor WhatsApp': '081299990006', 'Kota Cabang': 'Yogyakarta', 'Nomor Invoice': 'INV-2026-006', 'Nominal Tagihan': '3100000', 'File Lampiran': 'Rina Handayani.pdf', 'Status': 'Aktif' },
+      { 'No': '7', 'Nama Lengkap': 'Fajar Nugraha', 'Nomor WhatsApp': '081299990007', 'Kota Cabang': 'Makassar', 'Nomor Invoice': 'INV-2026-007', 'Nominal Tagihan': '5000000', 'File Lampiran': 'Fajar Nugraha.png', 'Status': 'Aktif' },
+      { 'No': '8', 'Nama Lengkap': 'Putri Ayu Wulandari', 'Nomor WhatsApp': '081299990008', 'Kota Cabang': 'Denpasar', 'Nomor Invoice': 'INV-2026-008', 'Nominal Tagihan': '2900000', 'File Lampiran': 'INV-2026-008.docx', 'Status': 'Aktif' },
+      { 'No': '9', 'Nama Lengkap': 'Hendra Gunawan', 'Nomor WhatsApp': '081299990009', 'Kota Cabang': 'Palembang', 'Nomor Invoice': 'INV-2026-009', 'Nominal Tagihan': '3800000', 'File Lampiran': 'Hendra Gunawan.pdf', 'Status': 'Aktif' },
+      { 'No': '10', 'Nama Lengkap': 'Nurul Hidayah', 'Nomor WhatsApp': '081299990010', 'Kota Cabang': 'Malang', 'Nomor Invoice': 'INV-2026-010', 'Nominal Tagihan': '1600000', 'File Lampiran': 'INV-2026-010.pdf', 'Status': 'Aktif' },
+      { 'No': '11', 'Nama Lengkap': 'Rizky Pratama', 'Nomor WhatsApp': '081299990011', 'Kota Cabang': 'Bekasi', 'Nomor Invoice': 'INV-2026-011', 'Nominal Tagihan': '4500000', 'File Lampiran': 'Rizky Pratama.pdf', 'Status': 'Aktif' },
+      { 'No': '12', 'Nama Lengkap': 'Mega Puspita', 'Nomor WhatsApp': '081299990012', 'Kota Cabang': 'Tangerang', 'Nomor Invoice': 'INV-2026-012', 'Nominal Tagihan': '2300000', 'File Lampiran': 'Mega Puspita.jpg', 'Status': 'Aktif' },
+      { 'No': '13', 'Nama Lengkap': 'Bayu Saputra', 'Nomor WhatsApp': '081299990013', 'Kota Cabang': 'Solo', 'Nomor Invoice': 'INV-2026-013', 'Nominal Tagihan': '3750000', 'File Lampiran': 'INV-2026-013.pdf', 'Status': 'Aktif' },
+      { 'No': '14', 'Nama Lengkap': 'Indah Permatasari', 'Nomor WhatsApp': '081299990014', 'Kota Cabang': 'Bogor', 'Nomor Invoice': 'INV-2026-014', 'Nominal Tagihan': '4100000', 'File Lampiran': 'Indah Permatasari.pdf', 'Status': 'Aktif' },
+      { 'No': '15', 'Nama Lengkap': 'Dimas Kurniawan', 'Nomor WhatsApp': '081299990015', 'Kota Cabang': 'Balikpapan', 'Nomor Invoice': 'INV-2026-015', 'Nominal Tagihan': '3200000', 'File Lampiran': 'INV-2026-015.pdf', 'Status': 'Aktif' }
+    ];
 
-  applyExcelDataToUI(currentExcelMeta, sampleRows);
-  attachmentFolderInput.value = 'data_contoh/lampiran';
-  triggerAttachmentScan();
+    applyExcelDataToUI(currentExcelMeta, sampleRows);
+    attachmentFolderInput.value = 'data_contoh/lampiran';
+    triggerAttachmentScan();
+  }
 }
 
 async function handleFileUpload(file) {
@@ -1151,9 +1193,23 @@ function compileMessageForContact(template, contact) {
 }
 
 function updateLivePreview() {
+  const defaultContact = {
+    nama: 'Budi Santoso',
+    phone: '081299990001',
+    rawData: {
+      'Nama Lengkap': 'Budi Santoso',
+      'Kota Cabang': 'Jakarta Pusat',
+      'Nomor Invoice': 'INV-2026-001',
+      'Nominal Tagihan': '2750000',
+      'File Lampiran': 'INV-2026-001.pdf',
+      'Status': 'Aktif'
+    }
+  };
+
   const contactIdx = parseInt(previewContactSelect.value || '0', 10);
-  const contact = contactsData[contactIdx] || contactsData[0];
-  if (!contact) return;
+  const contact = (contactsData && contactsData.length > 0)
+    ? (contactsData[contactIdx] || contactsData[0])
+    : defaultContact;
 
   previewRecipientName.textContent = contact.nama;
 
@@ -1841,13 +1897,23 @@ function addNotificationSession(session) {
 
 function clearNotificationHistory() {
   if (notificationHistory.length === 0) return;
-  if (!confirm('Hapus seluruh riwayat notifikasi & hasil broadcast?')) return;
-  notificationHistory = [];
-  unreadNotifCount = 0;
-  updateNotifBadge();
-  saveNotificationHistory();
-  renderNotificationDrawer();
-  appendLog('info', 'Riwayat notifikasi & audit telah dibersihkan.');
+  showCustomConfirm({
+    title: 'Bersihkan Seluruh Riwayat?',
+    subtitle: 'Seluruh rekapitulasi dan data audit kegagalan pengiriman broadcast akan dihapus dari penyimpanan komputer.',
+    emoji: '🗑️',
+    iconClass: 'hero-failed',
+    confirmText: 'Ya, Bersihkan',
+    confirmBtnClass: 'btn-rose',
+    cancelText: 'Batal',
+    onConfirm: () => {
+      notificationHistory = [];
+      unreadNotifCount = 0;
+      updateNotifBadge();
+      saveNotificationHistory();
+      renderNotificationDrawer();
+      appendLog('info', 'Riwayat notifikasi & audit telah dibersihkan.');
+    }
+  });
 }
 
 function showCompletionModal(session) {
@@ -2119,4 +2185,49 @@ function triggerDummyTest() {
   addNotificationSession(dummyTest);
   showCompletionModal(dummyTest);
   appendLog('info', '[Simulasi] Memunculkan modal hasil uji coba 1 pesan.');
+}
+
+// ----------------------------------------------------
+// CUSTOM CONFIRMATION & ACTION MODAL CONTROLLER
+// ----------------------------------------------------
+let activeConfirmCallback = null;
+
+function showCustomConfirm({ title, subtitle, emoji, iconClass, confirmText, cancelText, confirmBtnClass, onConfirm }) {
+  const overlay = document.getElementById('confirmModalOverlay');
+  if (!overlay) {
+    if (confirm(subtitle || title)) {
+      if (onConfirm) onConfirm();
+    }
+    return;
+  }
+
+  const titleEl = document.getElementById('confirmModalTitle');
+  const subEl = document.getElementById('confirmModalSubtitle');
+  const emojiEl = document.getElementById('confirmHeroEmoji');
+  const iconEl = document.getElementById('confirmHeroIcon');
+  const actionBtn = document.getElementById('btnConfirmAction');
+  const cancelBtn = document.getElementById('btnConfirmCancel');
+
+  if (titleEl) titleEl.textContent = title || 'Konfirmasi';
+  if (subEl) subEl.textContent = subtitle || 'Apakah Anda yakin ingin melanjutkan tindakan ini?';
+  if (emojiEl) emojiEl.textContent = emoji || '⚠️';
+  if (iconEl) {
+    iconEl.className = 'modal-hero-icon ' + (iconClass || 'hero-warning');
+  }
+  if (actionBtn) {
+    actionBtn.textContent = confirmText || 'Ya, Lanjutkan';
+    actionBtn.className = 'btn btn-md ' + (confirmBtnClass || 'btn-amber');
+  }
+  if (cancelBtn) {
+    cancelBtn.textContent = cancelText || 'Batal';
+  }
+
+  activeConfirmCallback = onConfirm || null;
+  overlay.style.display = 'flex';
+}
+
+function closeCustomConfirm() {
+  const overlay = document.getElementById('confirmModalOverlay');
+  if (overlay) overlay.style.display = 'none';
+  activeConfirmCallback = null;
 }
