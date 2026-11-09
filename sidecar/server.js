@@ -14,13 +14,7 @@ if (fs.existsSync(fallbackModules)) {
 
 const express = require('express');
 const qrcode = require('qrcode');
-
-let Client, LocalAuth, MessageMedia;
-try {
-  ({ Client, LocalAuth, MessageMedia } = require('whatsapp-web.js'));
-} catch (e) {
-  ({ Client, LocalAuth, MessageMedia } = require(path.join(fallbackModules, 'whatsapp-web.js')));
-}
+const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 
 const app = express();
 const PORT = process.env.PORT || 3847;
@@ -37,13 +31,53 @@ app.use((req, res, next) => {
   next();
 });
 
-const AUTH_DIR = path.join(__dirname, '.wa_session');
-const PID_FILE = path.join(__dirname, 'browser.pid');
+function resolveUserDataDir() {
+  const customDir = process.env.BULK_WA_DATA_DIR;
+  const baseDir = customDir
+    ? path.resolve(customDir)
+    : path.join(process.env.LOCALAPPDATA || process.env.APPDATA || __dirname, 'BulkWASender');
+  try {
+    fs.mkdirSync(baseDir, { recursive: true });
+  } catch (e) {}
+  return baseDir;
+}
+
+const DATA_DIR = resolveUserDataDir();
+const AUTH_DIR = path.join(DATA_DIR, '.wa_session');
+const PID_FILE = path.join(DATA_DIR, 'browser.pid');
+
+function migrateLegacySessionIfNeeded() {
+  try {
+    if (fs.existsSync(path.join(AUTH_DIR, 'session'))) return;
+    const legacyCandidates = [
+      path.join(__dirname, '.wa_session'),
+      path.resolve(__dirname, '..', 'sidecar', '.wa_session')
+    ];
+    const skipNames = new Set(['SingletonLock', 'SingletonSocket', 'SingletonCookie', 'DevToolsActivePort', 'LOCK', 'lockfile']);
+    for (const legacyDir of legacyCandidates) {
+      if (legacyDir !== AUTH_DIR && fs.existsSync(path.join(legacyDir, 'session'))) {
+        fs.cpSync(legacyDir, AUTH_DIR, {
+          recursive: true,
+          force: false,
+          filter: (src) => !skipNames.has(path.basename(src))
+        });
+        console.log(`[Session Migration] Copied existing WhatsApp session from ${legacyDir} to ${AUTH_DIR}`);
+        break;
+      }
+    }
+  } catch (e) {
+    console.warn('[Session Migration] Skipped:', e.message);
+  }
+}
+
+migrateLegacySessionIfNeeded();
 
 let waClient = null;
 let waStatus = 'DISCONNECTED'; // DISCONNECTED, INITIALIZING, QR_READY, AUTHENTICATED, READY
 let qrDataUrl = null;
 let clientInfo = null;
+let recoveryPromise = null;
+let isDestroyingClient = false;
 
 let broadcastState = {
   isRunning: false,
@@ -103,18 +137,120 @@ process.on('SIGINT', () => { cleanupBrowserProcess(); process.exit(0); });
 process.on('SIGTERM', () => { cleanupBrowserProcess(); process.exit(0); });
 
 function findBrowserExecutable() {
-  const chromePaths = [
-    'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-    'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-    path.join(process.env.LOCALAPPDATA || '', 'Google\\Chrome\\Application\\chrome.exe'),
-    'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-    'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
-    path.join(process.env.LOCALAPPDATA || '', 'Microsoft\\Edge\\Application\\msedge.exe')
+  const localAppData = process.env.LOCALAPPDATA || '';
+  const programFiles = process.env.ProgramFiles || 'C:\\Program Files';
+  const programFilesX86 = process.env['ProgramFiles(x86)'] || 'C:\\Program Files (x86)';
+
+  const browserCandidates = [
+    path.join(programFiles, 'Google\\Chrome\\Application\\chrome.exe'),
+    path.join(programFilesX86, 'Google\\Chrome\\Application\\chrome.exe'),
+    localAppData ? path.join(localAppData, 'Google\\Chrome\\Application\\chrome.exe') : '',
+    path.join(programFilesX86, 'Microsoft\\Edge\\Application\\msedge.exe'),
+    path.join(programFiles, 'Microsoft\\Edge\\Application\\msedge.exe'),
+    localAppData ? path.join(localAppData, 'Microsoft\\Edge\\Application\\msedge.exe') : '',
+    path.join(programFiles, 'BraveSoftware\\Brave-Browser\\Application\\brave.exe'),
+    path.join(programFilesX86, 'BraveSoftware\\Brave-Browser\\Application\\brave.exe'),
+    localAppData ? path.join(localAppData, 'BraveSoftware\\Brave-Browser\\Application\\brave.exe') : ''
   ];
-  for (const p of chromePaths) {
+  for (const p of browserCandidates) {
     if (p && fs.existsSync(p)) return p;
   }
   return undefined;
+}
+
+function isDetachedFrameError(err) {
+  const msg = String((err && err.message) || err || '').toLowerCase();
+  return (
+    msg.includes('detached frame') ||
+    msg.includes('frame was detached') ||
+    msg.includes('execution context was destroyed') ||
+    msg.includes('cannot find context with specified id') ||
+    msg.includes('target closed') ||
+    msg.includes('session closed') ||
+    msg.includes('most likely the page has been closed') ||
+    msg.includes('protocol error')
+  );
+}
+
+async function destroyCurrentClient() {
+  if (!waClient) return;
+  const clientToClose = waClient;
+  waClient = null;
+  isDestroyingClient = true;
+  try {
+    await Promise.race([
+      clientToClose.destroy(),
+      new Promise((resolve) => setTimeout(resolve, 5000))
+    ]);
+  } catch (e) {
+    // Ignore errors when closing a crashed/detached browser
+  } finally {
+    isDestroyingClient = false;
+  }
+}
+
+async function checkClientFrameHealth() {
+  if (!waClient || waStatus !== 'READY') return false;
+  try {
+    const browser = waClient.pupBrowser;
+    const page = waClient.pupPage;
+    if (!browser || (typeof browser.isConnected === 'function' && !browser.isConnected())) {
+      return false;
+    }
+    if (!page || (typeof page.isClosed === 'function' && page.isClosed())) {
+      return false;
+    }
+    const mainFrame = typeof page.mainFrame === 'function' ? page.mainFrame() : null;
+    if (!mainFrame || (typeof mainFrame.isDetached === 'function' && mainFrame.isDetached())) {
+      return false;
+    }
+
+    const probeOk = await Promise.race([
+      page.evaluate(() => Boolean(window.WWebJS && typeof window.require === 'function')),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Frame health probe timeout')), 4000))
+    ]);
+    return Boolean(probeOk);
+  } catch (err) {
+    return false;
+  }
+}
+
+async function waitForReadyStatus(timeoutMs = 45000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (waStatus === 'READY') return true;
+    if (waStatus === 'QR_READY') {
+      throw new Error('Sesi WhatsApp memerlukan scan ulang QR Code.');
+    }
+    if (waStatus === 'DISCONNECTED') {
+      throw new Error('Koneksi browser WhatsApp terputus saat pemulihan.');
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  throw new Error('Waktu tunggu pemulihan koneksi WhatsApp habis (timeout).');
+}
+
+async function recoverWhatsAppSession(reason = 'Frame browser tidak responsif') {
+  if (recoveryPromise) {
+    return recoveryPromise;
+  }
+
+  recoveryPromise = (async () => {
+    addLog('warning', `[Auto-Recovery] Menyegarkan engine browser WhatsApp (${reason})...`);
+    await destroyCurrentClient();
+    cleanStaleAuthLocks();
+    waStatus = 'DISCONNECTED';
+    initWhatsApp();
+    await waitForReadyStatus(45000);
+    addLog('success', '[Auto-Recovery] Sesi WhatsApp berhasil dipulihkan dan siap mengirim pesan.');
+    return true;
+  })();
+
+  try {
+    return await recoveryPromise;
+  } finally {
+    recoveryPromise = null;
+  }
 }
 
 function initWhatsApp() {
@@ -131,6 +267,10 @@ function initWhatsApp() {
   const browserPath = findBrowserExecutable();
   if (browserPath) {
     addLog('info', `Membuka WhatsApp Engine via: ${path.basename(browserPath)}`);
+  } else if (process.platform === 'win32') {
+    waStatus = 'DISCONNECTED';
+    addLog('error', 'Browser Microsoft Edge atau Google Chrome tidak ditemukan di PC ini. Pastikan Microsoft Edge atau Google Chrome terpasang.');
+    return;
   }
 
   const puppeteerConfig = {
@@ -141,19 +281,30 @@ function initWhatsApp() {
       '--disable-dev-shm-usage',
       '--disable-accelerated-2d-canvas',
       '--no-first-run',
-      '--no-zygote',
-      '--disable-gpu'
+      '--disable-gpu',
+      '--disable-background-timer-throttling',
+      '--disable-backgrounding-occluded-windows',
+      '--disable-renderer-backgrounding',
+      '--disable-ipc-flooding-protection',
+      '--disable-hang-monitor',
+      '--disable-features=TranslateUI,BlinkGenPropertyTrees,IsolateOrigins,site-per-process,BackForwardCache,OptimizationHints,MediaRouter,CalculateNativeWinOcclusion,IntensiveWakeUpThrottling'
     ]
   };
 
   if (browserPath) puppeteerConfig.executablePath = browserPath;
 
-  waClient = new Client({
+  const activeClient = new Client({
     authStrategy: new LocalAuth({ dataPath: AUTH_DIR }),
+    webVersionCache: {
+      type: 'local',
+      path: path.join(AUTH_DIR, 'web_cache')
+    },
     puppeteer: puppeteerConfig
   });
+  waClient = activeClient;
 
-  waClient.on('qr', async (qr) => {
+  activeClient.on('qr', async (qr) => {
+    if (waClient !== activeClient) return;
     waStatus = 'QR_READY';
     try {
       qrDataUrl = await qrcode.toDataURL(qr, { width: 320, margin: 2 });
@@ -163,39 +314,54 @@ function initWhatsApp() {
     }
   });
 
-  waClient.on('authenticated', () => {
+  activeClient.on('authenticated', () => {
+    if (waClient !== activeClient) return;
     waStatus = 'AUTHENTICATED';
     qrDataUrl = null;
     addLog('info', 'Autentikasi akun berhasil! Menyelaraskan sesi...');
   });
 
-  waClient.on('ready', () => {
+  activeClient.on('ready', () => {
+    if (waClient !== activeClient) return;
     waStatus = 'READY';
     qrDataUrl = null;
-    clientInfo = waClient.info ? {
-      name: waClient.info.pushname || 'User',
-      phone: waClient.info.wid ? waClient.info.wid.user : ''
+    clientInfo = activeClient.info ? {
+      name: activeClient.info.pushname || 'User',
+      phone: activeClient.info.wid ? activeClient.info.wid.user : ''
     } : { name: 'Pengguna WhatsApp', phone: '' };
     addLog('success', `WhatsApp Terhubung: ${clientInfo.name} (${clientInfo.phone})`);
   });
 
-  waClient.on('auth_failure', (msg) => {
+  activeClient.on('auth_failure', (msg) => {
+    if (waClient !== activeClient) return;
     waStatus = 'DISCONNECTED';
     qrDataUrl = null;
     addLog('error', 'Autentikasi gagal: ' + msg);
   });
 
-  waClient.on('disconnected', async (reason) => {
+  activeClient.on('disconnected', async (reason) => {
+    if (waClient !== activeClient || isDestroyingClient) return;
     waStatus = 'DISCONNECTED';
     qrDataUrl = null;
     clientInfo = null;
     addLog('warning', 'Koneksi WhatsApp terputus: ' + reason);
   });
 
+  let browserDisconnectBound = false;
   const pidCheck = setInterval(() => {
     try {
-      if (waClient && waClient.pupBrowser) {
-        const proc = waClient.pupBrowser.process();
+      if (activeClient && activeClient.pupBrowser) {
+        if (!browserDisconnectBound) {
+          browserDisconnectBound = true;
+          activeClient.pupBrowser.once('disconnected', () => {
+            if (waClient === activeClient && !isDestroyingClient && waStatus === 'READY') {
+              waStatus = 'DISCONNECTED';
+              addLog('warning', 'Proses browser headless tertutup tak terduga. Menjadwalkan pemulihan sesi...');
+              recoverWhatsAppSession('Browser headless terputus').catch(() => {});
+            }
+          });
+        }
+        const proc = activeClient.pupBrowser.process();
         if (proc && proc.pid) {
           fs.writeFileSync(PID_FILE, String(proc.pid), 'utf-8');
           clearInterval(pidCheck);
@@ -205,11 +371,25 @@ function initWhatsApp() {
   }, 500);
   setTimeout(() => clearInterval(pidCheck), 25000);
 
-  waClient.initialize().catch(err => {
+  activeClient.initialize().catch(err => {
+    if (waClient !== activeClient || isDestroyingClient) return;
     waStatus = 'DISCONNECTED';
     addLog('error', 'Inisialisasi browser gagal: ' + err.message);
   });
 }
+
+// Background watchdog to heal idle detached frames before user initiates dispatch
+setInterval(async () => {
+  if (waStatus !== 'READY' || broadcastState.isRunning || recoveryPromise || isDestroyingClient) {
+    return;
+  }
+  const healthy = await checkClientFrameHealth();
+  if (!healthy && waStatus === 'READY' && !recoveryPromise) {
+    recoverWhatsAppSession('Frame browser idle terdeteksi stale/detached').catch((err) => {
+      addLog('error', '[Auto-Recovery] Gagal memulihkan sesi idle: ' + err.message);
+    });
+  }
+}, 45000);
 
 function formatPhone(phone) {
   if (!phone) return null;
@@ -231,9 +411,14 @@ app.get('/api/wa/status', (req, res) => {
   });
 });
 
-app.post('/api/wa/connect', (req, res) => {
+app.post('/api/wa/connect', async (req, res) => {
   if (waStatus === 'READY') {
-    return res.json({ success: true, message: 'WhatsApp sudah terhubung.' });
+    const healthy = await checkClientFrameHealth();
+    if (healthy) {
+      return res.json({ success: true, message: 'WhatsApp sudah terhubung.' });
+    }
+    recoverWhatsAppSession('Permintaan koneksi ulang pada frame tidak responsif').catch(() => {});
+    return res.json({ success: true, message: 'Menyegarkan sesi koneksi WhatsApp...' });
   }
   initWhatsApp();
   res.json({ success: true, message: 'Memulai inisialisasi WhatsApp...' });
@@ -241,10 +426,7 @@ app.post('/api/wa/connect', (req, res) => {
 
 app.post('/api/wa/reset-session', async (req, res) => {
   try {
-    if (waClient) {
-      try { await waClient.destroy(); } catch (e) {}
-      waClient = null;
-    }
+    await destroyCurrentClient();
     cleanStaleAuthLocks();
     if (fs.existsSync(AUTH_DIR)) {
       try { fs.rmSync(AUTH_DIR, { recursive: true, force: true }); } catch (e) {}
@@ -368,10 +550,71 @@ app.post('/api/scan-attachments', (req, res) => {
   }
 });
 
+async function ensureClientReadyForDispatch() {
+  if (recoveryPromise) {
+    await recoveryPromise;
+  }
+  if (waStatus === 'INITIALIZING' || waStatus === 'AUTHENTICATED') {
+    await waitForReadyStatus(35000);
+  }
+  if (waStatus !== 'READY') {
+    throw new Error('WhatsApp belum terhubung. Silakan scan QR code terlebih dahulu.');
+  }
+  const healthy = await checkClientFrameHealth();
+  if (!healthy) {
+    await recoverWhatsAppSession('Frame browser terdeteksi terputus sebelum pengiriman');
+  }
+}
+
+async function dispatchWhatsAppMessage({ cleanPhone, messageText, filePath, fallbackText = '' }) {
+  let media = null;
+  if (filePath && fs.existsSync(filePath)) {
+    media = MessageMedia.fromFilePath(filePath);
+    media.filename = path.basename(filePath);
+  }
+
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      await ensureClientReadyForDispatch();
+
+      let chatId = `${cleanPhone}@c.us`;
+      const isSelfChat = Boolean(clientInfo && clientInfo.phone && cleanPhone === clientInfo.phone);
+
+      const resolvedWid = await waClient.getNumberId(cleanPhone);
+      if (resolvedWid && resolvedWid._serialized) {
+        chatId = resolvedWid._serialized;
+      } else if (!isSelfChat) {
+        throw new Error(`Nomor WhatsApp tidak terdaftar (${cleanPhone})`);
+      }
+
+      if (media) {
+        await waClient.sendMessage(chatId, media, {
+          caption: messageText || '',
+          sendMediaAsDocument: true,
+          sendSeen: false
+        });
+      } else {
+        await waClient.sendMessage(chatId, messageText || fallbackText, {
+          sendSeen: false
+        });
+      }
+
+      return { chatId, media };
+    } catch (err) {
+      if (attempt === 1 && isDetachedFrameError(err)) {
+        addLog('warning', `[Auto-Retry] Mendeteksi detached frame saat mengirim ke ${cleanPhone}. Memulihkan sesi & mencoba ulang otomatis...`);
+        await recoverWhatsAppSession(err.message);
+        continue;
+      }
+      throw err;
+    }
+  }
+}
+
 // Single Test Message
 app.post('/api/wa/send-test', async (req, res) => {
   try {
-    if (waStatus !== 'READY') {
+    if (waStatus !== 'READY' && waStatus !== 'INITIALIZING' && waStatus !== 'AUTHENTICATED' && !recoveryPromise) {
       return res.status(400).json({ success: false, error: 'WhatsApp belum terhubung. Silakan scan QR code terlebih dahulu.' });
     }
 
@@ -381,21 +624,22 @@ app.post('/api/wa/send-test', async (req, res) => {
     }
 
     const clean = formatPhone(targetPhone);
-    const chatId = clean + '@c.us';
-
-    let media = null;
-    if (filePath && fs.existsSync(filePath)) {
-      media = MessageMedia.fromFilePath(filePath);
-      media.filename = path.basename(filePath);
+    if (!clean || clean.length < 9) {
+      return res.status(400).json({ success: false, error: `Nomor telepon tidak valid (${targetPhone}).` });
     }
 
     addLog('info', `Mengirim pesan uji coba ke ${clean}...`);
 
+    const { media } = await dispatchWhatsAppMessage({
+      cleanPhone: clean,
+      messageText,
+      filePath,
+      fallbackText: 'Uji coba pesan dari Bulk WA Sender by schrist.'
+    });
+
     if (media) {
-      await waClient.sendMessage(chatId, media, { caption: messageText || '', sendMediaAsDocument: true });
       addLog('success', `Uji coba BERHASIL terkirim ke ${clean} dengan lampiran: ${media.filename}`);
     } else {
-      await waClient.sendMessage(chatId, messageText || 'Uji coba pesan dari Bulk WA Sender by schrist.design');
       addLog('success', `Uji coba BERHASIL terkirim ke ${clean} (Pesan Teks)`);
     }
 
@@ -409,7 +653,7 @@ app.post('/api/wa/send-test', async (req, res) => {
 // Bulk Broadcast Execution
 app.post('/api/wa/send-broadcast', async (req, res) => {
   try {
-    if (waStatus !== 'READY') {
+    if (waStatus !== 'READY' && waStatus !== 'INITIALIZING' && waStatus !== 'AUTHENTICATED' && !recoveryPromise) {
       return res.status(400).json({ success: false, error: 'WhatsApp belum terhubung.' });
     }
     if (broadcastState.isRunning) {
@@ -469,32 +713,25 @@ app.post('/api/wa/send-broadcast', async (req, res) => {
             id: item.id,
             recipientName: item.recipientName,
             phone: item.phone,
+            error: 'Nomor tidak valid',
             reason: 'Nomor tidak valid'
           });
           addLog('error', `[${i + 1}/${targets.length}] Lewati ${item.recipientName}: Nomor tidak valid ('${item.phone}')`);
           continue;
         }
 
-        const chatId = clean + '@c.us';
-
-        let media = null;
-        if (item.filePath && fs.existsSync(item.filePath)) {
-          try {
-            media = MessageMedia.fromFilePath(item.filePath);
-            media.filename = path.basename(item.filePath);
-          } catch (e) {
-            console.warn('Gagal membaca media lampiran:', e.message);
-          }
-        }
-
         try {
+          const { media } = await dispatchWhatsAppMessage({
+            cleanPhone: clean,
+            messageText: item.messageText || '',
+            filePath: item.filePath,
+            fallbackText: ''
+          });
+
+          broadcastState.success++;
           if (media) {
-            await waClient.sendMessage(chatId, media, { caption: item.messageText || '', sendMediaAsDocument: true });
-            broadcastState.success++;
             addLog('success', `[${i + 1}/${targets.length}] TERKIRIM ke ${item.recipientName} (${clean}) + File: ${media.filename}`);
           } else {
-            await waClient.sendMessage(chatId, item.messageText || '');
-            broadcastState.success++;
             addLog('success', `[${i + 1}/${targets.length}] TERKIRIM ke ${item.recipientName} (${clean}) [Teks Saja]`);
           }
         } catch (err) {
@@ -503,6 +740,7 @@ app.post('/api/wa/send-broadcast', async (req, res) => {
             id: item.id,
             recipientName: item.recipientName,
             phone: clean,
+            error: err.message,
             reason: err.message
           });
           addLog('error', `[${i + 1}/${targets.length}] Gagal ke ${item.recipientName} (${clean}): ${err.message}`);
@@ -568,7 +806,22 @@ app.get('/api/wa/progress', (req, res) => {
   res.json({ success: true, state: broadcastState });
 });
 
-app.listen(PORT, () => {
-  console.log(`=== WhatsApp Engine Sidecar (by schrist.) berjalan di port ${PORT} ===`);
+app.post('/api/wa/shutdown', (req, res) => {
+  isDestroyingClient = true;
+  broadcastState.isRunning = false;
+  broadcastState.isPaused = false;
+  res.json({ success: true, message: 'Shutting down WhatsApp Engine cleanly.' });
+
+  setImmediate(async () => {
+    try {
+      await destroyCurrentClient();
+    } catch (e) {}
+    cleanStaleAuthLocks();
+    process.exit(0);
+  });
+});
+
+app.listen(PORT, '127.0.0.1', () => {
+  console.log(`=== WhatsApp Engine Sidecar (by schrist.) berjalan di http://127.0.0.1:${PORT} [Data: ${DATA_DIR}] ===`);
   initWhatsApp();
 });

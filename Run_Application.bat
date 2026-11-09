@@ -15,34 +15,32 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3847 ^| findstr LISTENING') 
 taskkill /f /im Bulk_WA_Sender.exe >nul 2>&1
 taskkill /f /im app.exe >nul 2>&1
 
-:: 2. Launching background WhatsApp Engine Sidecar
-echo [*] Starting WhatsApp Engine Sidecar service...
-start "WhatsApp Engine Sidecar" /min node sidecar\server.js
-
-:: 3. Launching Desktop Application
+:: 2. Launching Desktop Application (Native Rust Core manages silent sidecar lifecycle & clean shutdown)
 echo [*] Launching Bulk WA Sender desktop client...
-timeout /t 1 /nobreak >nul
 
 if exist "Bulk_WA_Sender.exe" (
   start "" "Bulk_WA_Sender.exe"
 ) else if exist "app.exe" (
   start "" "app.exe"
-) else if exist "dist\Bulk_WA_Sender_v1.0.0_x64_Portable.exe" (
-  start "" "dist\Bulk_WA_Sender_v1.0.0_x64_Portable.exe"
 ) else if exist "src-tauri\target\release\app.exe" (
   start "" "src-tauri\target\release\app.exe"
 ) else if exist "src-tauri\target\debug\app.exe" (
   start "" "src-tauri\target\debug\app.exe"
-) else if exist "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" (
-  start "" "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" --app="file:///%~dp0ui/index.html"
-) else if exist "%ProgramFiles%\Microsoft\Edge\Application\msedge.exe" (
-  start "" "%ProgramFiles%\Microsoft\Edge\Application\msedge.exe" --app="file:///%~dp0ui/index.html"
-) else if exist "%LOCALAPPDATA%\Microsoft\Edge\Application\msedge.exe" (
-  start "" "%LOCALAPPDATA%\Microsoft\Edge\Application\msedge.exe" --app="file:///%~dp0ui/index.html"
-) else if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" (
-  start "" "%ProgramFiles%\Google\Chrome\Application\chrome.exe" --app="file:///%~dp0ui/index.html"
 ) else (
-  start "" "ui\index.html"
+  echo [*] Native binary not found, starting development sidecar + browser fallback...
+  start "WhatsApp Engine Sidecar" /min node sidecar\server.js
+  timeout /t 1 /nobreak >nul
+  if exist "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" (
+    start "" "%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe" --app="file:///%~dp0ui/index.html"
+  ) else if exist "%ProgramFiles%\Microsoft\Edge\Application\msedge.exe" (
+    start "" "%ProgramFiles%\Microsoft\Edge\Application\msedge.exe" --app="file:///%~dp0ui/index.html"
+  ) else if exist "%LOCALAPPDATA%\Microsoft\Edge\Application\msedge.exe" (
+    start "" "%LOCALAPPDATA%\Microsoft\Edge\Application\msedge.exe" --app="file:///%~dp0ui/index.html"
+  ) else if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" (
+    start "" "%ProgramFiles%\Google\Chrome\Application\chrome.exe" --app="file:///%~dp0ui/index.html"
+  ) else (
+    start "" "ui\index.html"
+  )
 )
 
 echo.

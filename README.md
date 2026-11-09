@@ -60,10 +60,10 @@
 
 ## 🌟 Key Features
 
-### 1. ⚡ Hybrid Architecture: Tauri v2 Rust Core + Node.js Engine
+### 1. ⚡ Self-Contained Hybrid Architecture: Tauri v2 Rust Core + Bundled WA Engine
+- **100% Zero-Setup for End Users**: Pre-bundles its own portable Node runtime and compiled WhatsApp engine (`engine.cjs`), while automatically utilizing Windows 10/11's built-in Microsoft Edge or Google Chrome — **no Node.js, npm, or developer packages required**.
 - **Native Rust Speed**: High-performance parsing of massive Excel (`.xlsx`) and `.csv` contact books via `calamine`, combined with blazing-fast file scanning via `walkdir`.
-- **Silent Background Automation**: WhatsApp Web engine runs quietly in the background without UI stutter.
-- **Resource Efficient**: Substantially lower RAM consumption compared to standard Electron applications.
+- **Clean Auto-Shutdown & Auto-Recovery**: Background WhatsApp engine starts silently on launch, automatically recovers from idle detached browser frames without re-scanning QR, and shuts down cleanly (`0 MB` background RAM) when the app window is closed.
 
 ### 2. 🌐 Built-in Bilingual Interface (`ID` | `EN`)
 - Seamless language switcher embedded directly in the titlebar.
@@ -106,10 +106,10 @@
 │   ├── Sample_Contact_List.xlsx
 │   ├── Sample_Contact_List.csv
 │   └── attachments/           # Sample PDF, DOCX, JPG, and PNG files
-├── dist/                      # Production executables & release packages
-│   ├── Bulk_WA_Sender_v1.0.0_x64_Setup.exe     (NSIS Installer)
-│   ├── Bulk_WA_Sender_v1.0.0_x64_Portable.exe  (Clean Standalone)
-│   ├── Bulk_WA_Sender_v1.0.0_x64_Testing.exe   (Testing Standalone)
+├── dist/                      # Self-contained release packages
+│   ├── Bulk_WA_Sender_v1.0.0_x64_Setup.exe     (Zero-Setup NSIS Installer)
+│   ├── Bulk_WA_Sender_v1.0.0_x64_Portable.zip  (Self-Contained Portable Package)
+│   ├── Bulk_WA_Sender_v1.0.0_x64_Testing.zip   (QA Testing Portable Package)
 │   ├── sample_data_starter_pack.zip
 │   ├── RELEASE_NOTES_v1.0.0.md
 │   └── checksums.txt
@@ -138,12 +138,15 @@
 
 ## 🚀 Getting Started
 
-### Option 1: Standalone / Portable `.exe` (No Installation Required)
-1. Download **`Bulk_WA_Sender_v1.0.0_x64_Portable.exe`** from [Releases](https://github.com/samuelchrist12/whatsapp-bulk-rust/releases).
-2. Download **`sample_data_starter_pack.zip`** and extract it into the same folder.
-3. Launch the `.exe` directly.
+### Option 1: Official Windows Installer (`Setup.exe` — Recommended for All Users)
+1. Download **`Bulk_WA_Sender_v1.0.0_x64_Setup.exe`** from [Releases](https://github.com/samuelchrist12/whatsapp-bulk-rust/releases).
+2. Double-click to install and launch from your Desktop or Start Menu shortcut — **no Node.js or external runtime installation needed** (uses built-in Microsoft Edge or Google Chrome automatically).
 
-### Option 2: Build from Source
+### Option 2: Self-Contained Portable `.zip` (No Installation Required)
+1. Download **`Bulk_WA_Sender_v1.0.0_x64_Portable.zip`** from [Releases](https://github.com/samuelchrist12/whatsapp-bulk-rust/releases).
+2. Extract the `.zip` folder anywhere on your PC and double-click **`Bulk_WA_Sender_Portable.exe`**.
+
+### Option 3: Build from Source
 
 #### Prerequisites
 - [Node.js](https://nodejs.org/) (v18+)

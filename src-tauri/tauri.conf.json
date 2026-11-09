@@ -6,7 +6,7 @@
   "build": {
     "frontendDist": "../ui",
     "beforeDevCommand": null,
-    "beforeBuildCommand": null
+    "beforeBuildCommand": "node ../scripts/prepare_runtime.js"
   },
   "app": {
     "withGlobalTauri": true,
@@ -28,6 +28,13 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "resources": {
+      "runtime/node.exe": "runtime/node.exe",
+      "runtime/engine.cjs": "runtime/engine.cjs",
+      "../sample_data/Sample_Contact_List.xlsx": "sample_data/Sample_Contact_List.xlsx",
+      "../sample_data/Sample_Contact_List.csv": "sample_data/Sample_Contact_List.csv",
+      "../sample_data/attachments/*": "sample_data/attachments/"
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

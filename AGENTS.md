@@ -114,14 +114,18 @@ Keep version numbers synchronized across:
 - `sidecar/package.json` (`"version": "X.Y.Z"`)
 - UI version badges in `ui/index.html` (`vX.Y`) and Git tags (`vX.Y.Z`).
 
-### 6.2. Three Distribution Artifacts (`dist/`)
-Every release produces three executables inside `dist/` alongside `dist/checksums.txt` (SHA-256):
-1. **`Bulk_WA_Sender_vX.Y.Z_x64_Setup.exe`**: NSIS installer from `src-tauri/target/release/bundle/nsis/`. Production mode (`#simulationTestingBar` hidden).
-2. **`Bulk_WA_Sender_vX.Y.Z_x64_Portable.exe`**: Standalone release binary from `src-tauri/target/release/app.exe`. Production mode (`#simulationTestingBar` hidden).
-3. **`Bulk_WA_Sender_vX.Y.Z_x64_Testing.exe`**: Identical release binary named with `Testing` — `cmd_get_app_flavor()` in `src-tauri/src/lib.rs` detects `"test"` in the executable filename (or `BULK_WA_TESTING` env var / `?mode=testing` query param) and reveals `#simulationTestingBar` exclusively for QA testing.
+### 6.2. Self-Contained Runtime & Three Distribution Artifacts (`dist/`)
+- **Zero-Setup Bundled Runtime (`scripts/prepare_runtime.js`)**:
+  - Bundles `sidecar/server.js` + pure-JS dependencies via `esbuild` into `src-tauri/runtime/engine.cjs` alongside portable `src-tauri/runtime/node.exe`, and embeds both via `bundle.resources` in `src-tauri/tauri.conf.json`. End users never need Node.js or `npm` installed.
+  - User session & preferences are stored in `%LOCALAPPDATA%\BulkWASender` (`BULK_WA_DATA_DIR`) so installs in `C:\Program Files` never hit UAC write errors.
+  - **Clean Auto-Shutdown**: Closing the window (`WindowEvent::Destroyed` / `RunEvent::Exit`) triggers `shutdown_sidecar()` (`POST /api/wa/shutdown` + PID tree cleanup) so `node.exe` and headless Chrome/Edge exit cleanly while keeping `.wa_session` intact.
+- Every release produces three self-contained packages inside `dist/` alongside `dist/checksums.txt` (SHA-256):
+1. **`Bulk_WA_Sender_vX.Y.Z_x64_Setup.exe`**: Self-contained NSIS installer from `src-tauri/target/release/bundle/nsis/` bundling `app.exe`, `WebView2Loader.dll`, `runtime/node.exe`, `runtime/engine.cjs`, and `sample_data/`. Production mode (`#simulationTestingBar` hidden).
+2. **`Bulk_WA_Sender_vX.Y.Z_x64_Portable.zip`**: Self-contained portable archive containing `Bulk_WA_Sender_Portable.exe`, `WebView2Loader.dll`, `runtime/`, and `sample_data/`. Production mode (`#simulationTestingBar` hidden).
+3. **`Bulk_WA_Sender_vX.Y.Z_x64_Testing.zip`**: Self-contained QA archive containing `Bulk_WA_Sender_Testing.exe` (`cmd_get_app_flavor()` detects `"test"` in the filename and reveals `#simulationTestingBar` exclusively for QA testing), `WebView2Loader.dll`, `runtime/`, and `sample_data/`.
 
-> **CRITICAL QA RULE**: `#simulationTestingBar` must ALWAYS default to `style="display: none;"` in `ui/index.html` and `display: none;` in `ui/style.css` so QA dummy buttons never appear in `Setup.exe` or `Portable.exe`.
+> **CRITICAL QA RULE**: `#simulationTestingBar` must ALWAYS default to `style="display: none;"` in `ui/index.html` and `display: none;` in `ui/style.css` so QA dummy buttons never appear in `Setup.exe` or `Portable`.
 
 ### 6.3. Security & Git Hygiene
-- **Never** commit `.exe`, `.dll`, `.pdb`, `dist/`, `target/`, `node_modules/`, `bulk_wa_preferences.json`, or WhatsApp authentication directories (`.wa_session/`, `.wwebjs_auth/`, `.wwebjs_cache/`).
+- **Never** commit `.exe`, `.dll`, `.pdb`, `dist/`, `target/`, `src-tauri/runtime/`, `node_modules/`, `bulk_wa_preferences.json`, or WhatsApp authentication directories (`.wa_session/`, `.wwebjs_auth/`, `.wwebjs_cache/`).
 

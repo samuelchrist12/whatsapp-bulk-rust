@@ -29,10 +29,10 @@ Welcome to **Bulk WA Sender**, an ultra-fast, modern bulk WhatsApp messaging and
 
 ## ⚡ Quick Start
 
-### Running from Pre-built Executable
-1. Download `Bulk_WA_Sender_v1.0.0_x64_Setup.exe` (Installer) or `Bulk_WA_Sender_v1.0.0_x64_Portable.exe` (Standalone) from GitHub Releases.
-2. Run the application directly.
-3. The desktop client connects automatically to the background WhatsApp engine.
+### Running from Official Installer or Portable Package (Zero Setup Required)
+1. **Installer (Recommended)**: Download `Bulk_WA_Sender_v1.0.0_x64_Setup.exe` from GitHub Releases, run the setup wizard, and open **Bulk WA Sender** from your Desktop shortcut.
+2. **Portable (No Install)**: Download `Bulk_WA_Sender_v1.0.0_x64_Portable.zip`, extract the folder anywhere, and double-click `Bulk_WA_Sender_Portable.exe`.
+3. **No Node.js Needed**: Both packages come fully bundled with the WhatsApp automation engine and automatically use Microsoft Edge (pre-installed on Windows 10/11) or Google Chrome. Closing the app window cleanly stops all background processes while keeping your WhatsApp session saved in `%LOCALAPPDATA%\BulkWASender`.
 
 ### Running from Source / Scripts
 1. Run `npm install` inside the `sidecar/` directory if running from source.

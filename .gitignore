@@ -13,6 +13,8 @@ app.exe
 Bulk_WA_Sender.exe
 dist/
 **/dist/
+src-tauri/runtime/
+runtime/
 
 # Rust Build Directory
 target/

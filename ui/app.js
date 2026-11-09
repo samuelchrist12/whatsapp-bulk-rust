@@ -2755,9 +2755,9 @@ async function pollBroadcastProgress() {
         // Record history & show completion modal
         const durationSec = Math.max(1, Math.round((Date.now() - (broadcastStartTime || Date.now())) / 1000));
         const failures = (st.failedTargets || []).map(f => {
-          const errMsg = f.error || 'Gagal mengirim pesan';
+          const errMsg = f.error || f.reason || (isEn ? 'Failed to send message' : 'Gagal mengirim pesan');
           return {
-            name: f.recipientName || f.name || 'Kontak',
+            name: f.recipientName || f.name || (isEn ? 'Contact' : 'Kontak'),
             phone: f.phone || '-',
             error: errMsg,
             diag: categorizeError(errMsg)
@@ -3064,10 +3064,10 @@ function categorizeError(errMsg) {
       class: 'diag-file-large'
     };
   }
-  if (str.includes('session') || str.includes('disconnect') || str.includes('connection') || str.includes('timeout') || str.includes('terputus') || str.includes('server')) {
+  if (str.includes('detached frame') || str.includes('execution context') || str.includes('target closed') || str.includes('session') || str.includes('disconnect') || str.includes('connection') || str.includes('timeout') || str.includes('terputus') || str.includes('server')) {
     return {
-      label: isEn ? 'Connection Timeout' : 'Koneksi Terputus',
-      desc: isEn ? 'Sidecar engine connection timed out or disconnected.' : 'Koneksi ke WhatsApp Web / Engine timeout atau terputus.',
+      label: isEn ? 'Connection / Session Stale' : 'Sesi Koneksi Terputus',
+      desc: isEn ? 'WhatsApp browser frame or engine connection dropped and needed refresh.' : 'Frame browser WhatsApp Web atau koneksi engine sempat terputus.',
       class: 'diag-connection'
     };
   }
