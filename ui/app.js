@@ -54,17 +54,19 @@ const I18N = {
 
     cardSourceTitle: 'File Kontak Excel / CSV',
     cardSourceDesc: 'Membaca data penerima & seluruh kolom otomatis.',
+    btnDownloadTemplate: 'Download Template (.xlsx)',
+    btnDownloadTemplateTooltip: 'Download template Excel siap pakai (.xlsx) agar langsung terbaca sistem',
     btnUseDemoData: '⚡ Data Contoh (15)',
-    btnUseDemoDataTooltip: 'Muat 15 kontak dummy fiktif yang sudah disiapkan',
+    btnUseDemoDataTooltip: 'Muat 15 kontak contoh yang sudah disiapkan',
     dropzoneTitle: 'Tarik & Lepas File Spreadsheet Disini',
     btnBrowseFile: 'Pilih File dari Komputer',
     dropzoneHint: 'Format didukung: .xlsx, .xls, .xlsm, .csv',
     btnChangeFile: 'Ganti File',
     sheetSelectLabel: 'Pilih Sheet:',
     mappingDrawerBtn: '⚙️ Sesuaikan Pemetaan Kolom ▾',
-    mapNameLabel: '👤 Kolom Nama Penerima',
-    mapPhoneLabel: '📱 Kolom Nomor WhatsApp',
-    mapCustomLabel: '📎 Kolom Referensi File (Opsional)',
+    mapNameLabel: '👤 Kolom Nama',
+    mapPhoneLabel: '📱 Kolom Nomor Telepon',
+    mapCustomLabel: '📎 Kolom Nama Lampiran File (Opsional)',
 
     cardAttachTitle: 'Pengaturan Lampiran File',
     cardAttachDesc: 'Tentukan folder & metode pencocokan nama file.',
@@ -79,7 +81,7 @@ const I18N = {
     ruleByNameTitle: 'Sesuai Nama Penerima',
     ruleByNameDesc: 'Contoh: <code>Budi Santoso.pdf</code> atau <code>Dewi Lestari.jpg</code>',
     ruleByColTitle: 'Ambil dari Kolom Excel',
-    ruleByColDesc: 'Contoh: Kolom <code>File Lampiran</code> atau <code>Nomor Invoice</code>',
+    ruleByColDesc: 'Contoh: Kolom <code>Nama Lampiran File</code> atau <code>Custom Kolom 1</code>',
     formatSupportedLabel: 'Format Didukung:',
 
     cardComposerTitle: 'Penyusun Pesan',
@@ -87,14 +89,14 @@ const I18N = {
     jitterLabel: '⏱️ Jeda:',
     tagsLabel: 'Sisipkan Tag Kolom & Variasi:',
     messagePlaceholder: 'Ketik format pesan disini...',
-    defaultTemplate: `{Salam} Rekan {Nama Lengkap},
+    defaultTemplate: `{Salam} Rekan {Nama},
 
-{Berikut ini kami sampaikan|Bersama ini kami lampirkan|Melalui pesan ini kami informasikan} rincian dokumen resmi Anda:
-• Nomor: {Nomor Invoice}
-• Cabang: {Kota Cabang}
-• Total: {Nominal Tagihan}
+{Berikut ini kami sampaikan|Bersama ini kami kirimkan|Melalui pesan ini kami informasikan} informasi penting untuk Anda:
+• Lokasi / Cabang: {Kota/Cabang}
+• Keterangan 1: {Custom Kolom 1}
+• Keterangan 2: {Custom Kolom 2}
 
-Mohon dapat diperiksa kembali. Dokumen terlampir bersifat resmi dan penting.
+Mohon dapat diperiksa kembali. Apabila ada pertanyaan, silakan membalas pesan ini.
 
 {Terima kasih atas kerja samanya!|Salam hangat dan sukses selalu!|Hormat kami,}
 Bulk WA Sender • by schrist.`,
@@ -122,7 +124,7 @@ Bulk WA Sender • by schrist.`,
 
     tableTitle: 'Daftar Penerima & Verifikasi Pra-Kirim (Pre-Flight)',
     tableDesc: 'Pilih kontak yang akan dikirimi pesan dan pastikan file lampiran siap.',
-    tableSearchPlaceholder: 'Cari nama, nomor, atau kota...',
+    tableSearchPlaceholder: 'Cari nama, nomor, kota, atau kolom custom...',
     filterAll: 'Semua Kontak',
     filterValid: 'Hanya Nomor Valid',
     filterHasFile: 'Hanya Yang Punya Lampiran',
@@ -133,12 +135,14 @@ Bulk WA Sender • by schrist.`,
     contactsWord: 'Kontak',
     thSelect: 'Pilih',
     thNo: 'No',
-    thName: 'Nama Penerima',
-    thPhone: 'Nomor WhatsApp',
-    thAttachment: 'Status Lampiran File',
-    thBranch: 'Kota Cabang',
-    thInvoice: 'Nomor Invoice',
-    thAmount: 'Nominal Tagihan',
+    thName: 'Nama',
+    thPhone: 'Nomor Telepon',
+    thAttachment: 'Nama Lampiran File',
+    thDeliveryMode: 'Mode Kirim',
+    thBranch: 'Kota/Cabang',
+    thCustom1: 'Custom Kolom 1',
+    thCustom2: 'Custom Kolom 2',
+    thCustom3: 'Custom Kolom 3',
 
     previewLabel: 'Preview Pesan :',
     btnShuffleSpintax: 'Acak',
@@ -182,17 +186,19 @@ Bulk WA Sender • by schrist.`,
 
     cardSourceTitle: 'Excel / CSV Contact File',
     cardSourceDesc: 'Automatically reads recipient data & all spreadsheet columns.',
+    btnDownloadTemplate: 'Download Template (.xlsx)',
+    btnDownloadTemplateTooltip: 'Download ready-to-fill Excel template (.xlsx) for guaranteed compatibility',
     btnUseDemoData: '⚡ Load Demo Data (15)',
-    btnUseDemoDataTooltip: 'Load 15 pre-configured mock contacts for instant testing',
+    btnUseDemoDataTooltip: 'Load 15 pre-configured sample contacts for instant testing',
     dropzoneTitle: 'Drag & Drop Spreadsheet File Here',
     btnBrowseFile: 'Browse File from Computer',
     dropzoneHint: 'Supported formats: .xlsx, .xls, .xlsm, .csv',
     btnChangeFile: 'Change File',
     sheetSelectLabel: 'Select Sheet:',
     mappingDrawerBtn: '⚙️ Customize Column Mapping ▾',
-    mapNameLabel: '👤 Recipient Name Column',
-    mapPhoneLabel: '📱 WhatsApp Number Column',
-    mapCustomLabel: '📎 File Reference Column (Optional)',
+    mapNameLabel: '👤 Name Column',
+    mapPhoneLabel: '📱 Phone Number Column',
+    mapCustomLabel: '📎 Attachment File Name Column (Optional)',
 
     cardAttachTitle: 'File Attachment Settings',
     cardAttachDesc: 'Configure folder path & filename matching strategy.',
@@ -207,7 +213,7 @@ Bulk WA Sender • by schrist.`,
     ruleByNameTitle: 'By Recipient Name',
     ruleByNameDesc: 'e.g.: <code>Budi Santoso.pdf</code> or <code>Dewi Lestari.jpg</code>',
     ruleByColTitle: 'From Excel / CSV Column',
-    ruleByColDesc: 'e.g.: Column <code>Attachment File</code> or <code>Invoice Number</code>',
+    ruleByColDesc: 'e.g.: Column <code>Attachment File Name</code> or <code>Custom Column 1</code>',
     formatSupportedLabel: 'Supported Formats:',
 
     cardComposerTitle: 'Message Composer',
@@ -215,16 +221,16 @@ Bulk WA Sender • by schrist.`,
     jitterLabel: '⏱️ Jitter Delay:',
     tagsLabel: 'Insert Column Tags & Variations:',
     messagePlaceholder: 'Type message template here...',
-    defaultTemplate: `{Salam} Dear {Nama Lengkap},
+    defaultTemplate: `{Salam} Dear {Nama},
 
-{We hereby inform you that|Please find attached|Here is} the official summary of your document:
-• Invoice No: {Nomor Invoice}
-• Branch: {Kota Cabang}
-• Total Due: {Nominal Tagihan}
+{We hereby share|Please find below|Here is} important information prepared for you:
+• City / Branch: {Kota/Cabang}
+• Detail 1: {Custom Kolom 1}
+• Detail 2: {Custom Kolom 2}
 
-Please review it at your convenience. Attached files are official and confidential.
+Please review the details at your convenience. Feel free to reply if you have any questions.
 
-{Thank you for your business!|Warm regards and best wishes!|Sincerely,}
+{Thank you for your cooperation!|Warm regards and best wishes!|Sincerely,}
 Bulk WA Sender • by schrist.`,
 
     cardExecTitle: 'Test Dispatch & Mass Broadcast',
@@ -250,7 +256,7 @@ Bulk WA Sender • by schrist.`,
 
     tableTitle: 'Recipient List & Pre-Flight Verification',
     tableDesc: 'Select recipients to message and ensure attachment files are ready.',
-    tableSearchPlaceholder: 'Search name, phone, or city...',
+    tableSearchPlaceholder: 'Search name, phone, city, or custom columns...',
     filterAll: 'All Contacts',
     filterValid: 'Valid Numbers Only',
     filterHasFile: 'With Attachments Only',
@@ -261,12 +267,14 @@ Bulk WA Sender • by schrist.`,
     contactsWord: 'Contacts',
     thSelect: 'Select',
     thNo: 'No',
-    thName: 'Recipient Name',
-    thPhone: 'WhatsApp Number',
-    thAttachment: 'Attachment File Status',
-    thBranch: 'Branch City',
-    thInvoice: 'Invoice Number',
-    thAmount: 'Total Due',
+    thName: 'Name',
+    thPhone: 'Phone Number',
+    thAttachment: 'Attachment File Name',
+    thDeliveryMode: 'Delivery Mode',
+    thBranch: 'City/Branch',
+    thCustom1: 'Custom Column 1',
+    thCustom2: 'Custom Column 2',
+    thCustom3: 'Custom Column 3',
 
     previewLabel: 'Message Preview :',
     btnShuffleSpintax: 'Shuffle',
@@ -283,6 +291,21 @@ Bulk WA Sender • by schrist.`,
     btnClearDrawer: 'Clear'
   }
 };
+
+const LEGACY_DEFAULT_SIGNATURES = [
+  '{Salam} Rekan {Nama Lengkap},',
+  '{Salam} Dear {Nama Lengkap},'
+];
+
+function isBuiltInDefaultTemplate(text) {
+  if (!text) return true;
+  const trimmed = String(text).trim();
+  if (!trimmed) return true;
+  if (trimmed === I18N.id.defaultTemplate.trim() || trimmed === I18N.en.defaultTemplate.trim()) {
+    return true;
+  }
+  return LEGACY_DEFAULT_SIGNATURES.some(sig => trimmed.startsWith(sig) && trimmed.includes('{Nominal Tagihan}'));
+}
 
 function applyLanguage(lang) {
   currentLang = lang === 'en' ? 'en' : 'id';
@@ -378,6 +401,10 @@ function applyLanguage(lang) {
   if (cardSourceH2) cardSourceH2.textContent = t.cardSourceTitle;
   const cardSourceDesc = document.querySelector('.source-card .section-desc');
   if (cardSourceDesc) cardSourceDesc.textContent = t.cardSourceDesc;
+  const btnDlTpl = document.getElementById('btnDownloadTemplate');
+  const btnDlTplTxt = document.getElementById('btnDownloadTemplateText');
+  if (btnDlTplTxt) btnDlTplTxt.textContent = t.btnDownloadTemplate;
+  if (btnDlTpl) btnDlTpl.title = t.btnDownloadTemplateTooltip;
   const btnUseDemo = document.getElementById('btnUseDemoData');
   if (btnUseDemo) {
     btnUseDemo.textContent = t.btnUseDemoData;
@@ -494,7 +521,7 @@ function applyLanguage(lang) {
   const msgTpl = document.getElementById('messageTemplate');
   if (msgTpl) {
     msgTpl.placeholder = t.messagePlaceholder;
-    if (!msgTpl.value || msgTpl.value.trim() === I18N.id.defaultTemplate.trim() || msgTpl.value.trim() === I18N.en.defaultTemplate.trim()) {
+    if (isBuiltInDefaultTemplate(msgTpl.value)) {
       msgTpl.value = t.defaultTemplate;
     }
   }
@@ -560,18 +587,6 @@ function applyLanguage(lang) {
     selSummary.innerHTML = `<span class="badge-selection" id="selectionCountBadge">${selectedContactIds.size} ${t.selectedBadge}</span> <span>${t.fromTotalWord} <strong id="totalTableCount">${contactsData.length}</strong> ${t.contactsWord}</span>`;
   }
 
-  // Table Th Columns
-  const ths = document.querySelectorAll('.contacts-table thead th');
-  if (ths && ths.length >= 8) {
-    ths[0].textContent = t.thSelect;
-    ths[1].textContent = t.thNo;
-    ths[2].textContent = t.thName;
-    ths[3].textContent = t.thPhone;
-    ths[4].textContent = activeDeliveryMode === 'text' ? (isEn ? 'Delivery Mode' : 'Info Tambahan') : t.thAttachment;
-    ths[5].textContent = t.thBranch;
-    ths[6].textContent = t.thInvoice;
-    ths[7].textContent = t.thAmount;
-  }
   const filterSelect = document.getElementById('tableStatusFilter');
   if (filterSelect && filterSelect.options && filterSelect.options.length >= 4) {
     filterSelect.options[0].textContent = t.filterAll;
@@ -613,7 +628,7 @@ function applyLanguage(lang) {
     rebuildDynamicTagPills(currentExcelMeta.headers);
   }
 
-  // Refresh Table, Notification Drawer List & Live Preview
+  // Refresh Table (rebuilds dynamic <thead> and <tbody>), Notification Drawer List & Live Preview
   if (typeof contactsTableBody !== 'undefined' && contactsTableBody) {
     renderTable();
   }
@@ -653,6 +668,7 @@ const matchPercentageBadge = document.getElementById('matchPercentageBadge');
 const excelDropzone = document.getElementById('excelDropzone');
 const excelFileInput = document.getElementById('excelFileInput');
 const btnBrowseFile = document.getElementById('btnBrowseFile');
+const btnDownloadTemplate = document.getElementById('btnDownloadTemplate');
 const btnUseDemoData = document.getElementById('btnUseDemoData');
 const activeFileChip = document.getElementById('activeFileChip');
 const activeFileName = document.getElementById('activeFileName');
@@ -819,24 +835,30 @@ function setupEventListeners() {
     });
   }
 
-  // File Upload
+  // File Upload & Official Excel Template Download
   btnBrowseFile.addEventListener('click', () => excelFileInput.click());
   btnChangeFile.addEventListener('click', () => excelFileInput.click());
+  if (btnDownloadTemplate) {
+    btnDownloadTemplate.addEventListener('click', downloadExcelTemplate);
+  }
   btnUseDemoData.addEventListener('click', loadDemoContacts);
 
   excelFileInput.addEventListener('change', (e) => {
     if (e.target.files && e.target.files[0]) {
-      handleFileUpload(e.target.files[0]);
+      const picked = e.target.files[0];
+      handleFileUpload(picked);
+      excelFileInput.value = '';
     }
   });
 
-  // Drag & drop
-  excelDropzone.addEventListener('dragover', (e) => {
+  // Drag & drop (works both on dropzone and anywhere on source-card when activeFileChip is shown)
+  const sourceCardEl = document.querySelector('.source-card') || excelDropzone;
+  sourceCardEl.addEventListener('dragover', (e) => {
     e.preventDefault();
     excelDropzone.classList.add('dragover');
   });
-  excelDropzone.addEventListener('dragleave', () => excelDropzone.classList.remove('dragover'));
-  excelDropzone.addEventListener('drop', (e) => {
+  sourceCardEl.addEventListener('dragleave', () => excelDropzone.classList.remove('dragover'));
+  sourceCardEl.addEventListener('drop', (e) => {
     e.preventDefault();
     excelDropzone.classList.remove('dragover');
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
@@ -846,28 +868,21 @@ function setupEventListeners() {
 
   sheetSelect.addEventListener('change', () => {
     if (currentExcelMeta) {
-      if (isTauriEnv && currentExcelMeta.file_path) {
+      if (isTauriEnv && currentExcelMeta.file_path && !currentExcelMeta.isDemo) {
         readExcelSheet(currentExcelMeta.file_path, sheetSelect.value);
       } else if (currentExcelMeta.workbookRef && typeof XLSX !== 'undefined') {
         const selectedSheet = sheetSelect.value;
         const worksheet = currentExcelMeta.workbookRef.Sheets[selectedSheet];
         if (worksheet) {
-          const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
-          if (sheetData && sheetData.length > 0) {
-            const headers = sheetData[0].map((h, i) => String(h || `Kolom_${i + 1}`).trim());
-            const rawRows = sheetData.slice(1).filter(r => r.some(cell => cell !== '' && cell !== null && cell !== undefined));
-            const rowsAsObjects = rawRows.map(r => {
-              const obj = {};
-              headers.forEach((h, idx) => {
-                obj[h] = r[idx] !== undefined ? String(r[idx]).trim() : '';
-              });
-              return obj;
-            });
+          const parsed = extractCleanSheetRows(worksheet);
+          if (parsed) {
             currentExcelMeta.active_sheet = selectedSheet;
-            currentExcelMeta.headers = headers;
-            currentExcelMeta.total_rows = rowsAsObjects.length;
-            applyExcelDataToUI(currentExcelMeta, rowsAsObjects);
-            appendLog('info', `Beralih ke sheet '${selectedSheet}' (${rowsAsObjects.length} baris data).`);
+            currentExcelMeta.headers = parsed.headers;
+            currentExcelMeta.total_rows = parsed.rowsAsObjects.length;
+            applyExcelDataToUI(currentExcelMeta, parsed.rowsAsObjects);
+            appendLog('info', currentLang === 'en'
+              ? `Switched to sheet '${selectedSheet}' (${parsed.rowsAsObjects.length} rows).`
+              : `Beralih ke sheet '${selectedSheet}' (${parsed.rowsAsObjects.length} baris data).`);
           }
         }
       }
@@ -1182,13 +1197,11 @@ function setDeliveryMode(mode) {
     matchPercentageBadge.textContent = isEn ? 'Text Mode Active' : 'Mode Teks Aktif';
     matchPercentageBadge.className = 'match-badge badge-pending';
     previewAttachmentCard.style.display = 'none';
-    thAttachmentCol.textContent = isEn ? 'Delivery Mode' : 'Info Tambahan';
   } else {
     modeBtnAttachment.classList.add('active');
     modeBtnText.classList.remove('active');
     attachmentConfigCard.classList.remove('card-disabled');
     previewAttachmentCard.style.display = 'flex';
-    thAttachmentCol.textContent = isEn ? 'Attachment File Status' : 'Status Lampiran File';
     triggerAttachmentScan();
   }
   renderTable();
@@ -1370,11 +1383,170 @@ function resetWhatsAppSession() {
 }
 
 // ----------------------------------------------------
+// OFFICIAL EXCEL TEMPLATE GENERATOR (.XLSX)
+// ----------------------------------------------------
+async function downloadExcelTemplate() {
+  const isEn = currentLang === 'en';
+  if (typeof XLSX === 'undefined') {
+    appendLog('error', isEn
+      ? 'Excel generator library (SheetJS) is unavailable.'
+      : 'Pustaka pembuat Excel (SheetJS) tidak tersedia.');
+    return;
+  }
+
+  try {
+    const defaultFileName = isEn ? 'Bulk_WA_Contact_Template.xlsx' : 'Template_Kontak_Bulk_WA.xlsx';
+    const sheetTitle = isEn ? 'Contact List' : 'Daftar Kontak';
+    const guideTitle = isEn ? 'Column Guide' : 'Panduan Kolom';
+
+    const headers = isEn
+      ? ['No', 'Name', 'Phone Number', 'Attachment File Name', 'City/Branch', 'Custom Column 1', 'Custom Column 2', 'Custom Column 3']
+      : ['No', 'Nama', 'Nomor Telepon', 'Nama Lampiran File', 'Kota/Cabang', 'Custom Kolom 1', 'Custom Kolom 2', 'Custom Kolom 3'];
+
+    const sampleRows = isEn
+      ? [
+          ['1', 'Budi Santoso', '081299990001', 'Budi Santoso.pdf', 'Jakarta Pusat', 'Priority Partner', 'Morning Session (09:00)', 'REF-2026-001'],
+          ['2', 'Siti Rahmawati', '081299990002', 'Siti Rahmawati.pdf', 'Surabaya', 'Regular Member', 'Afternoon Session (13:00)', 'REF-2026-002'],
+          ['3', 'Ahmad Fauzi', '081299990003', 'Ahmad Fauzi.jpg', 'Bandung', 'VIP Guest', 'Morning Session (09:00)', 'REF-2026-003']
+        ]
+      : [
+          ['1', 'Budi Santoso', '081299990001', 'Budi Santoso.pdf', 'Jakarta Pusat', 'Mitra Prioritas', 'Sesi Pagi (09:00)', 'REF-2026-001'],
+          ['2', 'Siti Rahmawati', '081299990002', 'Siti Rahmawati.pdf', 'Surabaya', 'Peserta Reguler', 'Sesi Siang (13:00)', 'REF-2026-002'],
+          ['3', 'Ahmad Fauzi', '081299990003', 'Ahmad Fauzi.jpg', 'Bandung', 'Peserta VIP', 'Sesi Pagi (09:00)', 'REF-2026-003']
+        ];
+
+    const ws = XLSX.utils.aoa_to_sheet([headers, ...sampleRows]);
+
+    // Force Phone Number cells (Column C) to explicit Text format ('@') so leading '0' is preserved in Excel
+    for (let r = 1; r <= sampleRows.length; r++) {
+      const phoneCellRef = XLSX.utils.encode_cell({ r, c: 2 });
+      if (ws[phoneCellRef]) {
+        ws[phoneCellRef].t = 's';
+        ws[phoneCellRef].z = '@';
+      }
+    }
+
+    ws['!cols'] = [
+      { wch: 6 },
+      { wch: 24 },
+      { wch: 18 },
+      { wch: 24 },
+      { wch: 18 },
+      { wch: 22 },
+      { wch: 24 },
+      { wch: 20 }
+    ];
+
+    const guideRows = isEn
+      ? [
+          ['Column Header', 'Required?', 'Usage & Notes'],
+          ['No', 'Optional', 'Sequential row number (1, 2, 3, ...).'],
+          ['Name', 'Required', 'Recipient full name. Automatically mapped to {Name} / {Nama}.'],
+          ['Phone Number', 'Required', 'WhatsApp number (0812... or 62812...). Leading 0 is automatically normalized to 62.'],
+          ['Attachment File Name', 'Optional', 'Filename with extension (e.g. Budi Santoso.pdf) if matching attachments from Excel column.'],
+          ['City/Branch', 'Optional', 'Recipient city, branch, or location.'],
+          ['Custom Column 1 - 3', 'Optional', 'Flexible columns! You can keep these names OR rename the headers to anything (e.g. Role, Schedule, Voucher Code, Total Due) — the app reads your custom header names automatically upon upload.']
+        ]
+      : [
+          ['Nama Kolom', 'Wajib?', 'Keterangan & Cara Pengisian'],
+          ['No', 'Opsional', 'Nomor urut baris kontak (1, 2, 3, dst.).'],
+          ['Nama', 'Wajib', 'Nama penerima pesan. Otomatis terhubung ke variabel {Nama}.'],
+          ['Nomor Telepon', 'Wajib', 'Nomor WhatsApp tujuan (bisa diawali 08xx atau 628xx). Otomatis dinormalisasi sistem.'],
+          ['Nama Lampiran File', 'Opsional', 'Nama file beserta ekstensi (contoh: Budi Santoso.pdf) bila memilih pencocokan dari kolom Excel.'],
+          ['Kota/Cabang', 'Opsional', 'Informasi kota, cabang, atau lokasi penerima.'],
+          ['Custom Kolom 1 - 3', 'Opsional', 'Kolom bebas! Judul header ini BOLEH diganti sesuai kebutuhan (misal: Jabatan, Jadwal Sesi, Kode Unik, Nominal Tagihan, atau tambah kolom baru) dan nama headernya akan terbaca otomatis saat diunggah.']
+        ];
+
+    const guideWs = XLSX.utils.aoa_to_sheet(guideRows);
+    guideWs['!cols'] = [{ wch: 24 }, { wch: 12 }, { wch: 90 }];
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, sheetTitle);
+    XLSX.utils.book_append_sheet(wb, guideWs, guideTitle);
+
+    if (isTauriEnv && tauriCore) {
+      const wbArray = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+      const byteArr = Array.from(new Uint8Array(wbArray));
+      const savedPath = await tauriCore.invoke('cmd_save_binary_file', {
+        defaultName: defaultFileName,
+        bytes: byteArr,
+        title: isEn ? 'Save Excel Contact Template' : 'Simpan Template Excel Kontak'
+      });
+
+      if (savedPath) {
+        appendLog('success', isEn
+          ? `Excel template saved to: ${savedPath}`
+          : `Template Excel berhasil disimpan ke: ${savedPath}`);
+      } else {
+        appendLog('info', isEn
+          ? 'Template download cancelled.'
+          : 'Penyimpanan template Excel dibatalkan.');
+      }
+      return;
+    }
+
+    // Browser mode fallback
+    XLSX.writeFile(wb, defaultFileName);
+    appendLog('success', isEn
+      ? `Downloaded ready-to-edit Excel template '${defaultFileName}'.`
+      : `Template Excel '${defaultFileName}' berhasil diunduh.`);
+  } catch (err) {
+    appendLog('error', (isEn ? 'Failed to generate Excel template: ' : 'Gagal membuat template Excel: ') + err.message);
+    console.error(err);
+  }
+}
+
+function extractCleanSheetRows(worksheet) {
+  const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '', raw: false });
+  if (!sheetData || sheetData.length === 0) return null;
+
+  let hIdx = -1;
+  for (let i = 0; i < sheetData.length; i++) {
+    if (Array.isArray(sheetData[i]) && sheetData[i].some(c => String(c || '').trim() !== '')) {
+      hIdx = i;
+      break;
+    }
+  }
+  if (hIdx === -1) return null;
+
+  const maxCols = sheetData.reduce((acc, row) => Math.max(acc, Array.isArray(row) ? row.length : 0), 0);
+  let effectiveCols = maxCols;
+  while (effectiveCols > 0) {
+    const colIdx = effectiveCols - 1;
+    const hasAnyInCol = sheetData.slice(hIdx).some(row => Array.isArray(row) && String(row[colIdx] ?? '').trim() !== '');
+    if (hasAnyInCol) break;
+    effectiveCols--;
+  }
+  if (effectiveCols === 0) return null;
+
+  const rawHeader = sheetData[hIdx] || [];
+  const headers = [];
+  for (let c = 0; c < effectiveCols; c++) {
+    const val = String(rawHeader[c] ?? '').trim();
+    headers.push(val || `Kolom_${c + 1}`);
+  }
+
+  const rawRows = sheetData
+    .slice(hIdx + 1)
+    .filter(r => Array.isArray(r) && headers.some((_, idx) => String(r[idx] ?? '').trim() !== ''));
+
+  const rowsAsObjects = rawRows.map(r => {
+    const obj = {};
+    headers.forEach((h, idx) => {
+      obj[h] = r[idx] !== undefined && r[idx] !== null ? String(r[idx]).trim() : '';
+    });
+    return obj;
+  });
+
+  return { headers, rowsAsObjects };
+}
+
+// ----------------------------------------------------
 // EXCEL & DEMO DATA INGESTION
 // ----------------------------------------------------
 async function loadDemoContacts() {
   const isEn = currentLang === 'en';
-  appendLog('info', isEn ? 'Loading sample contacts (15 demo records)...' : 'Memuat data contoh generik (15 kontak dummy)...');
+  appendLog('info', isEn ? 'Loading sample contacts (15 demo records)...' : 'Memuat data contoh standar (15 kontak)...');
 
   let loadedSuccessfully = false;
   // Load from pre-generated demo data
@@ -1391,9 +1563,13 @@ async function loadDemoContacts() {
           sheetName: null
         });
         if (res && res.rows && res.rows.length > 0) {
+          res.isDemo = true;
           currentExcelMeta = res;
           applyExcelDataToUI(res, res.rows);
           attachmentFolderInput.value = 'sample_data/attachments';
+          if (activeDeliveryMode === 'attachment') {
+            triggerAttachmentScan();
+          }
           loadedSuccessfully = true;
           appendLog('success', isEn ? `Loaded '${res.file_name}' (${res.total_rows} records).` : `Berhasil membaca '${res.file_name}' (${res.total_rows} baris data).`);
           break;
@@ -1407,29 +1583,30 @@ async function loadDemoContacts() {
   // If not loaded via Rust or contacts are empty (e.g. running from dist/), use built-in 15 contacts mockup
   if (!loadedSuccessfully || contactsData.length === 0) {
     currentExcelMeta = {
+      isDemo: true,
       file_name: isEn ? 'Sample_Contact_List.xlsx' : 'Daftar_Kontak_Penerima.xlsx',
       file_path: 'sample_data/Sample_Contact_List.xlsx',
       sheets: ['Daftar Kontak'],
       active_sheet: 'Daftar Kontak',
-      headers: ['No', 'Nama Lengkap', 'Nomor WhatsApp', 'Kota Cabang', 'Nomor Invoice', 'Nominal Tagihan', 'File Lampiran', 'Status']
+      headers: ['No', 'Nama', 'Nomor Telepon', 'Nama Lampiran File', 'Kota/Cabang', 'Custom Kolom 1', 'Custom Kolom 2', 'Custom Kolom 3']
     };
 
     const sampleRows = [
-      { 'No': '1', 'Nama Lengkap': 'Budi Santoso', 'Nomor WhatsApp': '081299990001', 'Kota Cabang': 'Jakarta Pusat', 'Nomor Invoice': 'INV-2026-001', 'Nominal Tagihan': '2750000', 'File Lampiran': 'INV-2026-001.pdf', 'Status': 'Aktif' },
-      { 'No': '2', 'Nama Lengkap': 'Siti Rahmawati', 'Nomor WhatsApp': '081299990002', 'Kota Cabang': 'Surabaya', 'Nomor Invoice': 'INV-2026-002', 'Nominal Tagihan': '3400000', 'File Lampiran': 'INV-2026-002.pdf', 'Status': 'Aktif' },
-      { 'No': '3', 'Nama Lengkap': 'Ahmad Fauzi', 'Nomor WhatsApp': '081299990003', 'Kota Cabang': 'Bandung', 'Nomor Invoice': 'INV-2026-003', 'Nominal Tagihan': '1850000', 'File Lampiran': 'Ahmad Fauzi.jpg', 'Status': 'Aktif' },
-      { 'No': '4', 'Nama Lengkap': 'Dewi Lestari', 'Nomor WhatsApp': '081299990004', 'Kota Cabang': 'Semarang', 'Nomor Invoice': 'INV-2026-004', 'Nominal Tagihan': '4200000', 'File Lampiran': 'Dewi Lestari.pdf', 'Status': 'Aktif' },
-      { 'No': '5', 'Nama Lengkap': 'Eko Prasetyo', 'Nomor WhatsApp': '081299990005', 'Kota Cabang': 'Medan', 'Nomor Invoice': 'INV-2026-005', 'Nominal Tagihan': '2150000', 'File Lampiran': 'INV-2026-005.pdf', 'Status': 'Aktif' },
-      { 'No': '6', 'Nama Lengkap': 'Rina Handayani', 'Nomor WhatsApp': '081299990006', 'Kota Cabang': 'Yogyakarta', 'Nomor Invoice': 'INV-2026-006', 'Nominal Tagihan': '3100000', 'File Lampiran': 'Rina Handayani.pdf', 'Status': 'Aktif' },
-      { 'No': '7', 'Nama Lengkap': 'Fajar Nugraha', 'Nomor WhatsApp': '081299990007', 'Kota Cabang': 'Makassar', 'Nomor Invoice': 'INV-2026-007', 'Nominal Tagihan': '5000000', 'File Lampiran': 'Fajar Nugraha.png', 'Status': 'Aktif' },
-      { 'No': '8', 'Nama Lengkap': 'Putri Ayu Wulandari', 'Nomor WhatsApp': '081299990008', 'Kota Cabang': 'Denpasar', 'Nomor Invoice': 'INV-2026-008', 'Nominal Tagihan': '2900000', 'File Lampiran': 'INV-2026-008.docx', 'Status': 'Aktif' },
-      { 'No': '9', 'Nama Lengkap': 'Hendra Gunawan', 'Nomor WhatsApp': '081299990009', 'Kota Cabang': 'Palembang', 'Nomor Invoice': 'INV-2026-009', 'Nominal Tagihan': '3800000', 'File Lampiran': 'Hendra Gunawan.pdf', 'Status': 'Aktif' },
-      { 'No': '10', 'Nama Lengkap': 'Nurul Hidayah', 'Nomor WhatsApp': '081299990010', 'Kota Cabang': 'Malang', 'Nomor Invoice': 'INV-2026-010', 'Nominal Tagihan': '1600000', 'File Lampiran': 'INV-2026-010.pdf', 'Status': 'Aktif' },
-      { 'No': '11', 'Nama Lengkap': 'Rizky Pratama', 'Nomor WhatsApp': '081299990011', 'Kota Cabang': 'Bekasi', 'Nomor Invoice': 'INV-2026-011', 'Nominal Tagihan': '4500000', 'File Lampiran': 'Rizky Pratama.pdf', 'Status': 'Aktif' },
-      { 'No': '12', 'Nama Lengkap': 'Mega Puspita', 'Nomor WhatsApp': '081299990012', 'Kota Cabang': 'Tangerang', 'Nomor Invoice': 'INV-2026-012', 'Nominal Tagihan': '2300000', 'File Lampiran': 'Mega Puspita.jpg', 'Status': 'Aktif' },
-      { 'No': '13', 'Nama Lengkap': 'Bayu Saputra', 'Nomor WhatsApp': '081299990013', 'Kota Cabang': 'Solo', 'Nomor Invoice': 'INV-2026-013', 'Nominal Tagihan': '3750000', 'File Lampiran': 'INV-2026-013.pdf', 'Status': 'Aktif' },
-      { 'No': '14', 'Nama Lengkap': 'Indah Permatasari', 'Nomor WhatsApp': '081299990014', 'Kota Cabang': 'Bogor', 'Nomor Invoice': 'INV-2026-014', 'Nominal Tagihan': '4100000', 'File Lampiran': 'Indah Permatasari.pdf', 'Status': 'Aktif' },
-      { 'No': '15', 'Nama Lengkap': 'Dimas Kurniawan', 'Nomor WhatsApp': '081299990015', 'Kota Cabang': 'Balikpapan', 'Nomor Invoice': 'INV-2026-015', 'Nominal Tagihan': '3200000', 'File Lampiran': 'INV-2026-015.pdf', 'Status': 'Aktif' }
+      { 'No': '1', 'Nama': 'Budi Santoso', 'Nomor Telepon': '081299990001', 'Nama Lampiran File': 'INV-2026-001.pdf', 'Kota/Cabang': 'Jakarta Pusat', 'Custom Kolom 1': 'Mitra Prioritas', 'Custom Kolom 2': 'Sesi Pagi (09:00)', 'Custom Kolom 3': 'REF-2026-001' },
+      { 'No': '2', 'Nama': 'Siti Rahmawati', 'Nomor Telepon': '081299990002', 'Nama Lampiran File': 'INV-2026-002.pdf', 'Kota/Cabang': 'Surabaya', 'Custom Kolom 1': 'Peserta Reguler', 'Custom Kolom 2': 'Sesi Siang (13:00)', 'Custom Kolom 3': 'REF-2026-002' },
+      { 'No': '3', 'Nama': 'Ahmad Fauzi', 'Nomor Telepon': '081299990003', 'Nama Lampiran File': 'Ahmad Fauzi.jpg', 'Kota/Cabang': 'Bandung', 'Custom Kolom 1': 'Peserta VIP', 'Custom Kolom 2': 'Sesi Pagi (09:00)', 'Custom Kolom 3': 'REF-2026-003' },
+      { 'No': '4', 'Nama': 'Dewi Lestari', 'Nomor Telepon': '081299990004', 'Nama Lampiran File': 'Dewi Lestari.pdf', 'Kota/Cabang': 'Semarang', 'Custom Kolom 1': 'Mitra Prioritas', 'Custom Kolom 2': 'Sesi Siang (13:00)', 'Custom Kolom 3': 'REF-2026-004' },
+      { 'No': '5', 'Nama': 'Eko Prasetyo', 'Nomor Telepon': '081299990005', 'Nama Lampiran File': 'INV-2026-005.pdf', 'Kota/Cabang': 'Medan', 'Custom Kolom 1': 'Peserta Reguler', 'Custom Kolom 2': 'Sesi Pagi (09:00)', 'Custom Kolom 3': 'REF-2026-005' },
+      { 'No': '6', 'Nama': 'Rina Handayani', 'Nomor Telepon': '081299990006', 'Nama Lampiran File': 'Rina Handayani.pdf', 'Kota/Cabang': 'Yogyakarta', 'Custom Kolom 1': 'Peserta VIP', 'Custom Kolom 2': 'Sesi Siang (13:00)', 'Custom Kolom 3': 'REF-2026-006' },
+      { 'No': '7', 'Nama': 'Fajar Nugraha', 'Nomor Telepon': '081299990007', 'Nama Lampiran File': 'Fajar Nugraha.png', 'Kota/Cabang': 'Makassar', 'Custom Kolom 1': 'Mitra Prioritas', 'Custom Kolom 2': 'Sesi Pagi (09:00)', 'Custom Kolom 3': 'REF-2026-007' },
+      { 'No': '8', 'Nama': 'Putri Ayu Wulandari', 'Nomor Telepon': '081299990008', 'Nama Lampiran File': 'INV-2026-008.docx', 'Kota/Cabang': 'Denpasar', 'Custom Kolom 1': 'Peserta Reguler', 'Custom Kolom 2': 'Sesi Siang (13:00)', 'Custom Kolom 3': 'REF-2026-008' },
+      { 'No': '9', 'Nama': 'Hendra Gunawan', 'Nomor Telepon': '081299990009', 'Nama Lampiran File': 'Hendra Gunawan.pdf', 'Kota/Cabang': 'Palembang', 'Custom Kolom 1': 'Peserta VIP', 'Custom Kolom 2': 'Sesi Pagi (09:00)', 'Custom Kolom 3': 'REF-2026-009' },
+      { 'No': '10', 'Nama': 'Nurul Hidayah', 'Nomor Telepon': '081299990010', 'Nama Lampiran File': 'INV-2026-010.pdf', 'Kota/Cabang': 'Malang', 'Custom Kolom 1': 'Mitra Prioritas', 'Custom Kolom 2': 'Sesi Siang (13:00)', 'Custom Kolom 3': 'REF-2026-010' },
+      { 'No': '11', 'Nama': 'Rizky Pratama', 'Nomor Telepon': '081299990011', 'Nama Lampiran File': 'Rizky Pratama.pdf', 'Kota/Cabang': 'Bekasi', 'Custom Kolom 1': 'Peserta Reguler', 'Custom Kolom 2': 'Sesi Pagi (09:00)', 'Custom Kolom 3': 'REF-2026-011' },
+      { 'No': '12', 'Nama': 'Mega Puspita', 'Nomor Telepon': '081299990012', 'Nama Lampiran File': 'Mega Puspita.jpg', 'Kota/Cabang': 'Tangerang', 'Custom Kolom 1': 'Peserta VIP', 'Custom Kolom 2': 'Sesi Siang (13:00)', 'Custom Kolom 3': 'REF-2026-012' },
+      { 'No': '13', 'Nama': 'Bayu Saputra', 'Nomor Telepon': '081299990013', 'Nama Lampiran File': 'INV-2026-013.pdf', 'Kota/Cabang': 'Solo', 'Custom Kolom 1': 'Mitra Prioritas', 'Custom Kolom 2': 'Sesi Pagi (09:00)', 'Custom Kolom 3': 'REF-2026-013' },
+      { 'No': '14', 'Nama': 'Indah Permatasari', 'Nomor Telepon': '081299990014', 'Nama Lampiran File': 'Indah Permatasari.pdf', 'Kota/Cabang': 'Bogor', 'Custom Kolom 1': 'Peserta Reguler', 'Custom Kolom 2': 'Sesi Siang (13:00)', 'Custom Kolom 3': 'REF-2026-014' },
+      { 'No': '15', 'Nama': 'Dimas Kurniawan', 'Nomor Telepon': '081299990015', 'Nama Lampiran File': 'INV-2026-015.pdf', 'Kota/Cabang': 'Balikpapan', 'Custom Kolom 1': 'Peserta VIP', 'Custom Kolom 2': 'Sesi Pagi (09:00)', 'Custom Kolom 3': 'REF-2026-015' }
     ];
 
     applyExcelDataToUI(currentExcelMeta, sampleRows);
@@ -1440,7 +1617,8 @@ async function loadDemoContacts() {
 
 async function handleFileUpload(file) {
   if (!file) return;
-  appendLog('info', `Membaca file Excel: ${file.name}...`);
+  const isEn = currentLang === 'en';
+  appendLog('info', isEn ? `Reading spreadsheet: ${file.name}...` : `Membaca file spreadsheet: ${file.name}...`);
 
   // If in Tauri and path is available
   if (isTauriEnv && file.path) {
@@ -1459,75 +1637,78 @@ async function handleFileUpload(file) {
       const workbook = XLSX.read(arrayBuffer, { type: 'array' });
       const sheetNames = workbook.SheetNames;
       if (!sheetNames || sheetNames.length === 0) {
-        throw new Error('Tidak ada sheet yang ditemukan di file Excel ini.');
+        throw new Error(isEn ? 'No worksheet found in this Excel file.' : 'Tidak ada sheet yang ditemukan di file Excel ini.');
       }
 
       const firstSheetName = sheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
-      const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+      const parsed = extractCleanSheetRows(worksheet);
 
-      if (!sheetData || sheetData.length === 0) {
-        throw new Error('Sheet kosong atau tidak memiliki data.');
+      if (!parsed || parsed.headers.length === 0) {
+        throw new Error(isEn ? 'Worksheet is empty or missing a header row.' : 'Sheet kosong atau tidak memiliki baris judul kolom.');
       }
 
-      const headers = sheetData[0].map((h, i) => String(h || `Kolom_${i + 1}`).trim());
-      const rawRows = sheetData.slice(1).filter(r => r.some(cell => cell !== '' && cell !== null && cell !== undefined));
-
-      const rowsAsObjects = rawRows.map(r => {
-        const obj = {};
-        headers.forEach((h, idx) => {
-          obj[h] = r[idx] !== undefined ? String(r[idx]).trim() : '';
-        });
-        return obj;
-      });
-
       currentExcelMeta = {
+        isDemo: false,
         file_name: file.name,
         file_path: file.path || file.name,
         sheets: sheetNames,
         active_sheet: firstSheetName,
-        headers: headers,
-        total_rows: rowsAsObjects.length,
+        headers: parsed.headers,
+        total_rows: parsed.rowsAsObjects.length,
         workbookRef: workbook
       };
 
-      applyExcelDataToUI(currentExcelMeta, rowsAsObjects);
-      appendLog('success', `Berhasil membaca '${file.name}' (${rowsAsObjects.length} baris data).`);
+      applyExcelDataToUI(currentExcelMeta, parsed.rowsAsObjects);
+      if (activeDeliveryMode === 'attachment') {
+        triggerAttachmentScan();
+      }
+      appendLog('success', isEn
+        ? `Loaded '${file.name}' (${parsed.rowsAsObjects.length} rows, columns: ${parsed.headers.join(', ')}).`
+        : `Berhasil membaca '${file.name}' (${parsed.rowsAsObjects.length} baris, kolom: ${parsed.headers.join(', ')}).`);
       return;
     } catch (err) {
-      appendLog('error', `Gagal membaca Excel: ${err.message}`);
+      appendLog('error', (isEn ? 'Failed to parse spreadsheet: ' : 'Gagal membaca Excel: ') + err.message);
       console.error(err);
+      return;
     }
   }
 
   // Fallback demo if XLSX unavailable
   activeFileName.textContent = file.name;
   activeFileChip.style.display = 'flex';
-  excelDropzone.querySelector('.dropzone-inner').style.display = 'none';
+  excelDropzone.style.display = 'none';
   appendLog('warning', 'Menggunakan struktur demo sebagai fallback.');
   loadDemoContacts();
 }
 
 async function readExcelSheet(filePath, sheetName) {
   if (!isTauriEnv) return;
+  const isEn = currentLang === 'en';
   try {
     const res = await tauriCore.invoke('cmd_read_excel', {
       filePath: filePath,
       sheetName: sheetName
     });
 
+    res.isDemo = false;
     currentExcelMeta = res;
     applyExcelDataToUI(res, res.rows);
-    appendLog('success', `Berhasil membaca '${res.file_name}' (${res.total_rows} baris data).`);
+    if (activeDeliveryMode === 'attachment') {
+      triggerAttachmentScan();
+    }
+    appendLog('success', isEn
+      ? `Loaded '${res.file_name}' (${res.total_rows} rows, columns: ${res.headers.join(', ')}).`
+      : `Berhasil membaca '${res.file_name}' (${res.total_rows} baris, kolom: ${res.headers.join(', ')}).`);
   } catch (err) {
-    appendLog('error', 'Gagal membaca file Excel: ' + err);
+    appendLog('error', (isEn ? 'Failed to read spreadsheet: ' : 'Gagal membaca file Excel: ') + err);
   }
 }
 
 function applyExcelDataToUI(meta, rows) {
   activeFileName.textContent = meta.file_name;
   activeFileChip.style.display = 'flex';
-  excelDropzone.querySelector('.dropzone-inner').style.display = 'none';
+  excelDropzone.style.display = 'none';
 
   // Populate sheet dropdown
   sheetSelect.innerHTML = '';
@@ -1568,10 +1749,19 @@ function populateMappingOptions(headers) {
     });
   });
 
-  // Auto detect
-  const nameMatch = headers.find(h => /nama|name/i.test(h)) || headers[1] || '';
-  const phoneMatch = headers.find(h => /wa|telp|hp|phone|kontak|number/i.test(h)) || headers[2] || '';
-  const customMatch = headers.find(h => /file|lampiran|attachment|invoice|id/i.test(h)) || '';
+  // Auto detect core columns (avoid matching 'Nama Lampiran File' / 'Attachment File Name' as Name!)
+  const nameMatch =
+    headers.find(h => /^(nama|name|nama lengkap|nama penerima|full name|recipient name|penerima|recipient)$/i.test(h.trim())) ||
+    headers.find(h => /nama(?!\s*(lampiran|file))|name(?!\s*file)|penerima|recipient/i.test(h)) ||
+    headers[1] ||
+    '';
+  const phoneMatch =
+    headers.find(h => /nomor telepon|no\.?\s*telp|telepon|telp|whatsapp|\bwa\b|\bhp\b|no\.?\s*hp|phone|ponsel|mobile|kontak/i.test(h)) ||
+    headers[2] ||
+    '';
+  const customMatch =
+    headers.find(h => /nama lampiran|file lampiran|lampiran|attachment|nama file|\bfile\b/i.test(h)) ||
+    '';
 
   if (nameMatch) mapNameCol.value = nameMatch;
   if (phoneMatch) mapPhoneCol.value = phoneMatch;
@@ -1583,15 +1773,15 @@ function populateMappingOptions(headers) {
 }
 
 function rawRowsToContacts(rows, headers) {
-  const nameCol = mapNameCol.value || headers[1] || 'Nama Lengkap';
-  const phoneCol = mapPhoneCol.value || headers[2] || 'Nomor WhatsApp';
-  const customCol = mapCustomCol.value || 'File Lampiran';
+  const nameCol = mapNameCol.value || headers[1] || 'Nama';
+  const phoneCol = mapPhoneCol.value || headers[2] || 'Nomor Telepon';
+  const customCol = mapCustomCol.value || 'Nama Lampiran File';
 
   contactsData = rows.map((r, idx) => {
     const id = String(idx + 1);
     const nama = r[nameCol] || `Kontak ${idx + 1}`;
     const rawPhone = r[phoneCol] || '';
-    const customVal = r[customCol] || '';
+    const customVal = customCol ? (r[customCol] || '') : '';
 
     return {
       id,
@@ -1982,6 +2172,45 @@ function parseSpintax(text) {
   return parsed;
 }
 
+function isExplicitCurrencyColumn(colName) {
+  if (!colName) return false;
+  return /(nominal|tagihan|rupiah|\bidr\b|harga|biaya|gaji|\bthp\b|honor|salary|total bayar|total due|amount due)/i.test(String(colName).trim());
+}
+
+function resolveActiveColumnSchema() {
+  const headers = (currentExcelMeta && Array.isArray(currentExcelMeta.headers) && currentExcelMeta.headers.length > 0)
+    ? currentExcelMeta.headers
+    : ['No', 'Nama', 'Nomor Telepon', 'Nama Lampiran File', 'Kota/Cabang', 'Custom Kolom 1', 'Custom Kolom 2', 'Custom Kolom 3'];
+  const isDemo = Boolean(!currentExcelMeta || currentExcelMeta.isDemo);
+
+  const noCol = headers.find(h => /^(no|no\.|nomor urut|#)$/i.test(h.trim())) || null;
+  const nameCol = (mapNameCol && mapNameCol.value && headers.includes(mapNameCol.value))
+    ? mapNameCol.value
+    : (headers.find(h => /^(nama|name|nama lengkap|nama penerima|full name|recipient name|penerima|recipient)$/i.test(h.trim()))
+       || headers.find(h => /nama(?!\s*(lampiran|file))|name(?!\s*file)|penerima|recipient/i.test(h))
+       || null);
+  const phoneCol = (mapPhoneCol && mapPhoneCol.value && headers.includes(mapPhoneCol.value))
+    ? mapPhoneCol.value
+    : (headers.find(h => /nomor telepon|no\.?\s*telp|telepon|telp|whatsapp|\bwa\b|\bhp\b|no\.?\s*hp|phone|ponsel|mobile|kontak/i.test(h))
+       || null);
+
+  // Dedicated attachment filename column in spreadsheet (keep custom columns visible even if selected in mapCustomCol)
+  const attachHeaderCol = headers.find(h =>
+    h !== noCol && h !== nameCol && h !== phoneCol &&
+    /^(nama lampiran file|file lampiran|lampiran file|lampiran|nama file|attachment file name|attachment file|attachment)$/i.test(h.trim())
+  ) || null;
+
+  const cityCol = headers.find(h =>
+    h !== noCol && h !== nameCol && h !== phoneCol && h !== attachHeaderCol &&
+    /^(kota\/cabang|kota cabang|kota|cabang|city\/branch|city|branch|lokasi|wilayah|area)$/i.test(h.trim())
+  ) || null;
+
+  const coreSet = new Set([noCol, nameCol, phoneCol, attachHeaderCol, cityCol].filter(Boolean));
+  const customCols = headers.filter(h => !coreSet.has(h));
+
+  return { headers, isDemo, noCol, nameCol, phoneCol, attachHeaderCol, cityCol, customCols };
+}
+
 function compileMessageForContact(template, contact) {
   if (!template) return '';
   let msg = template;
@@ -1989,27 +2218,44 @@ function compileMessageForContact(template, contact) {
   // 1. Time-aware Greeting {Salam}
   msg = msg.replace(/\{salam\}/gi, getTimeGreeting());
 
-  // 2. Dynamic column interpolation from contact.rawData
+  // 2. Dynamic column interpolation from contact.rawData (exact spreadsheet headers)
   if (contact && contact.rawData) {
     Object.keys(contact.rawData).forEach(key => {
       const val = contact.rawData[key];
-      const reg = new RegExp(`{${escapeRegex(key)}}`, 'gi');
-      
-      // Monetary formatting
-      if (/tagihan|total|nominal|honor|gaji|thp/i.test(key) && !isNaN(Number(val)) && Number(val) > 1000) {
-        const formatted = new Intl.NumberFormat('id-ID', { 
-          style: 'currency', 
-          currency: 'IDR', 
-          maximumFractionDigits: 0 
-        }).format(Number(val));
+      const reg = new RegExp(`\\{${escapeRegex(key)}\\}`, 'gi');
+      const cleanNumStr = String(val ?? '').replace(/[^0-9.-]/g, '');
+
+      if (isExplicitCurrencyColumn(key) && cleanNumStr !== '' && !isNaN(Number(cleanNumStr)) && Number(cleanNumStr) > 0) {
+        const formatted = new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+          maximumFractionDigits: 0
+        }).format(Number(cleanNumStr));
         msg = msg.replace(reg, formatted);
       } else {
-        msg = msg.replace(reg, val !== undefined && val !== null ? val : '');
+        msg = msg.replace(reg, val !== undefined && val !== null ? String(val) : '');
+      }
+    });
+
+    // 3. Smart aliases for core & general columns across ID/EN or renamed custom columns
+    const schema = resolveActiveColumnSchema();
+    msg = msg.replace(/\{(nama|name|nama lengkap)\}/gi, contact.nama || '');
+    msg = msg.replace(/\{(nomor telepon|phone number|nomor whatsapp)\}/gi, contact.phone || '');
+    msg = msg.replace(/\{(nama lampiran file|attachment file name|file lampiran)\}/gi, contact.customVal || (contact.fileInfo ? contact.fileInfo.file_name : ''));
+    if (schema.cityCol && contact.rawData[schema.cityCol] !== undefined) {
+      msg = msg.replace(/\{(kota\/cabang|city\/branch|kota cabang)\}/gi, contact.rawData[schema.cityCol] || '');
+    }
+    [0, 1, 2].forEach(idx => {
+      const n = idx + 1;
+      const colKey = schema.customCols[idx];
+      if (colKey && contact.rawData[colKey] !== undefined) {
+        const aliasReg = new RegExp(`\\{(custom kolom ${n}|custom column ${n})\\}`, 'gi');
+        msg = msg.replace(aliasReg, String(contact.rawData[colKey] ?? ''));
       }
     });
   }
 
-  // 3. Spintax variations parsing
+  // 4. Spintax variations parsing
   msg = parseSpintax(msg);
 
   return msg;
@@ -2019,13 +2265,16 @@ function updateLivePreview() {
   const defaultContact = {
     nama: 'Budi Santoso',
     phone: '081299990001',
+    customVal: 'INV-2026-001.pdf',
     rawData: {
-      'Nama Lengkap': 'Budi Santoso',
-      'Kota Cabang': 'Jakarta Pusat',
-      'Nomor Invoice': 'INV-2026-001',
-      'Nominal Tagihan': '2750000',
-      'File Lampiran': 'INV-2026-001.pdf',
-      'Status': 'Aktif'
+      'No': '1',
+      'Nama': 'Budi Santoso',
+      'Nomor Telepon': '081299990001',
+      'Nama Lampiran File': 'INV-2026-001.pdf',
+      'Kota/Cabang': 'Jakarta Pusat',
+      'Custom Kolom 1': 'Mitra Prioritas',
+      'Custom Kolom 2': 'Sesi Pagi (09:00)',
+      'Custom Kolom 3': 'REF-2026-001'
     }
   };
 
@@ -2071,22 +2320,44 @@ function escapeRegex(str) {
 }
 
 // ----------------------------------------------------
-// TABLE RENDERING
+// TABLE RENDERING (DYNAMIC CUSTOM COLUMNS)
 // ----------------------------------------------------
+function formatTableCustomCell(colName, rawVal) {
+  const str = rawVal !== undefined && rawVal !== null ? String(rawVal).trim() : '';
+  if (!str) {
+    return { html: '<span style="color: var(--text-dim);">-</span>', isCurrency: false };
+  }
+  const cleanNumStr = str.replace(/[^0-9.-]/g, '');
+  if (isExplicitCurrencyColumn(colName) && cleanNumStr !== '' && !isNaN(Number(cleanNumStr)) && Number(cleanNumStr) > 0) {
+    const formatted = new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0
+    }).format(Number(cleanNumStr));
+    return { html: escapeHtml(formatted), isCurrency: true };
+  }
+  return { html: escapeHtml(str), isCurrency: false };
+}
+
 function getFilteredContacts() {
   const search = (tableSearchInput.value || '').toLowerCase().trim();
   const filter = tableStatusFilter.value;
 
   return contactsData.filter(c => {
-    const matchesSearch = !search || 
-      c.nama.toLowerCase().includes(search) || 
-      c.phone.toLowerCase().includes(search) ||
-      (c.rawData['Kota Cabang'] && c.rawData['Kota Cabang'].toLowerCase().includes(search));
+    let matchesSearch = !search ||
+      c.nama.toLowerCase().includes(search) ||
+      c.phone.toLowerCase().includes(search);
+
+    if (!matchesSearch && c.rawData) {
+      matchesSearch = Object.values(c.rawData).some(v =>
+        v !== undefined && v !== null && String(v).toLowerCase().includes(search)
+      );
+    }
 
     if (!matchesSearch) return false;
 
     if (filter === 'VALID_ONLY') {
-      return c.phone && c.phone.length >= 9;
+      return c.phone && c.phone.replace(/[^0-9]/g, '').length >= 9;
     }
     if (filter === 'HAS_FILE_ONLY') {
       return c.fileInfo && c.fileInfo.exists;
@@ -2100,13 +2371,62 @@ function getFilteredContacts() {
 
 function renderTable() {
   const isEn = currentLang === 'en';
+  const t = I18N[currentLang];
+  const schema = resolveActiveColumnSchema();
   const list = getFilteredContacts();
+
+  // 1. Dynamically render <thead> to match standard or uploaded custom column headers verbatim
+  const headRow = document.getElementById('contactsTableHeadRow') || document.querySelector('.contacts-table thead tr');
+  const nameHeaderLabel = (schema.isDemo || !schema.nameCol || /^(nama|name|nama lengkap|nama penerima|recipient name)$/i.test(schema.nameCol.trim()))
+    ? t.thName
+    : schema.nameCol;
+  const phoneHeaderLabel = (schema.isDemo || !schema.phoneCol || /^(nomor telepon|phone number|nomor whatsapp|whatsapp number)$/i.test(schema.phoneCol.trim()))
+    ? t.thPhone
+    : schema.phoneCol;
+  const attachHeaderLabel = activeDeliveryMode === 'text'
+    ? t.thDeliveryMode
+    : ((schema.attachHeaderCol && !schema.isDemo && !/^(nama lampiran file|attachment file name|file lampiran)$/i.test(schema.attachHeaderCol.trim()))
+        ? schema.attachHeaderCol
+        : t.thAttachment);
+
+  const dynamicHeadCells = [
+    `<th style="width: 44px; text-align: center;">${escapeHtml(t.thSelect)}</th>`,
+    `<th style="width: 50px; text-align: center;">${escapeHtml(schema.noCol && !schema.isDemo ? schema.noCol : t.thNo)}</th>`,
+    `<th>${escapeHtml(nameHeaderLabel)}</th>`,
+    `<th>${escapeHtml(phoneHeaderLabel)}</th>`,
+    `<th id="thAttachmentCol">${escapeHtml(attachHeaderLabel)}</th>`
+  ];
+
+  if (schema.cityCol) {
+    const cityLabel = /^(kota\/cabang|kota cabang|city\/branch|branch city)$/i.test(schema.cityCol.trim())
+      ? t.thBranch
+      : schema.cityCol;
+    dynamicHeadCells.push(`<th>${escapeHtml(cityLabel)}</th>`);
+  }
+
+  schema.customCols.forEach(col => {
+    let displayColName = col;
+    if (schema.isDemo) {
+      const m = /^custom kolom (\d+)$/i.exec(col.trim());
+      if (m) {
+        displayColName = isEn ? `Custom Column ${m[1]}` : `Custom Kolom ${m[1]}`;
+      }
+    }
+    const alignRight = isExplicitCurrencyColumn(col) ? ' style="text-align: right;"' : '';
+    dynamicHeadCells.push(`<th${alignRight}>${escapeHtml(displayColName)}</th>`);
+  });
+
+  if (headRow) {
+    headRow.innerHTML = dynamicHeadCells.join('');
+  }
+
+  const totalColCount = dynamicHeadCells.length;
   const totalEl = document.getElementById('totalTableCount');
   if (totalEl) totalEl.textContent = contactsData.length;
   contactsTableBody.innerHTML = '';
 
   if (list.length === 0) {
-    contactsTableBody.innerHTML = `<tr><td colspan="8" class="text-center empty-cell">${isEn ? 'No contacts match the active filter.' : 'Tidak ada kontak yang cocok dengan filter.'}</td></tr>`;
+    contactsTableBody.innerHTML = `<tr><td colspan="${totalColCount}" class="text-center empty-cell">${isEn ? 'No contacts match the active filter.' : 'Tidak ada kontak yang cocok dengan filter.'}</td></tr>`;
     return;
   }
 
@@ -2114,24 +2434,19 @@ function renderTable() {
     const isChecked = selectedContactIds.has(c.id);
     const tr = document.createElement('tr');
 
-    const phoneClean = c.phone.replace(/[^0-9]/g, '');
+    const phoneClean = (c.phone || '').replace(/[^0-9]/g, '');
     const isPhoneValid = phoneClean.length >= 9;
 
     let attachStatusHtml = '<span class="status-badge-inline" style="color: var(--text-dim);">-</span>';
     if (activeDeliveryMode === 'attachment') {
       if (c.fileInfo && c.fileInfo.exists) {
-        attachStatusHtml = `<span class="status-badge-inline badge-ready">🟢 ${c.fileInfo.file_name}</span>`;
+        attachStatusHtml = `<span class="status-badge-inline badge-ready">🟢 ${escapeHtml(c.fileInfo.file_name)}</span>`;
       } else {
         attachStatusHtml = `<span class="status-badge-inline badge-missing">${isEn ? '🔴 Not Found' : '🔴 Tidak Ditemukan'}</span>`;
       }
     } else {
       attachStatusHtml = `<span class="table-badge-mode-text">${isEn ? 'Text Mode' : 'Mode Teks'}</span>`;
     }
-
-    const tagihanVal = c.rawData['Nominal Tagihan'] || '0';
-    const tagihanFmt = !isNaN(Number(tagihanVal)) && Number(tagihanVal) > 0 
-      ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(tagihanVal))
-      : '-';
 
     let lastStatusPill = '';
     if (c.lastStatus === 'success') {
@@ -2140,23 +2455,34 @@ function renderTable() {
       lastStatusPill = `<span class="status-badge-inline badge-missing" style="font-size: 0.68rem; margin-left: 6px;">${isEn ? '✗ Failed' : '✗ Gagal'}</span>`;
     }
 
+    const rowNo = (schema.noCol && c.rawData && c.rawData[schema.noCol]) ? c.rawData[schema.noCol] : c.no;
+
+    let extraCellsHtml = '';
+    if (schema.cityCol) {
+      const cityVal = (c.rawData && c.rawData[schema.cityCol]) ? c.rawData[schema.cityCol] : '-';
+      extraCellsHtml += `<td>${escapeHtml(cityVal)}</td>`;
+    }
+
+    schema.customCols.forEach(col => {
+      const cellFmt = formatTableCustomCell(col, c.rawData ? c.rawData[col] : '');
+      extraCellsHtml += `<td${cellFmt.isCurrency ? ' style="text-align: right; font-weight: 600;"' : ''}>${cellFmt.html}</td>`;
+    });
+
     tr.innerHTML = `
       <td style="text-align: center;">
-        <input type="checkbox" class="contact-checkbox" data-id="${c.id}" ${isChecked ? 'checked' : ''}>
+        <input type="checkbox" class="contact-checkbox" data-id="${escapeHtml(c.id)}" ${isChecked ? 'checked' : ''}>
       </td>
-      <td style="text-align: center; color: var(--text-dim);">${c.no}</td>
+      <td style="text-align: center; color: var(--text-dim);" class="font-mono">${escapeHtml(String(rowNo))}</td>
       <td>
-        <strong>${c.nama}</strong>
+        <strong>${escapeHtml(c.nama)}</strong>
         ${lastStatusPill}
       </td>
       <td>
-        <span class="font-mono">${c.phone}</span>
+        <span class="font-mono">${escapeHtml(c.phone)}</span>
         ${isPhoneValid ? '' : `<span style="color: var(--rose-500); font-size: 0.7rem; margin-left: 4px; font-weight: 600;">${isEn ? '(Invalid)' : '(Tidak Valid)'}</span>`}
       </td>
       <td>${attachStatusHtml}</td>
-      <td>${c.rawData['Kota Cabang'] || '-'}</td>
-      <td><code>${c.rawData['Nomor Invoice'] || '-'}</code></td>
-      <td style="text-align: right; font-weight: 600;">${tagihanFmt}</td>
+      ${extraCellsHtml}
     `;
 
     tr.querySelector('.contact-checkbox').addEventListener('change', (e) => {
@@ -2496,40 +2822,91 @@ function appendLog(type, text) {
 // ----------------------------------------------------
 // EXPORT REPORT CSV
 // ----------------------------------------------------
-function exportReportCsv() {
+async function exportReportCsv() {
   const isEn = currentLang === 'en';
   if (contactsData.length === 0) {
     alert(isEn ? 'No contact records available to export.' : 'Tidak ada data kontak untuk diekspor.');
     return;
   }
 
-  const rows = [
-    isEn
-      ? ['No', 'Recipient Name', 'WhatsApp Number', 'Attachment Status', 'File Path', 'Branch City', 'Invoice Number', 'Total Amount']
-      : ['No', 'Nama Penerima', 'Nomor WhatsApp', 'Status Lampiran', 'File Path', 'Kota Cabang', 'Nomor Invoice', 'Nominal Tagihan']
-  ];
+  const schema = resolveActiveColumnSchema();
+  const csvQuote = (val) => `"${String(val ?? '').replace(/"/g, '""')}"`;
 
-  contactsData.forEach(c => {
-    rows.push([
-      c.no,
-      `"${c.nama}"`,
-      `"'${c.phone}"`,
-      c.fileInfo ? (c.fileInfo.exists ? (isEn ? 'Available' : 'Tersedia') : (isEn ? 'Missing' : 'Tidak Ditemukan')) : (isEn ? 'Text Mode' : 'Mode Teks'),
-      c.fileInfo ? `"${c.fileInfo.full_path}"` : '-',
-      `"${c.rawData['Kota Cabang'] || ''}"`,
-      `"${c.rawData['Nomor Invoice'] || ''}"`,
-      `"${c.rawData['Nominal Tagihan'] || ''}"`
-    ]);
+  const headerRow = isEn
+    ? ['No', 'Name', 'Phone Number', 'Dispatch Status', 'Attachment Status', 'File Path']
+    : ['No', 'Nama', 'Nomor Telepon', 'Status Kirim', 'Status Lampiran', 'File Path'];
+
+  if (schema.cityCol) {
+    headerRow.push(schema.isDemo ? (isEn ? 'City/Branch' : 'Kota/Cabang') : schema.cityCol);
+  }
+  schema.customCols.forEach(col => {
+    if (schema.isDemo) {
+      const m = /^custom kolom (\d+)$/i.exec(col.trim());
+      headerRow.push(m ? (isEn ? `Custom Column ${m[1]}` : `Custom Kolom ${m[1]}`) : col);
+    } else {
+      headerRow.push(col);
+    }
   });
 
-  const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(e => e.join(',')).join('\n');
-  const encodedUri = encodeURI(csvContent);
+  const rows = [headerRow.map(csvQuote)];
+
+  contactsData.forEach(c => {
+    const dispatchStatus = c.lastStatus === 'success'
+      ? (isEn ? 'Sent' : 'Terkirim')
+      : (c.lastStatus === 'failed' ? (isEn ? 'Failed' : 'Gagal') : (isEn ? 'Pending' : 'Belum Dikirim'));
+    const attachStatus = c.fileInfo
+      ? (c.fileInfo.exists ? (isEn ? 'Available' : 'Tersedia') : (isEn ? 'Missing' : 'Tidak Ditemukan'))
+      : (isEn ? 'Text Mode' : 'Mode Teks');
+
+    const r = [
+      csvQuote(c.no),
+      csvQuote(c.nama),
+      csvQuote(`'${c.phone}`),
+      csvQuote(dispatchStatus),
+      csvQuote(attachStatus),
+      csvQuote(c.fileInfo ? c.fileInfo.full_path : '-')
+    ];
+
+    if (schema.cityCol) {
+      r.push(csvQuote(c.rawData ? (c.rawData[schema.cityCol] || '') : ''));
+    }
+    schema.customCols.forEach(col => {
+      r.push(csvQuote(c.rawData ? (c.rawData[col] || '') : ''));
+    });
+
+    rows.push(r);
+  });
+
+  const csvText = '\uFEFF' + rows.map(e => e.join(',')).join('\r\n');
+  const defaultCsvName = `${isEn ? 'Broadcast_Report' : 'Laporan_Broadcast'}_${Date.now()}.csv`;
+
+  if (isTauriEnv && tauriCore) {
+    try {
+      const encoder = new TextEncoder();
+      const byteArr = Array.from(encoder.encode(csvText));
+      const savedPath = await tauriCore.invoke('cmd_save_binary_file', {
+        defaultName: defaultCsvName,
+        bytes: byteArr,
+        title: isEn ? 'Save Audit Report (.csv)' : 'Simpan Laporan Rekap (.csv)'
+      });
+      if (savedPath) {
+        appendLog('success', isEn ? `Audit CSV report saved to: ${savedPath}` : `Laporan rekap berhasil disimpan ke: ${savedPath}`);
+      }
+      return;
+    } catch (e) {
+      console.warn('cmd_save_binary_file fallback for CSV:', e);
+    }
+  }
+
+  const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  link.setAttribute('href', encodedUri);
-  link.setAttribute('download', `${isEn ? 'Broadcast_Report' : 'Laporan_Broadcast'}_${Date.now()}.csv`);
+  link.setAttribute('href', url);
+  link.setAttribute('download', defaultCsvName);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 
   appendLog('success', isEn ? 'Audit CSV report downloaded successfully.' : 'Laporan rekap berhasil di-download.');
 }
@@ -2564,7 +2941,9 @@ async function loadSavedPreferences() {
     const local = localStorage.getItem('bulk_wa_sender_prefs');
     if (local) {
       const p = JSON.parse(local);
-      if (p.template) messageTemplate.value = p.template;
+      if (p.template && !isBuiltInDefaultTemplate(p.template)) {
+        messageTemplate.value = p.template;
+      }
       if (p.minDelay) minDelayInput.value = p.minDelay;
       if (p.maxDelay) maxDelayInput.value = p.maxDelay;
       if (chkCooldownBatch && p.cooldownEnabled !== undefined) chkCooldownBatch.checked = p.cooldownEnabled;

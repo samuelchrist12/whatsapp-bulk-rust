@@ -423,14 +423,22 @@
                 <h2>File Kontak Excel / CSV</h2>
                 <p class="section-desc">Membaca data penerima & seluruh kolom otomatis.</p>
               </div>
-              <button type="button" id="btnUseDemoData" class="btn btn-outline btn-sm" title="Muat 15 kontak dummy fiktif yang sudah disiapkan">
+            </div>
+
+            <!-- Quick Template Download & Demo Data Strip -->
+            <div class="source-quick-bar">
+              <button type="button" id="btnDownloadTemplate" class="btn btn-emerald btn-sm" title="Download template Excel siap pakai (.xlsx) agar langsung terbaca sistem">
+                <svg class="icon"><use href="#icon-export"/></svg>
+                <span id="btnDownloadTemplateText">Download Template (.xlsx)</span>
+              </button>
+              <button type="button" id="btnUseDemoData" class="btn btn-outline btn-sm" title="Muat 15 kontak contoh siap uji">
                 ⚡ Data Contoh (15)
               </button>
             </div>
 
             <!-- Excel Dropzone -->
+            <input type="file" id="excelFileInput" accept=".xlsx,.xlsm,.xls,.csv" style="display: none;">
             <div class="dropzone-area" id="excelDropzone">
-              <input type="file" id="excelFileInput" accept=".xlsx,.xlsm,.xls,.csv" style="display: none;">
               <div class="dropzone-inner" id="dropzoneContent">
                 <svg class="icon dropzone-icon"><use href="#icon-file-excel"/></svg>
                 <div class="dropzone-text">
@@ -458,7 +466,7 @@
 
             <!-- Column Mapping Toggle & Drawer -->
             <div class="mapping-toggle-bar">
-              <span class="mapping-status-text" id="mappingStatusSummary">Kolom Nama: 'Nama Lengkap', Nomor: 'Nomor WhatsApp'</span>
+              <span class="mapping-status-text" id="mappingStatusSummary">Kolom Nama: 'Nama', Nomor: 'Nomor Telepon'</span>
               <button type="button" id="btnToggleMapping" class="btn-link-subtle">⚙️ Sesuaikan Pemetaan Kolom ▾</button>
             </div>
 
@@ -466,15 +474,15 @@
             <div class="mapping-drawer" id="mappingDrawer" style="display: none;">
               <div class="mapping-grid">
                 <div class="form-group">
-                  <label for="mapNameCol">👤 Kolom Nama Penerima <span class="req">*</span></label>
+                  <label for="mapNameCol">👤 Kolom Nama <span class="req">*</span></label>
                   <select id="mapNameCol" class="form-select select-sm"></select>
                 </div>
                 <div class="form-group">
-                  <label for="mapPhoneCol">📱 Kolom Nomor WhatsApp <span class="req">*</span></label>
+                  <label for="mapPhoneCol">📱 Kolom Nomor Telepon <span class="req">*</span></label>
                   <select id="mapPhoneCol" class="form-select select-sm"></select>
                 </div>
                 <div class="form-group">
-                  <label for="mapCustomCol">📎 Kolom Referensi File (Opsional)</label>
+                  <label for="mapCustomCol">📎 Kolom Nama Lampiran File (Opsional)</label>
                   <select id="mapCustomCol" class="form-select select-sm"></select>
                 </div>
               </div>
@@ -526,7 +534,7 @@
                     <input type="radio" name="matchRule" value="by_column">
                     <div class="radio-meta">
                       <strong>Ambil dari Kolom Excel</strong>
-                      <span>Contoh: Kolom <code>File Lampiran</code> atau <code>Nomor Invoice</code></span>
+                      <span>Contoh: Kolom <code>Nama Lampiran File</code> atau <code>Custom Kolom 1</code></span>
                     </div>
                   </label>
                 </div>
@@ -588,24 +596,26 @@
             <div class="tag-pills-list" id="dynamicTagsContainer">
               <button type="button" class="btn-tag-pill tag-pill-special" data-tag="{Salam}" title="Ucapan waktu otomatis (Pagi/Siang/Sore/Malam)">+ {Salam} (Waktu)</button>
               <button type="button" class="btn-tag-pill tag-pill-special" data-tag="{Halo|Hai|Selamat Pagi|Salam}" title="Variasi acak kata Spintax anti-spam">+ Spintax {Halo|Hai|...}</button>
-              <button type="button" class="btn-tag-pill" data-tag="{Nama Lengkap}">+ {Nama Lengkap}</button>
-              <button type="button" class="btn-tag-pill" data-tag="{Nomor WhatsApp}">+ {Nomor WhatsApp}</button>
-              <button type="button" class="btn-tag-pill" data-tag="{Kota Cabang}">+ {Kota Cabang}</button>
-              <button type="button" class="btn-tag-pill" data-tag="{Nomor Invoice}">+ {Nomor Invoice}</button>
-              <button type="button" class="btn-tag-pill" data-tag="{Nominal Tagihan}">+ {Nominal Tagihan}</button>
+              <button type="button" class="btn-tag-pill" data-tag="{Nama}">+ {Nama}</button>
+              <button type="button" class="btn-tag-pill" data-tag="{Nomor Telepon}">+ {Nomor Telepon}</button>
+              <button type="button" class="btn-tag-pill" data-tag="{Nama Lampiran File}">+ {Nama Lampiran File}</button>
+              <button type="button" class="btn-tag-pill" data-tag="{Kota/Cabang}">+ {Kota/Cabang}</button>
+              <button type="button" class="btn-tag-pill" data-tag="{Custom Kolom 1}">+ {Custom Kolom 1}</button>
+              <button type="button" class="btn-tag-pill" data-tag="{Custom Kolom 2}">+ {Custom Kolom 2}</button>
+              <button type="button" class="btn-tag-pill" data-tag="{Custom Kolom 3}">+ {Custom Kolom 3}</button>
             </div>
           </div>
 
 
           <!-- Message Textarea -->
-          <textarea id="messageTemplate" class="form-textarea" rows="6" placeholder="Ketik format pesan disini...">{Salam} Rekan {Nama Lengkap},
+          <textarea id="messageTemplate" class="form-textarea" rows="6" placeholder="Ketik format pesan disini...">{Salam} Rekan {Nama},
 
-{Berikut ini kami sampaikan|Bersama ini kami lampirkan|Melalui pesan ini kami informasikan} rincian dokumen resmi Anda:
-• Nomor: {Nomor Invoice}
-• Cabang: {Kota Cabang}
-• Total: {Nominal Tagihan}
+{Berikut ini kami sampaikan|Bersama ini kami kirimkan|Melalui pesan ini kami informasikan} informasi penting untuk Anda:
+• Lokasi / Cabang: {Kota/Cabang}
+• Keterangan 1: {Custom Kolom 1}
+• Keterangan 2: {Custom Kolom 2}
 
-Mohon dapat diperiksa kembali. Dokumen terlampir bersifat resmi dan penting.
+Mohon dapat diperiksa kembali. Apabila ada pertanyaan, silakan membalas pesan ini.
 
 {Terima kasih atas kerja samanya!|Salam hangat dan sukses selalu!|Hormat kami,}
 Bulk WA Sender &bull; by schrist.</textarea>
@@ -728,7 +738,7 @@ Bulk WA Sender &bull; by schrist.</textarea>
         <section class="card table-card">
           <div class="card-header table-header-flex">
             <div class="header-title-group">
-              <h2>Daftar Penerima & Verifikasi Pra-Kirim (*Pre-Flight*)</h2>
+              <h2>Daftar Penerima & Verifikasi Pra-Kirim (Pre-Flight)</h2>
               <p class="section-desc">Pilih kontak yang akan dikirimi pesan dan pastikan file lampiran siap.</p>
             </div>
 
@@ -764,20 +774,21 @@ Bulk WA Sender &bull; by schrist.</textarea>
           <div class="table-responsive">
             <table class="contacts-table">
               <thead>
-                <tr>
+                <tr id="contactsTableHeadRow">
                   <th style="width: 44px; text-align: center;">Pilih</th>
                   <th style="width: 50px; text-align: center;">No</th>
-                  <th>Nama Penerima</th>
-                  <th>Nomor WhatsApp</th>
-                  <th id="thAttachmentCol">Status Lampiran File</th>
-                  <th>Kota Cabang</th>
-                  <th>Nomor Invoice</th>
-                  <th style="text-align: right;">Nominal Tagihan</th>
+                  <th>Nama</th>
+                  <th>Nomor Telepon</th>
+                  <th id="thAttachmentCol">Nama Lampiran File</th>
+                  <th>Kota/Cabang</th>
+                  <th>Custom Kolom 1</th>
+                  <th>Custom Kolom 2</th>
+                  <th>Custom Kolom 3</th>
                 </tr>
               </thead>
               <tbody id="contactsTableBody">
                 <tr>
-                  <td colspan="8" class="text-center empty-cell">Memuat daftar kontak...</td>
+                  <td colspan="9" class="text-center empty-cell">Memuat daftar kontak...</td>
                 </tr>
               </tbody>
             </table>

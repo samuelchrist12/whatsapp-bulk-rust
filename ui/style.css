@@ -1364,6 +1364,19 @@ body {
   gap: 20px;
 }
 
+/* Quick Template & Demo Strip in Source Card */
+.source-quick-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.source-quick-bar .btn {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 /* Dropzone */
 .dropzone-area {
   border: 2px dashed rgba(255, 255, 255, 0.14);
@@ -2189,7 +2202,7 @@ body {
 }
 .search-input-box .form-input {
   padding-left: 34px;
-  width: 220px;
+  width: 260px;
 }
 
 .table-selection-toolbar {
@@ -2226,19 +2239,19 @@ body {
 .contacts-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.84rem;
+  font-size: 0.8rem;
 }
 .contacts-table th {
   background: var(--table-th-bg);
   color: var(--text-muted);
   font-weight: 700;
   text-align: left;
-  padding: 10px 14px;
+  padding: 9px 10px;
   border-bottom: 1px solid var(--border-subtle);
   white-space: nowrap;
 }
 .contacts-table td {
-  padding: 10px 14px;
+  padding: 9px 10px;
   border-bottom: 1px solid var(--table-border);
   color: var(--text-main);
   vertical-align: middle;

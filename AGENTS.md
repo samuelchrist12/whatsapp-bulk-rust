@@ -85,8 +85,23 @@ The application supports instant, zero-reload switching between **Indonesian (`i
   - When scanning an attachment directory via `cmd_scan_attachments` (Rust) or `/api/scan-attachments` (Sidecar), if the directory does not exist or is invalid, **NEVER** fall back to simulated/mock success data.
   - Always invoke `applyFolderNotFoundState(folder)` so all contacts are marked `exists: false` and `#matchPercentageBadge` displays `0 / N Files (Folder Not Found)` with `.badge-failed`.
   - Static demo simulation is permitted **only** when running in a pure offline browser preview (no Tauri & no Sidecar) **and** the folder path explicitly matches the built-in sample preset (`sample_data/attachments`).
-- **Folder Selection UX**:
+- **Folder Selection & Native Save Dialogs**:
   - Maintain both manual path input (`#attachmentFolderInput`) and one-click native folder browsing (`#btnBrowseAttachmentFolder` -> `cmd_pick_folder` in Rust, with `#attachmentFolderPicker` `webkitdirectory` fallback in browsers). Selecting a folder must automatically save preferences and trigger `triggerAttachmentScan()`.
+  - Use `cmd_save_binary_file` (`rfd::FileDialog::save_file`) in Tauri for exporting `.xlsx` templates (`#btnDownloadTemplate`) and `.csv` audit reports so users receive a native OS Save-As dialog, with SheetJS `XLSX.writeFile` / Blob fallback in browsers.
+
+---
+
+## 5.5. Spreadsheet Column Schema & Dynamic Custom Columns
+
+- **Standard 8-Column General Schema**:
+  - Indonesian (`id`): `No`, `Nama`, `Nomor Telepon`, `Nama Lampiran File`, `Kota/Cabang`, `Custom Kolom 1`, `Custom Kolom 2`, `Custom Kolom 3`.
+  - English (`en`): `No`, `Name`, `Phone Number`, `Attachment File Name`, `City/Branch`, `Custom Column 1`, `Custom Column 2`, `Custom Column 3`.
+- **Editable `.xlsx` Template Downloader (`#btnDownloadTemplate`)**:
+  - Generates a 2-sheet `.xlsx` file offline via `ui/assets/xlsx.full.min.js` (`Daftar Kontak` + `Panduan Kolom` / `Contact List` + `Column Guide`), formatting phone cells (`C2:C4`) explicitly as text (`t: 's'`, `z: '@'`) so leading `0` is preserved in Microsoft Excel.
+- **Dynamic Custom Header Detection**:
+  - When a user uploads an Excel/CSV file (whether keeping `Custom Kolom 1–3` or renaming headers to custom titles like `Jabatan`, `Jadwal Sesi`, `Kode Voucher`, or adding extra columns), `resolveActiveColumnSchema()` and `renderTable()` **MUST** render the exact uploaded header names verbatim in `<tr id="contactsTableHeadRow">`, `#dynamicTagsContainer` (`+ {HeaderName}`), table search filtering, and CSV audit exports.
+  - **Never** force IDR currency formatting on general custom columns — apply currency formatting (`isExplicitCurrencyColumn`) **only** when the column header explicitly denotes monetary amounts (`Nominal`, `Tagihan`, `Harga`, `Biaya`, `Gaji`, `Total Due`, etc.).
+  - When auto-detecting the Name column in `populateMappingOptions()`, always exclude attachment filename headers (`nama(?!\s*(lampiran|file))` / `name(?!\s*file)`) so `Nama Lampiran File` / `Attachment File Name` is never mistaken for the recipient's name.
 
 ---
 

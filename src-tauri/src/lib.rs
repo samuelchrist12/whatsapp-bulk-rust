@@ -154,6 +154,31 @@ async fn cmd_pick_folder(title: Option<String>) -> Option<String> {
 }
 
 #[tauri::command]
+async fn cmd_save_binary_file(
+    default_name: String,
+    bytes: Vec<u8>,
+    title: Option<String>,
+) -> Result<Option<String>, String> {
+    let dialog_title = title.unwrap_or_else(|| "Save Excel Template".to_string());
+    let chosen_path = tauri::async_runtime::spawn_blocking(move || {
+        rfd::FileDialog::new()
+            .set_title(&dialog_title)
+            .set_file_name(&default_name)
+            .add_filter("Excel Workbook (*.xlsx)", &["xlsx"])
+            .save_file()
+    })
+    .await
+    .map_err(|e| format!("Dialog error: {}", e))?;
+
+    if let Some(path) = chosen_path {
+        fs::write(&path, &bytes).map_err(|e| format!("Failed to write file: {}", e))?;
+        Ok(Some(path.to_string_lossy().to_string()))
+    } else {
+        Ok(None)
+    }
+}
+
+#[tauri::command]
 fn cmd_get_app_flavor() -> String {
     if let Ok(exe_path) = std::env::current_exe() {
         let exe_name = exe_path
@@ -197,6 +222,7 @@ pub fn run() {
             cmd_start_sidecar,
             cmd_open_url,
             cmd_pick_folder,
+            cmd_save_binary_file,
             cmd_get_app_flavor
         ])
         .run(tauri::generate_context!())

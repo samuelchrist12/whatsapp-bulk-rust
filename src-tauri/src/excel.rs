@@ -70,45 +70,66 @@ pub fn read_spreadsheet(file_path_str: &str, sheet_opt: Option<&str>) -> Result<
     let range = workbook.worksheet_range(&target_sheet)
         .map_err(|e| format!("Gagal membaca sheet '{}': {}", target_sheet, e))?;
 
-    let mut rows_iter = range.rows();
-    
-    // Find header row (first row with at least 1 non-empty cell)
-    let mut headers = Vec::new();
-    let mut _header_row_index = 0;
+    let all_rows: Vec<Vec<String>> = range
+        .rows()
+        .map(|r| r.iter().map(|c| format_cell_data(c).trim().to_string()).collect())
+        .collect();
 
-    for (r_idx, row) in rows_iter.by_ref().enumerate() {
-        let candidate: Vec<String> = row.iter().map(|c| format_cell_data(c).trim().to_string()).collect();
-        if candidate.iter().any(|c| !c.is_empty()) {
-            headers = candidate.into_iter().enumerate().map(|(col_idx, val)| {
-                if val.is_empty() {
-                    format!("Kolom_{}", col_idx + 1)
-                } else {
-                    val
-                }
-            }).collect();
-            _header_row_index = r_idx;
+    // Find header row (first row with at least 1 non-empty cell)
+    let mut header_row_idx: Option<usize> = None;
+    for (r_idx, row) in all_rows.iter().enumerate() {
+        if row.iter().any(|c| !c.is_empty()) {
+            header_row_idx = Some(r_idx);
             break;
         }
     }
 
-    if headers.is_empty() {
+    let h_idx = match header_row_idx {
+        Some(idx) => idx,
+        None => return Err("Tidak dapat menemukan baris judul (header) pada sheet ini".to_string()),
+    };
+
+    // Determine effective column count (ignore trailing completely empty columns)
+    let max_cols = all_rows.iter().map(|r| r.len()).max().unwrap_or(0);
+    let mut effective_cols = max_cols;
+    while effective_cols > 0 {
+        let col_i = effective_cols - 1;
+        let has_any_in_col = all_rows[h_idx..]
+            .iter()
+            .any(|r| r.get(col_i).map(|s| !s.is_empty()).unwrap_or(false));
+        if has_any_in_col {
+            break;
+        }
+        effective_cols -= 1;
+    }
+
+    if effective_cols == 0 {
         return Err("Tidak dapat menemukan baris judul (header) pada sheet ini".to_string());
     }
 
+    let raw_header = &all_rows[h_idx];
+    let headers: Vec<String> = (0..effective_cols)
+        .map(|col_idx| {
+            let val = raw_header.get(col_idx).cloned().unwrap_or_default();
+            if val.is_empty() {
+                format!("Kolom_{}", col_idx + 1)
+            } else {
+                val
+            }
+        })
+        .collect();
+
     let mut data_rows = Vec::new();
-    // Read subsequent rows
-    for row in rows_iter {
+    for row in &all_rows[(h_idx + 1)..] {
         let mut row_map = HashMap::new();
         let mut has_any_value = false;
 
-        for (col_idx, cell) in row.iter().enumerate() {
-            if col_idx < headers.len() {
-                let cell_str = format_cell_data(cell).trim().to_string();
-                if !cell_str.is_empty() {
-                    has_any_value = true;
-                }
-                row_map.insert(headers[col_idx].clone(), cell_str);
+        for (col_idx, header_name) in headers.iter().enumerate() {
+            let cell_str = row.get(col_idx).cloned().unwrap_or_default();
+            if !cell_str.is_empty() {
+                has_any_value = true;
             }
+            row_map.insert(header_name.clone(), cell_str);
         }
 
         if has_any_value {

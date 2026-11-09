@@ -77,11 +77,10 @@
 - **Multi-Format Support**: `.pdf`, `.docx`, `.xlsx`, `.zip`, `.csv`, `.jpg`, `.png`, and `.webp`.
 - **Pre-flight Status Validation**: Visual check badges alert you before dispatching whether every recipient's attachment is present on disk.
 
-### 4. 💬 Dynamic Interpolation & Spintax Engine (Anti-Ban)
-- **One-Click Tag Insertion**: Insert `{Full Name}`, `{Branch City}`, `{Invoice Number}`, or `{Total Due}` directly into your template.
-- **Time-Aware Salutations**: `{Salam}` dynamically outputs *Good morning*, *Good afternoon*, *Good evening*, or *Selamat Pagi/Siang/Sore/Malam*.
-- **Spintax Variations**: Randomize openings with `{Hello|Hi|Greetings}` or `{Halo|Hai|Selamat Siang}` to avoid spam detection patterns.
-- **Localized Number Formatting**: Automatically formats invoice totals into standard currency expressions.
+### 4. 💬 Dynamic Custom Columns, Excel Template & Spintax Engine
+- **1-Click Editable Excel Template (`.xlsx`)**: Download a ready-to-fill `.xlsx` template (`No`, `Name`, `Phone Number`, `Attachment File Name`, `City/Branch`, `Custom Column 1–3`) with pre-configured column widths and text-formatted phone cells so leading zeros (`08xx`) are never stripped.
+- **Automatic Custom Header Detection**: Rename `Custom Column 1–3` (or `Custom Kolom 1–3`) to any title in Excel (e.g., `Role`, `Session Schedule`, `Voucher Code`, `Total Due`) or add extra columns — the Pre-Flight Table headers, `{Tag}` composer pills, search filter, and CSV audit export adapt automatically upon upload.
+- **Time-Aware Salutations & Spintax**: `{Salam}` dynamically outputs *Good morning / afternoon / evening* or *Selamat Pagi / Siang / Sore / Malam*, while `{Hello|Hi|Greetings}` randomizes phrasing per recipient.
 
 ### 5. ⏱️ Anti-Ban Smart Timing & Batch Throttling
 - **Humanized Jitter Delay**: Natural randomized pause intervals (default: 3 to 7 seconds).

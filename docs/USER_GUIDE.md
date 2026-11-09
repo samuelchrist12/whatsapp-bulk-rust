@@ -53,9 +53,10 @@ Welcome to **Bulk WA Sender**, an ultra-fast, modern bulk WhatsApp messaging and
 - Select **"Text Mode"** for pure text broadcasting (promotions, announcements, reminders).
 - Select **"File Attachment Mode"** to send personalized invoices, receipts, or contracts to each recipient.
 
-### 3. Load Contacts
-- Drag and drop your `.xlsx` or `.csv` file onto the dropzone, or click **"⚡ Load Demo Data"** to try the pre-loaded 15 contacts.
-- Select your target sheet and verify column mapping.
+### 3. Download Template or Load Contacts
+- Click **"Download Template (.xlsx)"** to save a ready-to-edit Excel file (`No`, `Name`/`Nama`, `Phone Number`/`Nomor Telepon`, `Attachment File Name`/`Nama Lampiran File`, `City/Branch`/`Kota/Cabang`, `Custom Column 1–3`/`Custom Kolom 1–3`). You may freely rename the custom column headers to match your data (e.g., `Role`, `Event Session`, `Voucher Code`) — uploaded header names are detected automatically!
+- Drag and drop your `.xlsx` or `.csv` file onto the dropzone, or click **"⚡ Load Demo Data (15)"** to try the pre-loaded 15 contacts.
+- Select your target sheet and verify column mapping if needed.
 
 ### 4. Compose & Test Message
 - Type your message template in the composer and click any variable pill to insert dynamic tags.
