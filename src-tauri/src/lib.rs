@@ -8,7 +8,7 @@ use std::fs;
 use std::io::Write;
 use std::net::{SocketAddr, TcpStream};
 use std::path::{Path, PathBuf};
-use std::process::Command;
+use std::process::{Child, Command};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Mutex;
 use std::time::Duration;
@@ -19,7 +19,7 @@ const PREFS_FILE_NAME: &str = "bulk_wa_preferences.json";
 #[cfg(target_os = "windows")]
 const CREATE_NO_WINDOW: u32 = 0x08000000;
 
-static SIDECAR_PID: Mutex<Option<u32>> = Mutex::new(None);
+static SIDECAR_CHILD: Mutex<Option<Child>> = Mutex::new(None);
 static IS_SHUTTING_DOWN: AtomicBool = AtomicBool::new(false);
 
 fn get_exe_dir() -> PathBuf {
@@ -49,6 +49,19 @@ fn is_sidecar_listening() -> bool {
 }
 
 fn ensure_sidecar_running() {
+    let mut guard = match SIDECAR_CHILD.lock() {
+        Ok(g) => g,
+        Err(poisoned) => poisoned.into_inner(),
+    };
+
+    // 1. If we already spawned a sidecar process that is still running (even if still binding port 3847), never spawn a duplicate!
+    if let Some(ref mut child) = *guard {
+        if let Ok(None) = child.try_wait() {
+            return;
+        }
+        *guard = None;
+    }
+
     if is_sidecar_listening() {
         return;
     }
@@ -56,7 +69,7 @@ fn ensure_sidecar_running() {
     let exe_dir = get_exe_dir();
     let data_dir = get_user_data_dir();
 
-    // 1. Prefer bundled self-contained runtime (runtime/node.exe + runtime/engine.cjs)
+    // 2. Prefer bundled self-contained runtime (runtime/node.exe + runtime/engine.cjs)
     let bundled_candidates = [
         (
             exe_dir.join("runtime").join("node.exe"),
@@ -83,15 +96,13 @@ fn ensure_sidecar_running() {
             cmd.creation_flags(CREATE_NO_WINDOW);
 
             if let Ok(child) = cmd.spawn() {
-                if let Ok(mut guard) = SIDECAR_PID.lock() {
-                    *guard = Some(child.id());
-                }
+                *guard = Some(child);
                 return;
             }
         }
     }
 
-    // 2. Fallback to development sidecar (system node + sidecar/server.js)
+    // 3. Fallback to development sidecar (system node + sidecar/server.js)
     let dev_scripts = [
         exe_dir.join("sidecar").join("server.js"),
         PathBuf::from("sidecar/server.js"),
@@ -108,9 +119,7 @@ fn ensure_sidecar_running() {
             cmd.creation_flags(CREATE_NO_WINDOW);
 
             if let Ok(child) = cmd.spawn() {
-                if let Ok(mut guard) = SIDECAR_PID.lock() {
-                    *guard = Some(child.id());
-                }
+                *guard = Some(child);
             }
             break;
         }
@@ -130,7 +139,7 @@ fn shutdown_sidecar() {
         return;
     }
 
-    // 1. Request graceful shutdown over local HTTP so Puppeteer closes cleanly
+    // 1. Request graceful shutdown over local HTTP so Puppeteer flushes session IndexedDB cleanly
     let addr = SocketAddr::from(([127, 0, 0, 1], 3847));
     if let Ok(mut stream) = TcpStream::connect_timeout(&addr, Duration::from_millis(300)) {
         let _ = stream.set_write_timeout(Some(Duration::from_millis(300)));
@@ -138,10 +147,28 @@ fn shutdown_sidecar() {
         let req = b"POST /api/wa/shutdown HTTP/1.1\r\nHost: 127.0.0.1:3847\r\nContent-Length: 2\r\nContent-Type: application/json\r\nConnection: close\r\n\r\n{}";
         let _ = stream.write_all(req);
         let _ = stream.flush();
-        std::thread::sleep(Duration::from_millis(350));
     }
 
-    // 2. Ensure headless browser process recorded in browser.pid is terminated
+    // 2. Wait up to 2.5s for sidecar to exit gracefully before force-killing
+    if let Ok(mut guard) = SIDECAR_CHILD.lock() {
+        if let Some(mut child) = guard.take() {
+            let child_pid = child.id();
+            let mut exited = false;
+            for _ in 0..25 {
+                if let Ok(Some(_)) = child.try_wait() {
+                    exited = true;
+                    break;
+                }
+                std::thread::sleep(Duration::from_millis(100));
+            }
+            if !exited {
+                #[cfg(target_os = "windows")]
+                kill_pid_tree(child_pid);
+            }
+        }
+    }
+
+    // 3. Ensure headless browser process recorded in browser.pid is terminated if any survived
     let pid_file = get_user_data_dir().join("browser.pid");
     if pid_file.exists() {
         if let Ok(raw_pid) = fs::read_to_string(&pid_file) {
@@ -151,14 +178,6 @@ fn shutdown_sidecar() {
             }
         }
         let _ = fs::remove_file(&pid_file);
-    }
-
-    // 3. Ensure spawned sidecar node.exe process is terminated
-    if let Ok(mut guard) = SIDECAR_PID.lock() {
-        if let Some(pid) = guard.take() {
-            #[cfg(target_os = "windows")]
-            kill_pid_tree(pid);
-        }
     }
 }
 

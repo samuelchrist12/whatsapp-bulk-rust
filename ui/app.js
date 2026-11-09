@@ -827,7 +827,11 @@ function setupEventListeners() {
       if (gatewayQRImage) gatewayQRImage.style.display = 'none';
       appendLog('info', 'Memuat ulang QR Code WhatsApp...');
       try {
-        await fetch(`${SIDECAR_API}/api/wa/connect`, { method: 'POST' });
+        await fetch(`${SIDECAR_API}/api/wa/connect`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ force: true })
+        });
         fetchWhatsAppStatus();
       } catch (err) {
         appendLog('error', 'Gagal memuat ulang QR: ' + err.message);
@@ -1212,6 +1216,7 @@ function setDeliveryMode(mode) {
 // WHATSAPP API & CONNECTION LIFECYCLE (2-VIEW GATEWAY / WORKSPACE)
 // ----------------------------------------------------
 let isStartingSidecar = false;
+let lastAutoConnectAt = 0;
 let currentActiveView = 'gateway'; // 'gateway' | 'workspace'
 
 function showView(viewName) {
@@ -1284,18 +1289,31 @@ async function fetchWhatsAppStatus() {
       } else {
         showView('workspace');
       }
-    } else if (data.status === 'QR_READY' && data.qrCode) {
+    } else if (data.status === 'QR_READY') {
       waStatusBadge.className = 'status-pill status-connecting';
       waStatusText.textContent = isEn ? 'Scan QR Code' : 'Pindai QR Code';
 
       showView('gateway');
       if (gatewayLoadingBox) gatewayLoadingBox.style.display = 'none';
       if (gatewayQRBox) gatewayQRBox.style.display = 'flex';
-      if (gatewayQRSpinner) gatewayQRSpinner.style.display = 'none';
-      if (gatewayQRImage) {
-        gatewayQRImage.src = data.qrCode;
-        gatewayQRImage.style.display = 'block';
+      if (data.qrCode) {
+        if (gatewayQRSpinner) gatewayQRSpinner.style.display = 'none';
+        if (gatewayQRImage) {
+          gatewayQRImage.src = data.qrCode;
+          gatewayQRImage.style.display = 'block';
+        }
+      } else {
+        if (gatewayQRSpinner) gatewayQRSpinner.style.display = 'flex';
       }
+    } else if (data.status === 'AUTHENTICATED') {
+      waStatusBadge.className = 'status-pill status-connecting';
+      waStatusText.textContent = isEn ? 'Syncing Session...' : 'Menyelaraskan Sesi...';
+
+      showView('gateway');
+      if (gatewayLoadingBox) gatewayLoadingBox.style.display = 'flex';
+      if (gatewayQRBox) gatewayQRBox.style.display = 'none';
+      if (gatewayStatusText) gatewayStatusText.textContent = isEn ? 'Authenticated! Syncing WhatsApp session...' : 'Autentikasi Berhasil! Menyelaraskan sesi WhatsApp...';
+      if (gatewaySubHint) gatewaySubHint.textContent = isEn ? 'Opening workspace momentarily' : 'Membuka workspace sesaat lagi';
     } else if (data.status === 'INITIALIZING') {
       waStatusBadge.className = 'status-pill status-connecting';
       waStatusText.textContent = isEn ? 'Initializing WA...' : 'Menyiapkan WA...';
@@ -1304,7 +1322,7 @@ async function fetchWhatsAppStatus() {
       if (gatewayLoadingBox) gatewayLoadingBox.style.display = 'flex';
       if (gatewayQRBox) gatewayQRBox.style.display = 'none';
       if (gatewayStatusText) gatewayStatusText.textContent = isEn ? 'Initializing WhatsApp Engine (launching headless browser)...' : 'Menyiapkan WhatsApp Engine (memuat browser)...';
-      if (gatewaySubHint) gatewaySubHint.textContent = isEn ? 'QR Code will appear automatically in a few seconds' : 'QR Code akan muncul otomatis dalam beberapa detik';
+      if (gatewaySubHint) gatewaySubHint.textContent = isEn ? 'Restoring saved session or preparing QR Code' : 'Memulihkan sesi tersimpan atau menyiapkan QR Code';
     } else {
       waStatusBadge.className = 'status-pill status-disconnected';
       waStatusText.textContent = isEn ? 'Disconnected' : 'Terputus';
@@ -1314,6 +1332,12 @@ async function fetchWhatsAppStatus() {
       if (gatewayQRBox) gatewayQRBox.style.display = 'none';
       if (gatewayStatusText) gatewayStatusText.textContent = isEn ? 'Connecting to WhatsApp Engine...' : 'Menghubungkan ke WhatsApp Engine...';
       if (gatewaySubHint) gatewaySubHint.textContent = isEn ? 'Preparing new session...' : 'Menyiapkan koneksi baru...';
+
+      // Auto-trigger connect only if sidecar explicitly fell into DISCONNECTED
+      if (data.status === 'DISCONNECTED' && Date.now() - lastAutoConnectAt > 6000) {
+        lastAutoConnectAt = Date.now();
+        fetch(`${SIDECAR_API}/api/wa/connect`, { method: 'POST' }).catch(() => {});
+      }
     }
   } catch (err) {
     waStatusBadge.className = 'status-pill status-disconnected';

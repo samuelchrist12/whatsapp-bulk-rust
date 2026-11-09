@@ -70,14 +70,14 @@ function migrateLegacySessionIfNeeded() {
   }
 }
 
-migrateLegacySessionIfNeeded();
-
 let waClient = null;
 let waStatus = 'DISCONNECTED'; // DISCONNECTED, INITIALIZING, QR_READY, AUTHENTICATED, READY
 let qrDataUrl = null;
 let clientInfo = null;
 let recoveryPromise = null;
 let isDestroyingClient = false;
+let isServerOwner = false;
+let initRetryCount = 0;
 
 let broadcastState = {
   isRunning: false,
@@ -132,9 +132,9 @@ function cleanStaleAuthLocks() {
   }
 }
 
-process.on('exit', () => cleanupBrowserProcess());
-process.on('SIGINT', () => { cleanupBrowserProcess(); process.exit(0); });
-process.on('SIGTERM', () => { cleanupBrowserProcess(); process.exit(0); });
+process.on('exit', () => { if (isServerOwner) cleanupBrowserProcess(); });
+process.on('SIGINT', () => { if (isServerOwner) cleanupBrowserProcess(); process.exit(0); });
+process.on('SIGTERM', () => { if (isServerOwner) cleanupBrowserProcess(); process.exit(0); });
 
 function findBrowserExecutable() {
   const localAppData = process.env.LOCALAPPDATA || '';
@@ -305,9 +305,12 @@ function initWhatsApp() {
 
   activeClient.on('qr', async (qr) => {
     if (waClient !== activeClient) return;
-    waStatus = 'QR_READY';
+    initRetryCount = 0;
     try {
-      qrDataUrl = await qrcode.toDataURL(qr, { width: 320, margin: 2 });
+      const generatedUrl = await qrcode.toDataURL(qr, { width: 320, margin: 2 });
+      if (waClient !== activeClient) return;
+      qrDataUrl = generatedUrl;
+      waStatus = 'QR_READY';
       addLog('info', 'QR Code WhatsApp siap untuk di-scan.');
     } catch (err) {
       addLog('error', 'Gagal generate QR Code: ' + err.message);
@@ -323,6 +326,7 @@ function initWhatsApp() {
 
   activeClient.on('ready', () => {
     if (waClient !== activeClient) return;
+    initRetryCount = 0;
     waStatus = 'READY';
     qrDataUrl = null;
     clientInfo = activeClient.info ? {
@@ -375,6 +379,15 @@ function initWhatsApp() {
     if (waClient !== activeClient || isDestroyingClient) return;
     waStatus = 'DISCONNECTED';
     addLog('error', 'Inisialisasi browser gagal: ' + err.message);
+    if (initRetryCount < 3 && !isDestroyingClient) {
+      initRetryCount++;
+      addLog('warning', `[Auto-Retry] Mengulangi inisialisasi browser WhatsApp (${initRetryCount}/3) dalam 2.5 detik...`);
+      setTimeout(() => {
+        if (!isDestroyingClient && waStatus === 'DISCONNECTED') {
+          initWhatsApp();
+        }
+      }, 2500);
+    }
   });
 }
 
@@ -412,6 +425,7 @@ app.get('/api/wa/status', (req, res) => {
 });
 
 app.post('/api/wa/connect', async (req, res) => {
+  const forceRefresh = Boolean(req.body && req.body.force);
   if (waStatus === 'READY') {
     const healthy = await checkClientFrameHealth();
     if (healthy) {
@@ -419,6 +433,13 @@ app.post('/api/wa/connect', async (req, res) => {
     }
     recoverWhatsAppSession('Permintaan koneksi ulang pada frame tidak responsif').catch(() => {});
     return res.json({ success: true, message: 'Menyegarkan sesi koneksi WhatsApp...' });
+  }
+  if (!forceRefresh && (waStatus === 'INITIALIZING' || waStatus === 'AUTHENTICATED' || (waStatus === 'QR_READY' && qrDataUrl))) {
+    return res.json({ success: true, message: 'Proses koneksi / QR WhatsApp sedang aktif.' });
+  }
+  if (forceRefresh && waClient) {
+    await destroyCurrentClient();
+    waStatus = 'DISCONNECTED';
   }
   initWhatsApp();
   res.json({ success: true, message: 'Memulai inisialisasi WhatsApp...' });
@@ -821,7 +842,19 @@ app.post('/api/wa/shutdown', (req, res) => {
   });
 });
 
-app.listen(PORT, '127.0.0.1', () => {
+const httpServer = app.listen(PORT, '127.0.0.1', () => {
+  isServerOwner = true;
+  migrateLegacySessionIfNeeded();
   console.log(`=== WhatsApp Engine Sidecar (by schrist.) berjalan di http://127.0.0.1:${PORT} [Data: ${DATA_DIR}] ===`);
   initWhatsApp();
+});
+
+httpServer.on('error', (err) => {
+  if (err && err.code === 'EADDRINUSE') {
+    console.log(`[Sidecar] Port ${PORT} already owned by active instance. Exiting duplicate process safely.`);
+    process.exit(0);
+  } else {
+    console.error('[Sidecar] Server error:', err);
+    process.exit(1);
+  }
 });
