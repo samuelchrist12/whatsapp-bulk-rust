@@ -15,7 +15,8 @@
   </p>
 
   <p>
-    <strong>Designed & Developed by <a href="https://schrist.cyou">schrist.</a></strong>
+    <strong>Designed & Developed by <a href="https://schrist.cyou">schrist.</a></strong> &bull;
+    <a href="docs/USER_GUIDE.md"><strong>Read the User Manual</strong></a>
   </p>
 
 </div>
@@ -192,5 +193,5 @@ Distributed under the **MIT License**. See `LICENSE` for details.
 ---
 
 <div align="center">
-  Crafted with precision by <a href="https://schrist.cyou"><strong>schrist.design</strong></a>
+  Crafted with precision by <a href="https://schrist.cyou"><strong>schrist.</strong></a>
 </div>

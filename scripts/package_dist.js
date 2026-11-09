@@ -188,7 +188,7 @@ fs.writeFileSync(path.join(DIST, 'README.txt'), readmeTxt, 'utf-8');
 const releaseNotesMd = `# 🚀 Bulk WA Sender v${VERSION} (Official Self-Contained Release)
 
 **High-Performance WhatsApp Bulk Broadcaster & Personalized Document Dispatcher**  
-*Design & Craft by [schrist.design](https://schrist.cyou)*
+*Design & Craft by [schrist.](https://schrist.cyou)*
 
 ---
 
@@ -242,7 +242,7 @@ const releaseNotesMd = `# 🚀 Bulk WA Sender v${VERSION} (Official Self-Contain
 Refer to \`checksums.txt\` for SHA-256 hash verification.
 
 ---
-*Developed with craft by **schrist.design***
+*Developed with craft by **schrist.***
 `;
 fs.writeFileSync(path.join(DIST, `RELEASE_NOTES_v${VERSION}.md`), releaseNotesMd, 'utf-8');
 
