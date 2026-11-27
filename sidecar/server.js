@@ -78,6 +78,8 @@ let recoveryPromise = null;
 let isDestroyingClient = false;
 let isServerOwner = false;
 let initRetryCount = 0;
+let lastError = null;
+let browserUsed = null;
 
 let broadcastState = {
   isRunning: false,
@@ -155,6 +157,28 @@ function findBrowserExecutable() {
   for (const p of browserCandidates) {
     if (p && fs.existsSync(p)) return p;
   }
+
+  // Fallback: query Windows Registry App Paths in case browser is installed in a custom location
+  if (process.platform === 'win32') {
+    const { execFileSync } = require('child_process');
+    const regKeys = [
+      'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe',
+      'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe',
+      'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\msedge.exe',
+      'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\msedge.exe'
+    ];
+    for (const key of regKeys) {
+      try {
+        const out = execFileSync('reg', ['query', key, '/ve'], { encoding: 'utf8', timeout: 1500, windowsHide: true });
+        const match = out.match(/REG_(?:EXPAND_)?SZ\s+(.+)/i);
+        if (match && match[1]) {
+          const candidate = match[1].trim().replace(/^"|"$/g, '');
+          if (candidate && fs.existsSync(candidate)) return candidate;
+        }
+      } catch (e) {}
+    }
+  }
+
   return undefined;
 }
 
@@ -263,13 +287,17 @@ function initWhatsApp() {
   cleanStaleAuthLocks();
   waStatus = 'INITIALIZING';
   qrDataUrl = null;
+  lastError = null;
 
   const browserPath = findBrowserExecutable();
   if (browserPath) {
-    addLog('info', `Membuka WhatsApp Engine via: ${path.basename(browserPath)}`);
+    browserUsed = path.basename(browserPath);
+    addLog('info', `Membuka WhatsApp Engine via: ${browserUsed}`);
   } else if (process.platform === 'win32') {
+    browserUsed = null;
     waStatus = 'DISCONNECTED';
-    addLog('error', 'Browser Microsoft Edge atau Google Chrome tidak ditemukan di PC ini. Pastikan Microsoft Edge atau Google Chrome terpasang.');
+    lastError = 'Browser Microsoft Edge atau Google Chrome tidak ditemukan di PC ini. Pastikan Microsoft Edge atau Google Chrome terpasang.';
+    addLog('error', lastError);
     return;
   }
 
@@ -286,8 +314,7 @@ function initWhatsApp() {
       '--disable-backgrounding-occluded-windows',
       '--disable-renderer-backgrounding',
       '--disable-ipc-flooding-protection',
-      '--disable-hang-monitor',
-      '--disable-features=TranslateUI,BlinkGenPropertyTrees,IsolateOrigins,site-per-process,BackForwardCache,OptimizationHints,MediaRouter,CalculateNativeWinOcclusion,IntensiveWakeUpThrottling'
+      '--disable-hang-monitor'
     ]
   };
 
@@ -295,6 +322,7 @@ function initWhatsApp() {
 
   const activeClient = new Client({
     authStrategy: new LocalAuth({ dataPath: AUTH_DIR }),
+    userAgent: false,
     webVersionCache: {
       type: 'local',
       path: path.join(AUTH_DIR, 'web_cache')
@@ -306,6 +334,7 @@ function initWhatsApp() {
   activeClient.on('qr', async (qr) => {
     if (waClient !== activeClient) return;
     initRetryCount = 0;
+    lastError = null;
     try {
       const generatedUrl = await qrcode.toDataURL(qr, { width: 320, margin: 2 });
       if (waClient !== activeClient) return;
@@ -313,7 +342,8 @@ function initWhatsApp() {
       waStatus = 'QR_READY';
       addLog('info', 'QR Code WhatsApp siap untuk di-scan.');
     } catch (err) {
-      addLog('error', 'Gagal generate QR Code: ' + err.message);
+      lastError = 'Gagal generate QR Code: ' + err.message;
+      addLog('error', lastError);
     }
   });
 
@@ -378,9 +408,15 @@ function initWhatsApp() {
   activeClient.initialize().catch(err => {
     if (waClient !== activeClient || isDestroyingClient) return;
     waStatus = 'DISCONNECTED';
-    addLog('error', 'Inisialisasi browser gagal: ' + err.message);
+    lastError = (err && err.message) ? err.message : String(err || 'Inisialisasi browser gagal');
+    addLog('error', 'Inisialisasi browser gagal: ' + lastError);
     if (initRetryCount < 3 && !isDestroyingClient) {
       initRetryCount++;
+      // Clear local web_cache on retry in case a partial/corrupted WA Web cache blocked startup on a fresh PC
+      if (initRetryCount >= 2) {
+        const webCacheDir = path.join(AUTH_DIR, 'web_cache');
+        try { if (fs.existsSync(webCacheDir)) fs.rmSync(webCacheDir, { recursive: true, force: true }); } catch (e) {}
+      }
       addLog('warning', `[Auto-Retry] Mengulangi inisialisasi browser WhatsApp (${initRetryCount}/3) dalam 2.5 detik...`);
       setTimeout(() => {
         if (!isDestroyingClient && waStatus === 'DISCONNECTED') {
@@ -420,7 +456,10 @@ app.get('/api/wa/status', (req, res) => {
   res.json({
     status: waStatus,
     qrCode: qrDataUrl,
-    clientInfo: clientInfo
+    clientInfo: clientInfo,
+    lastError: lastError,
+    browserUsed: browserUsed,
+    recentLogs: broadcastState.logs.slice(0, 5)
   });
 });
 

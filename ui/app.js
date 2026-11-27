@@ -21,7 +21,7 @@ let notificationHistory = [];
 let unreadNotifCount = 0;
 let currentLang = localStorage.getItem('bulk_wa_lang') || 'id';
 
-const SIDECAR_API = 'http://localhost:3847';
+const SIDECAR_API = 'http://127.0.0.1:3847';
 
 // ----------------------------------------------------
 // BILINGUAL LOCALIZATION (ID / EN)
@@ -42,8 +42,10 @@ const I18N = {
     winCloseTooltip: 'Tutup Aplikasi (Close)',
 
     gatewayLoadingText: 'Mengecek koneksi WhatsApp...',
-    gatewayLoadingSub: 'Memastikan engine lokal di localhost siap digunakan',
+    gatewayLoadingSub: 'Memastikan engine lokal di 127.0.0.1 siap digunakan',
     btnRefreshQR: 'Muat Ulang QR',
+    btnGatewayRetry: 'Coba Lagi',
+    btnGatewayCopyDiag: 'Salin Info Diagnosa',
 
     modeKicker: 'Fokus Broadcast:',
     modeHeader: 'Pilih Mode Pengiriman Pesan',
@@ -174,8 +176,10 @@ Bulk WA Sender • by schrist.`,
     winCloseTooltip: 'Close Application',
 
     gatewayLoadingText: 'Checking WhatsApp connection...',
-    gatewayLoadingSub: 'Ensuring local sidecar engine on localhost is ready',
+    gatewayLoadingSub: 'Ensuring local sidecar engine on 127.0.0.1 is ready',
     btnRefreshQR: 'Reload QR',
+    btnGatewayRetry: 'Retry Connection',
+    btnGatewayCopyDiag: 'Copy Diagnostic Info',
 
     modeKicker: 'Broadcast Focus:',
     modeHeader: 'Select Message Delivery Mode',
@@ -839,6 +843,43 @@ function setupEventListeners() {
     });
   }
 
+  const btnGatewayRetry = document.getElementById('btnGatewayRetry');
+  if (btnGatewayRetry) {
+    btnGatewayRetry.addEventListener('click', async () => {
+      gatewayLoadStartedAt = Date.now();
+      lastSidecarSpawnError = '';
+      updateGatewayDiagnostic('');
+      await ensureSidecar();
+      try {
+        await fetch(`${SIDECAR_API}/api/wa/connect`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ force: true })
+        });
+      } catch (_) {}
+      fetchWhatsAppStatus();
+    });
+  }
+
+  const btnGatewayCopyDiag = document.getElementById('btnGatewayCopyDiag');
+  if (btnGatewayCopyDiag) {
+    btnGatewayCopyDiag.addEventListener('click', async () => {
+      const isEn = currentLang === 'en';
+      const diagPayload = {
+        sidecarApi: SIDECAR_API,
+        isTauriEnv,
+        lastSidecarSpawnError,
+        status: lastStatusSnapshot
+      };
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(diagPayload, null, 2));
+        const orig = btnGatewayCopyDiag.textContent;
+        btnGatewayCopyDiag.textContent = isEn ? 'Copied!' : 'Tersalin!';
+        setTimeout(() => { btnGatewayCopyDiag.textContent = orig; }, 1800);
+      } catch (_) {}
+    });
+  }
+
   // File Upload & Official Excel Template Download
   btnBrowseFile.addEventListener('click', () => excelFileInput.click());
   btnChangeFile.addEventListener('click', () => excelFileInput.click());
@@ -1218,6 +1259,33 @@ function setDeliveryMode(mode) {
 let isStartingSidecar = false;
 let lastAutoConnectAt = 0;
 let currentActiveView = 'gateway'; // 'gateway' | 'workspace'
+let gatewayLoadStartedAt = Date.now();
+let lastSidecarSpawnError = '';
+let lastStatusSnapshot = null;
+
+function updateGatewayDiagnostic(errorText) {
+  const diagBox = document.getElementById('gatewayDiagBox');
+  const diagText = document.getElementById('gatewayDiagText');
+  const btnRetry = document.getElementById('btnGatewayRetry');
+  const btnCopy = document.getElementById('btnGatewayCopyDiag');
+  if (!diagBox || !diagText) return;
+
+  const isEn = currentLang === 'en';
+  if (btnRetry) btnRetry.textContent = I18N[currentLang].btnGatewayRetry;
+  if (btnCopy) btnCopy.textContent = I18N[currentLang].btnGatewayCopyDiag;
+
+  if (errorText) {
+    diagText.textContent = errorText;
+    diagBox.style.display = 'flex';
+  } else if (currentActiveView === 'gateway' && Date.now() - gatewayLoadStartedAt > 18000) {
+    diagText.textContent = isEn
+      ? 'Taking longer than expected. Ensure Microsoft Edge or Google Chrome is installed and internet access to web.whatsapp.com is available.'
+      : 'Proses memuat lebih lama dari biasanya. Pastikan Microsoft Edge atau Google Chrome terpasang dan koneksi internet ke web.whatsapp.com lancar.';
+    diagBox.style.display = 'flex';
+  } else {
+    diagBox.style.display = 'none';
+  }
+}
 
 function showView(viewName) {
   currentActiveView = viewName;
@@ -1247,7 +1315,8 @@ async function ensureSidecar() {
       appendLog('info', 'Memulai WhatsApp Engine Sidecar di latar belakang...');
       try {
         await tauriCore.invoke('cmd_start_sidecar');
-        for (let i = 0; i < 8; i++) {
+        lastSidecarSpawnError = '';
+        for (let i = 0; i < 10; i++) {
           await new Promise(r => setTimeout(r, 600));
           try {
             const check = await fetch(`${SIDECAR_API}/api/wa/status`, { signal: AbortSignal.timeout(1000) });
@@ -1259,7 +1328,9 @@ async function ensureSidecar() {
           } catch (_) {}
         }
       } catch (err) {
+        lastSidecarSpawnError = String(err || 'Failed to launch sidecar');
         console.warn('Gagal memicu sidecar via Tauri:', err);
+        appendLog('error', lastSidecarSpawnError);
       }
       isStartingSidecar = false;
     }
@@ -1272,8 +1343,11 @@ async function fetchWhatsAppStatus() {
   try {
     const res = await fetch(`${SIDECAR_API}/api/wa/status`, { signal: AbortSignal.timeout(2500) });
     const data = await res.json();
+    lastStatusSnapshot = data;
 
     if (data.status === 'READY') {
+      gatewayLoadStartedAt = Date.now();
+      updateGatewayDiagnostic('');
       waStatusBadge.className = 'status-pill status-ready';
       const dot = waStatusBadge.querySelector('.pulse-dot');
       if (dot) dot.style.display = 'inline-block';
@@ -1290,6 +1364,8 @@ async function fetchWhatsAppStatus() {
         showView('workspace');
       }
     } else if (data.status === 'QR_READY') {
+      gatewayLoadStartedAt = Date.now();
+      updateGatewayDiagnostic('');
       waStatusBadge.className = 'status-pill status-connecting';
       waStatusText.textContent = isEn ? 'Scan QR Code' : 'Pindai QR Code';
 
@@ -1323,6 +1399,7 @@ async function fetchWhatsAppStatus() {
       if (gatewayQRBox) gatewayQRBox.style.display = 'none';
       if (gatewayStatusText) gatewayStatusText.textContent = isEn ? 'Initializing WhatsApp Engine (launching headless browser)...' : 'Menyiapkan WhatsApp Engine (memuat browser)...';
       if (gatewaySubHint) gatewaySubHint.textContent = isEn ? 'Restoring saved session or preparing QR Code' : 'Memulihkan sesi tersimpan atau menyiapkan QR Code';
+      updateGatewayDiagnostic(data.lastError || '');
     } else {
       waStatusBadge.className = 'status-pill status-disconnected';
       waStatusText.textContent = isEn ? 'Disconnected' : 'Terputus';
@@ -1332,6 +1409,7 @@ async function fetchWhatsAppStatus() {
       if (gatewayQRBox) gatewayQRBox.style.display = 'none';
       if (gatewayStatusText) gatewayStatusText.textContent = isEn ? 'Connecting to WhatsApp Engine...' : 'Menghubungkan ke WhatsApp Engine...';
       if (gatewaySubHint) gatewaySubHint.textContent = isEn ? 'Preparing new session...' : 'Menyiapkan koneksi baru...';
+      updateGatewayDiagnostic(data.lastError || '');
 
       // Auto-trigger connect only if sidecar explicitly fell into DISCONNECTED
       if (data.status === 'DISCONNECTED' && Date.now() - lastAutoConnectAt > 6000) {
@@ -1348,6 +1426,7 @@ async function fetchWhatsAppStatus() {
       if (gatewayQRBox) gatewayQRBox.style.display = 'none';
       if (gatewayStatusText) gatewayStatusText.textContent = isEn ? 'Starting local WhatsApp Engine in background...' : 'Memulai WhatsApp Engine lokal di latar belakang...';
       if (gatewaySubHint) gatewaySubHint.textContent = isEn ? 'Please wait a few seconds while the local engine warms up' : 'Mohon tunggu beberapa detik, sistem sedang menyiapkan engine';
+      updateGatewayDiagnostic(lastSidecarSpawnError || '');
     }
 
     if (isTauriEnv && tauriCore && !isStartingSidecar) {

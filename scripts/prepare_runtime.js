@@ -18,6 +18,9 @@ const LOCAL_MODULES = path.join(ROOT_DIR, 'sidecar', 'node_modules');
 
 fs.mkdirSync(RUNTIME_DIR, { recursive: true });
 
+// 0. Ensure whatsapp-web.js compatibility patch is applied before bundling
+require('./patch_wwebjs')();
+
 // 1. Bundle sidecar/server.js + pure-JS dependencies into single engine.cjs
 const nodePaths = [LOCAL_MODULES, FALLBACK_MODULES].filter((p) => fs.existsSync(p));
 const env = {

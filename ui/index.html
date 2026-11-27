@@ -219,7 +219,15 @@
 
         <div class="gateway-status-row">
           <p class="gateway-status-label" id="gatewayStatusText">Mengecek koneksi WhatsApp...</p>
-          <span class="gateway-sub-hint" id="gatewaySubHint">Memastikan engine lokal di localhost siap digunakan</span>
+          <span class="gateway-sub-hint" id="gatewaySubHint">Memastikan engine lokal di 127.0.0.1 siap digunakan</span>
+        </div>
+
+        <div id="gatewayDiagBox" class="gateway-diag-box" style="display: none;">
+          <p id="gatewayDiagText" class="gateway-diag-text"></p>
+          <div class="gateway-diag-actions">
+            <button type="button" id="btnGatewayRetry" class="btn btn-emerald btn-sm">Coba Lagi</button>
+            <button type="button" id="btnGatewayCopyDiag" class="btn btn-secondary btn-sm">Salin Info Diagnosa</button>
+          </div>
         </div>
       </div>
 
@@ -282,7 +290,7 @@
                 <div class="spinner"></div>
                 <span>Menyiapkan QR Code...</span>
               </div>
-              <img id="gatewayQRImage" src="" alt="WhatsApp QR Code" class="gateway-qr-img" style="display: none;">
+              <img id="gatewayQRImage" alt="WhatsApp QR Code" class="gateway-qr-img" style="display: none;">
             </div>
           </div>
 

@@ -48,7 +48,7 @@ fn is_sidecar_listening() -> bool {
     TcpStream::connect_timeout(&addr, Duration::from_millis(250)).is_ok()
 }
 
-fn ensure_sidecar_running() {
+fn ensure_sidecar_running() -> Result<bool, String> {
     let mut guard = match SIDECAR_CHILD.lock() {
         Ok(g) => g,
         Err(poisoned) => poisoned.into_inner(),
@@ -57,13 +57,13 @@ fn ensure_sidecar_running() {
     // 1. If we already spawned a sidecar process that is still running (even if still binding port 3847), never spawn a duplicate!
     if let Some(ref mut child) = *guard {
         if let Ok(None) = child.try_wait() {
-            return;
+            return Ok(true);
         }
         *guard = None;
     }
 
     if is_sidecar_listening() {
-        return;
+        return Ok(true);
     }
 
     let exe_dir = get_exe_dir();
@@ -95,9 +95,14 @@ fn ensure_sidecar_running() {
             #[cfg(target_os = "windows")]
             cmd.creation_flags(CREATE_NO_WINDOW);
 
-            if let Ok(child) = cmd.spawn() {
-                *guard = Some(child);
-                return;
+            match cmd.spawn() {
+                Ok(child) => {
+                    *guard = Some(child);
+                    return Ok(true);
+                }
+                Err(e) => {
+                    return Err(format!("Failed to launch bundled runtime/node.exe: {}", e));
+                }
             }
         }
     }
@@ -118,12 +123,22 @@ fn ensure_sidecar_running() {
             #[cfg(target_os = "windows")]
             cmd.creation_flags(CREATE_NO_WINDOW);
 
-            if let Ok(child) = cmd.spawn() {
-                *guard = Some(child);
+            match cmd.spawn() {
+                Ok(child) => {
+                    *guard = Some(child);
+                    return Ok(true);
+                }
+                Err(e) => {
+                    return Err(format!("Failed to launch dev sidecar via node: {}", e));
+                }
             }
-            break;
         }
     }
+
+    Err(format!(
+        "WhatsApp Engine runtime tidak ditemukan di '{}'. Pastikan folder 'runtime/' (node.exe & engine.cjs) berada di folder yang sama dengan aplikasi.",
+        exe_dir.display()
+    ))
 }
 
 #[cfg(target_os = "windows")]
@@ -184,8 +199,7 @@ fn shutdown_sidecar() {
 #[tauri::command]
 fn cmd_start_sidecar() -> Result<bool, String> {
     IS_SHUTTING_DOWN.store(false, Ordering::SeqCst);
-    ensure_sidecar_running();
-    Ok(true)
+    ensure_sidecar_running()
 }
 
 #[tauri::command]
@@ -354,7 +368,7 @@ fn cmd_get_app_flavor() -> String {
 pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
-            ensure_sidecar_running();
+            let _ = ensure_sidecar_running();
             if cfg!(debug_assertions) {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()
